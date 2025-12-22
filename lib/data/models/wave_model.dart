@@ -35,4 +35,17 @@ class WaveModel {
       ),
     );
   }
+  WaveModel copyWith({
+    String? id,
+    String? name,
+    WaveStatus? status,
+    DateTime? createdAt,
+  }) {
+    return WaveModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

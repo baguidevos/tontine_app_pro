@@ -28,11 +28,12 @@ class WaveController extends GetxController {
     }
   }
 
-  Future<void> createWave({required String name}) async {
+  Future<void> createWave(WaveModel wave) async {
     final vendorId = _authService.currentVendorId;
     if (vendorId == null) return;
 
-    // Check subscription limits
+    // Check subscription limits if it's a new wave (not sure if we need this check here if we pass the whole object, but safety first)
+    // Actually, usually creation implies +1.
     final currentCount = await _waveRepository.getWaveCountByVendor(vendorId);
     if (!_subscriptionService.canCreateWave(currentCount)) {
       Get.snackbar(
@@ -45,22 +46,30 @@ class WaveController extends GetxController {
 
     try {
       isLoading.value = true;
+      // Ensure the wave has the correct ID (or we can generate it here if empty)
+      final waveToCreate = wave.id.isEmpty
+          ? wave.copyWith(
+              id: DateTime.now().millisecondsSinceEpoch.toString(),
+              createdAt: DateTime.now(),
+            )
+          : wave;
 
-      final wave = WaveModel(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name,
-        status: WaveStatus.draft,
-        createdAt: DateTime.now(),
-      );
-
-      await _waveRepository.createWave(wave, vendorId);
+      await _waveRepository.createWave(waveToCreate, vendorId);
 
       Get.snackbar('Succès', 'Vague créée avec succès');
-      Get.back();
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la création: $e');
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> updateWave(WaveModel wave) async {
+    try {
+      await _waveRepository.updateWave(wave);
+      Get.snackbar('Succès', 'Vague mise à jour');
+    } catch (e) {
+      Get.snackbar('Erreur', 'Échec de la mise à jour: $e');
     }
   }
 

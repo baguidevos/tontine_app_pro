@@ -4,6 +4,9 @@ import 'package:get/get.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../pages/dashboard_page.dart';
+import '../pages/inventory/inventory_page.dart';
+import '../pages/orders/orders_page.dart';
+import '../controllers/main_layout_controller.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({super.key});
@@ -11,19 +14,19 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final connectivityService = Get.find<ConnectivityService>();
-    final RxInt currentIndex = 0.obs;
+    final mainLayoutController = Get.put(MainLayoutController());
 
     final List<Widget> pages = [
       const DashboardPage(),
-      const Center(child: Text('Commandes')),
-      const Center(child: Text('Inventaire')),
+      const OrdersPage(),
+      const InventoryPage(),
       const Center(child: Text('Profil')),
     ];
 
     return Scaffold(
       body: Stack(
         children: [
-          Obx(() => pages[currentIndex.value]),
+          Obx(() => pages[mainLayoutController.currentIndex.value]),
 
           // Connectivity Overlay
           Obx(
@@ -89,8 +92,8 @@ class MainLayout extends StatelessWidget {
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             child: BottomNavigationBar(
-              currentIndex: currentIndex.value,
-              onTap: (index) => currentIndex.value = index,
+              currentIndex: mainLayoutController.currentIndex.value,
+              onTap: (index) => mainLayoutController.changeTab(index),
               type: BottomNavigationBarType.fixed,
               showSelectedLabels: true,
               showUnselectedLabels: true,

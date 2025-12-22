@@ -10,6 +10,11 @@ import 'presentation/pages/subscription_page.dart';
 import 'presentation/pages/auth/splash_page.dart';
 import 'presentation/pages/auth/login_page.dart';
 import 'presentation/pages/auth/registration_page.dart';
+import 'presentation/pages/products/create_product_page.dart';
+import 'presentation/pages/orders/create_order_page.dart';
+import 'presentation/pages/customers/customers_page.dart';
+import 'presentation/pages/customers/create_customer_page.dart';
+import 'presentation/pages/orders/order_details_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +60,18 @@ class TontineApp extends StatelessWidget {
         GetPage(name: '/register', page: () => const RegistrationPage()),
         GetPage(name: '/', page: () => const MainLayout()),
         GetPage(name: '/subscription', page: () => const SubscriptionPage()),
+        GetPage(
+          name: '/products/create',
+          page: () => const CreateProductPage(),
+        ),
+        GetPage(name: '/products/edit', page: () => const CreateProductPage()),
+        GetPage(name: '/orders/create', page: () => const CreateOrderPage()),
+        GetPage(name: '/customers', page: () => const CustomersPage()),
+        GetPage(
+          name: '/customers/create',
+          page: () => const CreateCustomerPage(),
+        ),
+        GetPage(name: '/orders/details', page: () => const OrderDetailsPage()),
       ],
     );
   }

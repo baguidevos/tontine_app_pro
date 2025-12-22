@@ -3,12 +3,27 @@ import 'package:get/get.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/theme/app_theme.dart';
 
+import 'waves/widgets/create_wave_dialog.dart';
+import '../controllers/dashboard_controller.dart';
+import '../controllers/order_controller.dart';
+import '../controllers/wave_controller.dart';
+import '../controllers/customer_controller.dart';
+import '../../data/models/order_model.dart';
+
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authService = Get.find<AuthService>();
+
+    // Ensure dependent controllers are initialized
+    // Using Get.put if not already present
+    if (!Get.isRegistered<WaveController>()) Get.put(WaveController());
+    if (!Get.isRegistered<OrderController>()) Get.put(OrderController());
+    if (!Get.isRegistered<CustomerController>()) Get.put(CustomerController());
+
+    final dashboardController = Get.put(DashboardController());
 
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
@@ -35,6 +50,7 @@ class DashboardPage extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,39 +137,45 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.5,
-              children: [
-                _buildStatCard(
-                  icon: Icons.trending_up,
-                  title: 'Revenus Mensuels',
-                  value: '0 FCFA',
-                  color: AppTheme.softBlue,
-                ),
-                _buildStatCard(
-                  icon: Icons.pending_actions,
-                  title: 'Dette Pendante',
-                  value: '0 FCFA',
-                  color: Colors.orange.shade300,
-                ),
-                _buildStatCard(
-                  icon: Icons.inventory,
-                  title: 'Vagues Actives',
-                  value: '0',
-                  color: AppTheme.sageGreen,
-                ),
-                _buildStatCard(
-                  icon: Icons.shopping_cart,
-                  title: 'Commandes',
-                  value: '0',
-                  color: AppTheme.deepBlue,
-                ),
-              ],
+            Obx(
+              () => GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildStatCard(
+                    icon: Icons.trending_up,
+                    title: 'Revenus Mensuels',
+                    value:
+                        '${dashboardController.monthlyRevenue.value.toStringAsFixed(0)} FCFA',
+                    color: AppTheme.softBlue,
+                  ),
+                  _buildStatCard(
+                    icon: Icons.pending_actions,
+                    title: 'Dette Pendante',
+                    value:
+                        '${dashboardController.pendingDebt.value.toStringAsFixed(0)} FCFA',
+                    color: Colors.orange.shade300,
+                  ),
+                  _buildStatCard(
+                    icon: Icons.inventory,
+                    title: 'Vagues Actives',
+                    value: dashboardController.activeWavesCount.value
+                        .toString(),
+                    color: AppTheme.sageGreen,
+                  ),
+                  _buildStatCard(
+                    icon: Icons.shopping_cart,
+                    title: 'Commandes',
+                    value: dashboardController.totalOrdersCount.value
+                        .toString(),
+                    color: AppTheme.deepBlue,
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -169,26 +191,214 @@ class DashboardPage extends StatelessWidget {
               icon: Icons.add_circle_outline,
               title: 'Nouvelle Vague',
               subtitle: 'Créer une nouvelle vague de produits',
-              onTap: () {},
+              onTap: () => Get.dialog(const CreateWaveDialog()),
             ),
             const SizedBox(height: 12),
             _buildQuickAction(
               icon: Icons.receipt_long_outlined,
               title: 'Nouvelle Commande',
               subtitle: 'Enregistrer une commande client',
-              onTap: () {},
+              onTap: () => Get.toNamed('/orders/create'),
             ),
             const SizedBox(height: 12),
             _buildQuickAction(
               icon: Icons.person_add_outlined,
               title: 'Nouveau Client',
               subtitle: 'Ajouter un client à votre base',
-              onTap: () {},
+              onTap: () => Get.toNamed('/customers/create'),
+            ),
+            const SizedBox(height: 12),
+            _buildQuickAction(
+              icon: Icons.people_outline,
+              title: 'Mes Clients',
+              subtitle: 'Voir la liste de tous les clients',
+              onTap: () => Get.toNamed('/customers'),
+            ),
+
+            // const SizedBox(height: 24),
+
+            // // Recent Orders Section
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     const Text(
+            //       'Commandes Récentes',
+            //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 12),
+
+            // Obx(() {
+            //   final recents = dashboardController.recentOrders;
+            //   if (recents.isEmpty) {
+            //     return Container(
+            //       width: double.infinity,
+            //       padding: const EdgeInsets.all(24),
+            //       decoration: BoxDecoration(
+            //         color: Colors.white,
+            //         borderRadius: BorderRadius.circular(16),
+            //       ),
+            //       child: Column(
+            //         children: [
+            //           Icon(
+            //             Icons.receipt_long_outlined,
+            //             size: 48,
+            //             color: Colors.grey.shade300,
+            //           ),
+            //           const SizedBox(height: 12),
+            //           Text(
+            //             'Aucune commande pour le moment',
+            //             style: TextStyle(color: Colors.grey.shade600),
+            //           ),
+            //         ],
+            //       ),
+            //     );
+            //   }
+
+            //   return Column(
+            //     children: recents
+            //         .map((order) => _buildOrderTile(order))
+            //         .toList(),
+            //   );
+            // }),
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOrderTile(OrderModel order) {
+    final customerController = Get.find<CustomerController>();
+    final customer = customerController.customers.firstWhereOrNull(
+      (c) => c.id == order.customerId,
+    );
+    final customerName = customer?.name ?? 'Client Inconnu';
+
+    return GestureDetector(
+      onTap: () => Get.toNamed('/orders/details', arguments: order),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.warmCream,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.shopping_bag_outlined,
+                color: AppTheme.deepBlue,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    customerName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${order.items.length} article(s) • ${order.totalAmount.toStringAsFixed(0)} FCFA',
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildStatusChipSmall(order.status),
+                const SizedBox(height: 4),
+                Text(
+                  _formatDate(order.createdAt),
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildStatusChipSmall(String status) {
+    Color color;
+    String label;
+
+    switch (status) {
+      case 'completed':
+        color = Colors.green;
+        label = 'Payé';
+        break;
+      case 'pending':
+        color = Colors.orange;
+        label = 'En attente';
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        label = 'Annulé';
+        break;
+      default:
+        color = Colors.grey;
+        label = status;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    if (date.day == now.day &&
+        date.month == now.month &&
+        date.year == now.year) {
+      return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    }
+    return '${date.day}/${date.month}';
   }
 
   Widget _buildStatCard({

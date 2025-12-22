@@ -13,20 +13,48 @@ class ProductController extends GetxController {
   var products = <ProductModel>[].obs;
   var isLoading = false.obs;
 
+  // Filtering
+  final Rx<String?> filterWaveId = Rx<String?>(null);
+
   @override
   void onInit() {
     super.onInit();
-    _loadProducts();
+    // Debounce filter changes to avoid rapid reloading
+    debounce(
+      filterWaveId,
+      (_) => loadProducts(),
+      time: const Duration(milliseconds: 300),
+    );
+    loadProducts();
   }
 
-  void _loadProducts() {
+  void setWaveFilter(String? waveId) {
+    filterWaveId.value = waveId;
+  }
+
+  void loadProducts() {
     final vendorId = _authService.currentVendorId;
     if (vendorId != null) {
-      // For now, load all products for the vendor
-      // In a real app, you might load by wave or have more specific queries
-      _productRepository.getProductsByVendor(vendorId).then((productList) {
-        products.value = productList;
-      });
+      isLoading.value = true;
+
+      Future<List<ProductModel>> fetchTask;
+
+      if (filterWaveId.value != null) {
+        fetchTask = _productRepository.getProductsByWave(filterWaveId.value!);
+      } else {
+        fetchTask = _productRepository.getProductsByVendor(vendorId);
+      }
+
+      fetchTask
+          .then((productList) {
+            products.value = productList;
+          })
+          .catchError((e) {
+            Get.snackbar('Erreur', 'Impossible de charger les produits: $e');
+          })
+          .whenComplete(() {
+            isLoading.value = false;
+          });
     }
   }
 
@@ -68,7 +96,7 @@ class ProductController extends GetxController {
       await _productRepository.createProduct(product, vendorId);
 
       Get.snackbar('Succès', 'Produit créé avec succès');
-      _loadProducts();
+      loadProducts();
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la création: $e');
     } finally {
@@ -108,7 +136,7 @@ class ProductController extends GetxController {
       await _productRepository.createProduct(duplicatedProduct, vendorId);
 
       Get.snackbar('Succès', 'Produit dupliqué avec succès');
-      _loadProducts();
+      loadProducts();
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la duplication: $e');
     } finally {
@@ -120,7 +148,7 @@ class ProductController extends GetxController {
     try {
       await _productRepository.updateProduct(product);
       Get.snackbar('Succès', 'Produit mis à jour');
-      _loadProducts();
+      loadProducts();
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la mise à jour: $e');
     }
@@ -130,7 +158,7 @@ class ProductController extends GetxController {
     try {
       await _productRepository.deleteProduct(productId);
       Get.snackbar('Succès', 'Produit supprimé');
-      _loadProducts();
+      loadProducts();
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la suppression: $e');
     }

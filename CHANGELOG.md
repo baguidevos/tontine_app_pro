@@ -44,3 +44,27 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Refactored `main.dart` to use GetX `getPages` for named routing.
 - Updated project structure to follow Clean Architecture principles.
+
+## [0.1.1] - 2025-12-22 (Afternoon Session)
+
+### Added
+- **Dashboard Enhancements**
+  - Created `DashboardController` for real-time statistics aggregation (monthly revenue, pending debt, active waves, total orders).
+  - Implemented `MainLayoutController` to manage global navigation state across tabs.
+  - Statistics now update dynamically based on orders and waves data.
+
+### Changed
+- **OrderDetailsPage Refactoring**
+  - Replaced `CustomScrollView` and `ListView.builder` with `SingleChildScrollView` + `Column` for more stable layout.
+  - Added comprehensive null safety checks for all `OrderModel` and `OrderItemModel` properties.
+  - Simplified widget tree to avoid infinite width constraint errors.
+  - Removed redundant null checks based on model guarantees.
+
+### Known Issues
+- **Dashboard Layout Errors** 
+  - `BoxConstraints forces an infinite width` errors persist on Dashboard.
+  - Recent Orders section temporarily disabled to isolate layout issues.
+  - Application requires layout debugging for Recent Orders tile component.
+- **OrderDetailsPage Lints**
+  - Dead code warning at line 100 needs cleanup.
+  - Redundant null check operators to be removed.

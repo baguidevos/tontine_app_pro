@@ -92,4 +92,22 @@ class OrderItemModel {
       paidAmount: (map['paidAmount'] ?? 0.0).toDouble(),
     );
   }
+
+  OrderItemModel copyWith({
+    String? id,
+    String? productId,
+    String? name,
+    double? unitPrice,
+    int? quantity,
+    double? paidAmount,
+  }) {
+    return OrderItemModel(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      name: name ?? this.name,
+      unitPrice: unitPrice ?? this.unitPrice,
+      quantity: quantity ?? this.quantity,
+      paidAmount: paidAmount ?? this.paidAmount,
+    );
+  }
 }
