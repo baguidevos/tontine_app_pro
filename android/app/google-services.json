@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "910419735016",
+    "project_id": "tontine-pro-97133",
+    "storage_bucket": "tontine-pro-97133.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:910419735016:android:bdd2d189d0457367ae745d",
+        "android_client_info": {
+          "package_name": "com.zashcode.tontine_pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVJQOppxO90PioE9AHB_VgxfH6rnFYe7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

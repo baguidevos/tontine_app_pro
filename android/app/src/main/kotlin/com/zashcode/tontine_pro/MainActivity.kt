@@ -1,4 +1,4 @@
-package com.example.tontine_app
+package com.zashcode.tontine_pro
 
 import io.flutter.embedding.android.FlutterActivity
 
