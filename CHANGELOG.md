@@ -45,6 +45,22 @@ All notable changes to this project will be documented in this file.
 - Refactored `main.dart` to use GetX `getPages` for named routing.
 - Updated project structure to follow Clean Architecture principles.
 
+## [0.1.2] - 2025-12-23
+
+### Added
+- **GetX Bindings Implementation**
+  - Created `MainLayoutBinding` to centralize dependency injection for the main application shell and its tabs.
+  - Created specialized bindings: `DashboardBinding`, `OrderBinding`, `InventoryBinding`, and `CustomerBinding`.
+  - Integrated bindings into `GetMaterialApp` routes to automate controller lifecycle management.
+
+### Changed
+- **Dependency Management Refactor**
+  - Migrated from manual `Get.put()` initialization in widgets to GetX `Bindings`.
+  - Updated `MainLayout`, `DashboardPage`, `OrdersPage`, `WavesPage`, and `ProductsPage` to use `Get.find()` for controller access.
+- **Code Quality**
+  - Cleaned up unused imports across multiple files (`lib/main.dart`, `lib/presentation/widgets/main_layout.dart`, etc.).
+  - Resolved lint warnings in page widgets.
+
 ## [0.1.1] - 2025-12-22 (Afternoon Session)
 
 ### Added

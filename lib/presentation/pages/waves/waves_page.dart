@@ -10,7 +10,7 @@ class WavesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final waveController = Get.put(WaveController());
+    final waveController = Get.find<WaveController>();
 
     return Scaffold(
       backgroundColor: AppTheme.warmCream,

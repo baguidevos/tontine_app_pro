@@ -16,6 +16,12 @@ import 'presentation/pages/customers/customers_page.dart';
 import 'presentation/pages/customers/create_customer_page.dart';
 import 'presentation/pages/orders/order_details_page.dart';
 
+// Bindings
+import 'presentation/bindings/main_layout_binding.dart';
+import 'presentation/bindings/order_binding.dart';
+import 'presentation/bindings/inventory_binding.dart';
+import 'presentation/bindings/customer_binding.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -58,20 +64,42 @@ class TontineApp extends StatelessWidget {
         GetPage(name: '/splash', page: () => const SplashPage()),
         GetPage(name: '/login', page: () => const LoginPage()),
         GetPage(name: '/register', page: () => const RegistrationPage()),
-        GetPage(name: '/', page: () => const MainLayout()),
+        GetPage(
+          name: '/',
+          page: () => const MainLayout(),
+          binding: MainLayoutBinding(),
+        ),
         GetPage(name: '/subscription', page: () => const SubscriptionPage()),
         GetPage(
           name: '/products/create',
           page: () => const CreateProductPage(),
+          binding: InventoryBinding(),
         ),
-        GetPage(name: '/products/edit', page: () => const CreateProductPage()),
-        GetPage(name: '/orders/create', page: () => const CreateOrderPage()),
-        GetPage(name: '/customers', page: () => const CustomersPage()),
+        GetPage(
+          name: '/products/edit',
+          page: () => const CreateProductPage(),
+          binding: InventoryBinding(),
+        ),
+        GetPage(
+          name: '/orders/create',
+          page: () => const CreateOrderPage(),
+          binding: OrderBinding(),
+        ),
+        GetPage(
+          name: '/customers',
+          page: () => const CustomersPage(),
+          binding: CustomerBinding(),
+        ),
         GetPage(
           name: '/customers/create',
           page: () => const CreateCustomerPage(),
+          binding: CustomerBinding(),
         ),
-        GetPage(name: '/orders/details', page: () => const OrderDetailsPage()),
+        GetPage(
+          name: '/orders/details',
+          page: () => const OrderDetailsPage(),
+          binding: OrderBinding(),
+        ),
       ],
     );
   }

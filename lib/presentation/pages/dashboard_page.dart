@@ -5,8 +5,6 @@ import '../../core/theme/app_theme.dart';
 
 import 'waves/widgets/create_wave_dialog.dart';
 import '../controllers/dashboard_controller.dart';
-import '../controllers/order_controller.dart';
-import '../controllers/wave_controller.dart';
 import '../controllers/customer_controller.dart';
 import '../../data/models/order_model.dart';
 
@@ -16,14 +14,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authService = Get.find<AuthService>();
-
-    // Ensure dependent controllers are initialized
-    // Using Get.put if not already present
-    if (!Get.isRegistered<WaveController>()) Get.put(WaveController());
-    if (!Get.isRegistered<OrderController>()) Get.put(OrderController());
-    if (!Get.isRegistered<CustomerController>()) Get.put(CustomerController());
-
-    final dashboardController = Get.put(DashboardController());
+    final dashboardController = Get.find<DashboardController>();
 
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
@@ -112,16 +103,19 @@ class DashboardPage extends StatelessWidget {
                       ),
                     ),
                     if (!isPremium)
-                      ElevatedButton(
-                        onPressed: () => Get.toNamed('/subscription'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppTheme.sageGreen,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      SizedBox(
+                        width: 120,
+                        child: ElevatedButton(
+                          onPressed: () => Get.toNamed('/subscription'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: AppTheme.sageGreen,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
+                          child: const Text('Upgrade'),
                         ),
-                        child: const Text('Upgrade'),
                       ),
                   ],
                 ),

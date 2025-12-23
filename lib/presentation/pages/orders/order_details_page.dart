@@ -15,8 +15,8 @@ class OrderDetailsPage extends StatefulWidget {
 
 class _OrderDetailsPageState extends State<OrderDetailsPage> {
   final OrderController _orderController = Get.find<OrderController>();
-  final PaymentController _paymentController = Get.put(PaymentController());
-  final CustomerController _customerController = Get.put(CustomerController());
+  final PaymentController _paymentController = Get.find<PaymentController>();
+  final CustomerController _customerController = Get.find<CustomerController>();
 
   String? orderId;
   Rx<OrderModel?> order = Rx<OrderModel?>(null);
@@ -92,11 +92,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         ),
       ),
       body: Obx(() {
-        if (order.value == null) {
+        final currentOrder = order.value;
+        if (currentOrder == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        final currentOrder = order.value!;
         final customerName = _getCustomerName(currentOrder.customerId);
         final items = currentOrder.items;
 
@@ -109,6 +109,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // Header Card
               Card(
@@ -270,20 +272,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                   tooltip: 'Historique',
                                 ),
                                 if (balance > 0)
-                                  ElevatedButton(
-                                    onPressed: () => _showPaymentDialog(
-                                      item,
-                                      currentOrder.id,
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.deepBlue,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 8,
+                                  SizedBox(
+                                    width: 100,
+                                    height: 40,
+                                    child: ElevatedButton(
+                                      onPressed: () => _showPaymentDialog(
+                                        item,
+                                        currentOrder.id,
                                       ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.deepBlue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 8,
+                                        ),
+                                      ),
+                                      child: const Text('Payer'),
                                     ),
-                                    child: const Text('Payer'),
                                   ),
                               ],
                             ),

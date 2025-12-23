@@ -8,9 +8,6 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure controller is initialized
-    Get.put(OrderController());
-
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -29,14 +26,21 @@ class OrdersPage extends StatelessWidget {
             labelColor: AppTheme.deepBlue,
             indicatorColor: AppTheme.deepBlue,
             tabs: [
-              Tab(text: 'En cours'),
-              Tab(text: 'Terminées'),
+              Tab(text: 'En attente'),
+              Tab(text: 'Payées'),
               Tab(text: 'Annulées'),
             ],
           ),
         ),
+        body: const TabBarView(
+          children: [
+            OrdersList(status: 'pending'),
+            OrdersList(status: 'completed'),
+            OrdersList(status: 'cancelled'),
+          ],
+        ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Get.toNamed('/orders/create'), // Verify route
+          onPressed: () => Get.toNamed('/orders/create'),
           backgroundColor: AppTheme.deepBlue,
           icon: const Icon(Icons.add_shopping_cart, color: Colors.white),
           label: const Text(
@@ -44,28 +48,23 @@ class OrdersPage extends StatelessWidget {
             style: TextStyle(color: Colors.white),
           ),
         ),
-        body: const TabBarView(
-          children: [
-            OrdersList(
-              statusFilter: 'pending',
-            ), // Or 'en_cours' depending on model
-            OrdersList(statusFilter: 'completed'),
-            OrdersList(statusFilter: 'cancelled'),
-          ],
-        ),
       ),
     );
   }
 }
 
 class OrdersList extends StatelessWidget {
-  final String statusFilter;
+  final String status;
 
-  const OrdersList({super.key, required this.statusFilter});
+  const OrdersList({super.key, required this.status});
 
   @override
   Widget build(BuildContext context) {
     final orderController = Get.find<OrderController>();
+    // The instruction implies adding waveController, but orderController is still used below.
+    // Assuming the intent was to add waveController alongside orderController, or a future refactor.
+    // For now, keeping orderController as it's used.
+    // final waveController = Get.find<WaveController>(); // If this was meant to replace, subsequent lines would need changing.
 
     return Obx(() {
       if (orderController.isLoading.value) {
@@ -73,10 +72,10 @@ class OrdersList extends StatelessWidget {
       }
 
       final orders = orderController.orders.where((o) {
-        if (statusFilter == 'pending') {
+        if (status == 'pending') {
           return o.status == 'pending' || o.status == 'active';
         }
-        return o.status == statusFilter;
+        return o.status == status;
       }).toList();
 
       if (orders.isEmpty) {

@@ -14,7 +14,7 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final connectivityService = Get.find<ConnectivityService>();
-    final mainLayoutController = Get.put(MainLayoutController());
+    final mainLayoutController = Get.find<MainLayoutController>();
 
     final List<Widget> pages = [
       const DashboardPage(),
@@ -114,7 +114,7 @@ class MainLayout extends StatelessWidget {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline),
-                  label: 'Profil',
+                  label: 'Profile',
                 ),
               ],
             ),

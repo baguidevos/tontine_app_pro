@@ -11,9 +11,9 @@ class ProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure controllers are loaded
-    final productController = Get.put(ProductController());
-    final waveController = Get.put(WaveController());
+    // Controllers are loaded via MainLayoutBinding
+    final productController = Get.find<ProductController>();
+    final waveController = Get.find<WaveController>();
 
     // Refresh products on load
     WidgetsBinding.instance.addPostFrameCallback((_) {
