@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tontine_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../data/models/order_model.dart';
 import '../../data/repositories/order_repository.dart';
@@ -54,8 +56,12 @@ class OrderController extends GetxController {
 
       await _orderRepository.createOrder(order);
 
-      Get.snackbar('Succès', 'Commande créée avec succès');
       Get.back();
+      Get.snackbar(
+        'Succès',
+        'Commande créée avec succès',
+        backgroundColor: AppTheme.successGreen,
+      );
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la création: $e');
     } finally {
@@ -76,6 +82,72 @@ class OrderController extends GetxController {
     try {
       await _orderRepository.deleteOrder(orderId);
       Get.snackbar('Succès', 'Commande supprimée');
+    } catch (e) {
+      Get.snackbar('Erreur', 'Échec de la suppression: $e');
+    }
+  }
+
+  Future<void> cancelOrder(String orderId) async {
+    try {
+      final order = await getOrder(orderId);
+      if (order != null) {
+        final updatedOrder = order.copyWith(status: 'cancelled');
+        await _orderRepository.updateOrder(updatedOrder);
+        Get.snackbar(
+          'Succès',
+          'Commande annulée',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar('Erreur', 'Échec de l\'annulation: $e');
+    }
+  }
+
+  Future<void> removeItemFromOrder(String orderId, String itemId) async {
+    try {
+      final order = await getOrder(orderId);
+      if (order != null) {
+        final updatedItems = order.items
+            .where((item) => item.id != itemId)
+            .toList();
+
+        if (updatedItems.isEmpty) {
+          // If no items left, maybe delete the order or just mark it empty?
+          // For now, let's keep it but with 0 totals.
+          final updatedOrder = order.copyWith(
+            items: [],
+            totalAmount: 0,
+            totalPaid: 0,
+            status: 'cancelled', // Or maybe stay pending but it's empty
+          );
+          await _orderRepository.updateOrder(updatedOrder);
+        } else {
+          final newTotalAmount = updatedItems.fold<double>(
+            0,
+            (sum, it) => sum + it.totalPrice,
+          );
+          final newTotalPaid = updatedItems.fold<double>(
+            0,
+            (sum, it) => sum + it.paidAmount,
+          );
+
+          final updatedOrder = order.copyWith(
+            items: updatedItems,
+            totalAmount: newTotalAmount,
+            totalPaid: newTotalPaid,
+            status: newTotalPaid >= newTotalAmount ? 'completed' : order.status,
+          );
+          await _orderRepository.updateOrder(updatedOrder);
+        }
+        Get.snackbar(
+          'Succès',
+          'Article supprimé',
+          backgroundColor: AppTheme.successGreen,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la suppression: $e');
     }

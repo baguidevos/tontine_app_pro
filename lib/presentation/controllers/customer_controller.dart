@@ -39,7 +39,7 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Veuillez vous reconnecter',
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
       );
       return false;
@@ -62,9 +62,9 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Succès',
         'Client créé avec succès',
-        backgroundColor: AppTheme.deepBlue,
+        backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
         margin: const EdgeInsets.all(15),
       );
       return true;
@@ -72,7 +72,7 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Échec de la création: $e',
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
       );
       return false;
@@ -88,7 +88,7 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Succès',
         'Client mis à jour',
-        backgroundColor: AppTheme.deepBlue,
+        backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         margin: const EdgeInsets.all(15),
@@ -98,7 +98,7 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Échec de la mise à jour: $e',
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
       );
       return false;
@@ -113,7 +113,7 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Succès',
         'Client supprimé',
-        backgroundColor: AppTheme.deepBlue,
+        backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
       );
       return true;
@@ -121,10 +121,14 @@ class CustomerController extends GetxController {
       Get.snackbar(
         'Erreur',
         'Échec de la suppression: $e',
-        backgroundColor: Colors.red,
+        backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
       );
       return false;
     }
+  }
+
+  Future<CustomerModel?> getCustomer(String id) async {
+    return await _customerRepository.getCustomer(id);
   }
 }

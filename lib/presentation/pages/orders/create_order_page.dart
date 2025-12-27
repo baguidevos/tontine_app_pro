@@ -17,7 +17,7 @@ class CreateOrderPage extends StatefulWidget {
 
 class _CreateOrderPageState extends State<CreateOrderPage> {
   final CustomerController _customerController = Get.put(CustomerController());
-  final ProductController _productController = Get.find<ProductController>();
+  final ProductController _productController = Get.put(ProductController());
   final OrderController _orderController = Get.find<OrderController>();
 
   String? _selectedCustomerId;

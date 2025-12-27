@@ -48,6 +48,28 @@ class OrderModel {
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
+
+  OrderModel copyWith({
+    String? id,
+    String? vendorId,
+    String? customerId,
+    List<OrderItemModel>? items,
+    double? totalAmount,
+    double? totalPaid,
+    String? status,
+    DateTime? createdAt,
+  }) {
+    return OrderModel(
+      id: id ?? this.id,
+      vendorId: vendorId ?? this.vendorId,
+      customerId: customerId ?? this.customerId,
+      items: items ?? this.items,
+      totalAmount: totalAmount ?? this.totalAmount,
+      totalPaid: totalPaid ?? this.totalPaid,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }
 
 class OrderItemModel {

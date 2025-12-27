@@ -5,6 +5,8 @@ class AppTheme {
   static const Color softBlue = Color(0xFFA8DADC);
   static const Color warmCream = Color(0xFFF1FAEE);
   static const Color deepBlue = Color(0xFF457B9D);
+  static const Color softRed = Color(0xFFE63946);
+  static const Color successGreen = Color.fromARGB(146, 9, 192, 107);
   static const Color darkerBlue = Color(0xFF1D3557);
 
   static ThemeData get lightTheme {

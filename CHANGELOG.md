@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-12-27
+
+### Added
+- **Order Management Enhancements**
+  - Added `cancelOrder` to `OrderController` to allow marking orders as cancelled.
+  - Added `removeItemFromOrder` to `OrderController` with automatic recalculation of total amounts and paid balances.
+  - Added individual item deletion buttons in `OrderDetailsPage` with confirmation dialogs.
+  - Added "Annuler" button in `OrderDetailsPage` header for full order cancellation.
+- **Data Integrity & Validation**
+  - Implemented payment validation in `PaymentController` to prevent overpayment on articles (fixes negative balance issues).
+  - Added `copyWith` method to `OrderModel` for efficient state updates and immutability management.
+- **Customer Retrieval**
+  - Added `getCustomer(id)` helper in `CustomerController` for targeted customer data retrieval.
+
+### Changed
+- **Automated Workflow**
+  - Orders now automatically switch to `completed` when fully paid.
+  - Orders revert to `pending` when a payment is deleted or an item is removed (if total balance becomes positive again).
+- **UI & Experience Improvements**
+  - Standardized order display in `OrdersPage`: now shows `Client: [Name] (#ID)` for improved clarity.
+  - Refactored `OrdersPage` filtering logic using a robust `switch` statement for better state handling across tabs.
+  - Cleaned up controller initialization and variable scoping in `OrdersPage` and `CreateOrderPage`.
+- **Theme & Feedback Standardization**
+  - Unified snackbar notifications across multiple controllers using standard `AppTheme` colors.
+  - Updated `AppTheme.successGreen` to a more vibrant and visible shade.
+
+### Fixed
+- Resolved `orderController` undefined errors in `OrdersPage` caused by scoping issues.
+- Fixed multiple missing `material.dart` imports causing compilation errors.
+- Fixed syntax errors and price display regressions introduced during UI refactoring of `OrderDetailsPage`.
+
+
 ## [0.1.0] - 2025-12-22
 
 ### Added

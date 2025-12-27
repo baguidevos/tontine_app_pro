@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../core/theme/app_theme.dart';
 import '../../data/models/payment_transaction_model.dart';
 import '../../data/models/order_model.dart';
 import '../../data/repositories/payment_repository.dart';
@@ -21,6 +23,45 @@ class PaymentController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Update the order item's paid amount
+      final order = await _orderRepository.getOrder(orderId);
+      if (order == null) {
+        Get.snackbar(
+          'Erreur',
+          'Commande introuvable',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      final itemIndex = order.items.indexWhere(
+        (item) => item.id == orderItemId,
+      );
+      if (itemIndex == -1) {
+        Get.snackbar(
+          'Erreur',
+          'Article introuvable',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      final item = order.items[itemIndex];
+      final remainingBalance = item.totalPrice - item.paidAmount;
+
+      if (amount > remainingBalance) {
+        Get.snackbar(
+          'Paiement refusé',
+          'Le montant (${amount.toStringAsFixed(0)} FCFA) dépasse le reste à payer sur cet article (${remainingBalance.toStringAsFixed(0)} FCFA)',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 4),
+        );
+        return;
+      }
+
       // Create the transaction
       final transaction = PaymentTransactionModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -33,46 +74,45 @@ class PaymentController extends GetxController {
 
       await _paymentRepository.createTransaction(transaction);
 
-      // Update the order item's paid amount
-      final order = await _orderRepository.getOrder(orderId);
-      if (order != null) {
-        final updatedItems = order.items.map((item) {
-          if (item.id == orderItemId) {
-            return OrderItemModel(
-              id: item.id,
-              productId: item.productId,
-              name: item.name,
-              unitPrice: item.unitPrice,
-              quantity: item.quantity,
-              paidAmount: item.paidAmount + amount,
-            );
-          }
-          return item;
-        }).toList();
+      final updatedItems = order.items.map((it) {
+        if (it.id == orderItemId) {
+          return it.copyWith(paidAmount: it.paidAmount + amount);
+        }
+        return it;
+      }).toList();
 
-        // Calculate new total paid
-        final newTotalPaid = updatedItems.fold<double>(
-          0.0,
-          (sum, item) => sum + item.paidAmount,
-        );
+      // Calculate new total paid
+      final newTotalPaid = updatedItems.fold<double>(
+        0.0,
+        (sum, item) => sum + item.paidAmount,
+      );
 
-        final updatedOrder = OrderModel(
-          id: order.id,
-          vendorId: order.vendorId,
-          customerId: order.customerId,
-          items: updatedItems,
-          totalAmount: order.totalAmount,
-          totalPaid: newTotalPaid,
-          status: order.status,
-          createdAt: order.createdAt,
-        );
+      final updatedOrder = OrderModel(
+        id: order.id,
+        vendorId: order.vendorId,
+        customerId: order.customerId,
+        items: updatedItems,
+        totalAmount: order.totalAmount,
+        totalPaid: newTotalPaid,
+        status: newTotalPaid >= order.totalAmount ? 'completed' : order.status,
+        createdAt: order.createdAt,
+      );
 
-        await _orderRepository.updateOrder(updatedOrder);
-      }
+      await _orderRepository.updateOrder(updatedOrder);
 
-      Get.snackbar('Succès', 'Paiement enregistré avec succès');
+      Get.snackbar(
+        'Succès',
+        'Paiement enregistré avec succès',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de l\'enregistrement: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de l\'enregistrement: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -117,12 +157,7 @@ class PaymentController extends GetxController {
       if (order != null) {
         final updatedItems = order.items.map((item) {
           if (item.id == orderItemId) {
-            return OrderItemModel(
-              id: item.id,
-              productId: item.productId,
-              name: item.name,
-              unitPrice: item.unitPrice,
-              quantity: item.quantity,
+            return item.copyWith(
               paidAmount: (item.paidAmount - amount).clamp(
                 0.0,
                 double.infinity,
@@ -144,16 +179,26 @@ class PaymentController extends GetxController {
           items: updatedItems,
           totalAmount: order.totalAmount,
           totalPaid: newTotalPaid,
-          status: order.status,
+          status: newTotalPaid < order.totalAmount ? 'pending' : order.status,
           createdAt: order.createdAt,
         );
 
         await _orderRepository.updateOrder(updatedOrder);
       }
 
-      Get.snackbar('Succès', 'Transaction supprimée');
+      Get.snackbar(
+        'Succès',
+        'Transaction supprimée',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la suppression: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la suppression: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     }
   }
 }

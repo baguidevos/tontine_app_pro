@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../controllers/order_controller.dart';
+import '../../controllers/customer_controller.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -61,10 +62,7 @@ class OrdersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orderController = Get.find<OrderController>();
-    // The instruction implies adding waveController, but orderController is still used below.
-    // Assuming the intent was to add waveController alongside orderController, or a future refactor.
-    // For now, keeping orderController as it's used.
-    // final waveController = Get.find<WaveController>(); // If this was meant to replace, subsequent lines would need changing.
+    final customerController = Get.find<CustomerController>();
 
     return Obx(() {
       if (orderController.isLoading.value) {
@@ -72,10 +70,16 @@ class OrdersList extends StatelessWidget {
       }
 
       final orders = orderController.orders.where((o) {
-        if (status == 'pending') {
-          return o.status == 'pending' || o.status == 'active';
+        switch (status) {
+          case 'completed':
+            return o.status == 'completed';
+          case 'cancelled':
+            return o.status == 'cancelled';
+          case 'pending':
+          default:
+            // "Pending" includes everything that is NOT completed or cancelled
+            return o.status != 'completed' && o.status != 'cancelled';
         }
-        return o.status == status;
       }).toList();
 
       if (orders.isEmpty) {
@@ -103,6 +107,11 @@ class OrdersList extends StatelessWidget {
         itemCount: orders.length,
         itemBuilder: (context, index) {
           final order = orders[index];
+          final customer = customerController.customers.firstWhereOrNull(
+            (c) => c.id == order.customerId,
+          );
+          final customerName = customer?.name ?? 'Client inconnu';
+
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             elevation: 2,
@@ -112,14 +121,13 @@ class OrdersList extends StatelessWidget {
             child: ListTile(
               contentPadding: const EdgeInsets.all(16),
               title: Text(
-                'Commande #${order.id.substring(order.id.length - 6)}',
+                'Client: $customerName (#${order.id.substring(order.id.length.clamp(0, 6) == 6 ? order.id.length - 6 : 0)})',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 8),
-                  Text('Client: ${order.customerId}'), // Ideally fetch name
                   Text('${order.items.length} articles'),
                   const SizedBox(height: 4),
                   Text(

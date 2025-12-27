@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tontine_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/subscription_service.dart';
 import '../../data/models/wave_model.dart';
@@ -56,9 +58,20 @@ class WaveController extends GetxController {
 
       await _waveRepository.createWave(waveToCreate, vendorId);
 
-      Get.snackbar('Succès', 'Vague créée avec succès');
+      Get.back();
+      Get.snackbar(
+        'Succès',
+        'Vague créée avec succès',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la création: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la création: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     } finally {
       isLoading.value = false;
     }
@@ -67,9 +80,20 @@ class WaveController extends GetxController {
   Future<void> updateWave(WaveModel wave) async {
     try {
       await _waveRepository.updateWave(wave);
-      Get.snackbar('Succès', 'Vague mise à jour');
+      Get.back();
+      Get.snackbar(
+        'Succès',
+        'Vague mise à jour',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la mise à jour: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la mise à jour: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -83,18 +107,39 @@ class WaveController extends GetxController {
       );
 
       await _waveRepository.updateWave(updatedWave);
-      Get.snackbar('Succès', 'Statut mis à jour');
+      Get.back();
+      Get.snackbar(
+        'Succès',
+        'Statut mis à jour',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la mise à jour: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la mise à jour: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     }
   }
 
   Future<void> deleteWave(String waveId) async {
     try {
       await _waveRepository.deleteWave(waveId);
-      Get.snackbar('Succès', 'Vague supprimée');
+      Get.snackbar(
+        'Succès',
+        'Vague supprimée',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la suppression: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la suppression: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+      );
     }
   }
 }

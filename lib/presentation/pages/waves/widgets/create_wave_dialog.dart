@@ -125,7 +125,6 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
                 );
                 await waveController.createWave(newWave);
               }
-              Get.back();
             }
           },
           style: ElevatedButton.styleFrom(

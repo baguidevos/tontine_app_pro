@@ -90,6 +90,22 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           icon: const Icon(Icons.arrow_back, color: AppTheme.deepBlue),
           onPressed: () => Get.back(),
         ),
+        actions: [
+          Obx(() {
+            final currentOrder = order.value;
+            if (currentOrder != null && currentOrder.status != 'cancelled') {
+              return TextButton.icon(
+                onPressed: () => _confirmCancelOrder(currentOrder.id),
+                icon: const Icon(Icons.cancel, color: AppTheme.softRed),
+                label: const Text(
+                  'Annuler',
+                  style: TextStyle(color: AppTheme.softRed),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+        ],
       ),
       body: Obx(() {
         final currentOrder = order.value;
@@ -248,6 +264,24 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            if (currentOrder.status != 'cancelled' &&
+                                currentOrder.status != 'completed')
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: AppTheme.softRed,
+                                  size: 20,
+                                ),
+                                onPressed: () => _confirmRemoveItem(
+                                  currentOrder.id,
+                                  item.id,
+                                  item.name,
+                                ),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                tooltip: 'Supprimer l\'article',
+                              ),
                           ],
                         ),
                         const SizedBox(height: 12),
@@ -445,6 +479,39 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _confirmCancelOrder(String id) {
+    Get.defaultDialog(
+      title: 'Annuler la commande',
+      middleText:
+          'Voulez-vous vraiment annuler cette commande ? Cette action est irréversible.',
+      textConfirm: 'Oui, annuler',
+      textCancel: 'Non',
+      confirmTextColor: Colors.white,
+      buttonColor: AppTheme.softRed,
+      onConfirm: () async {
+        Get.back();
+        await _orderController.cancelOrder(id);
+        _loadOrder();
+      },
+    );
+  }
+
+  void _confirmRemoveItem(String orderId, String itemId, String itemName) {
+    Get.defaultDialog(
+      title: 'Supprimer l\'article',
+      middleText: 'Voulez-vous supprimer "$itemName" de cette commande ?',
+      textConfirm: 'Supprimer',
+      textCancel: 'Annuler',
+      confirmTextColor: Colors.white,
+      buttonColor: AppTheme.softRed,
+      onConfirm: () async {
+        Get.back();
+        await _orderController.removeItemFromOrder(orderId, itemId);
+        _loadOrder();
+      },
     );
   }
 }
