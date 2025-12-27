@@ -6,6 +6,7 @@ import '../../core/theme/app_theme.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/inventory/inventory_page.dart';
 import '../pages/orders/orders_page.dart';
+import '../pages/profile/profile_page.dart';
 import '../controllers/main_layout_controller.dart';
 
 class MainLayout extends StatelessWidget {
@@ -20,7 +21,7 @@ class MainLayout extends StatelessWidget {
       const DashboardPage(),
       const OrdersPage(),
       const InventoryPage(),
-      const Center(child: Text('Profil')),
+      const ProfilePage(),
     ];
 
     return Scaffold(

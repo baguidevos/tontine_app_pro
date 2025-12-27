@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.0] - 2025-12-27
 
-### Added
+- **Profile Page Implementation**
+  - Created `ProfilePage` UI with business info editing and subscription status.
+  - Created `ProfileController` for handling vendor data updates and logout.
+  - Added `ProfileBinding` in `lib/presentation/bindings/profil_controller.dart`.
+  - Integrated `ProfilePage` as the 4th tab in `MainLayout`.
 - **Order Management Enhancements**
   - Added `cancelOrder` to `OrderController` to allow marking orders as cancelled.
   - Added `removeItemFromOrder` to `OrderController` with automatic recalculation of total amounts and paid balances.
