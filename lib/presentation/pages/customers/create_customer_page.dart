@@ -55,6 +55,43 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
           icon: const Icon(Icons.arrow_back, color: AppTheme.deepBlue),
           onPressed: () => Get.back(),
         ),
+        actions: [
+          if (widget.customer != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () {
+                Get.snackbar(
+                  'Confirmation',
+                  'Voulez-vous supprimer ce client ?',
+                  backgroundColor: AppTheme.warmCream,
+                  colorText: AppTheme.deepBlue,
+                  snackPosition: SnackPosition.BOTTOM,
+                  mainButton: TextButton(
+                    onPressed: () async {
+                      if (Get.isSnackbarOpen) {
+                        Get.closeCurrentSnackbar();
+                      }
+                      final success = await customerController.deleteCustomer(
+                        widget.customer!.id,
+                      );
+                      if (success) {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text(
+                      'SUPPRIMER',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  duration: const Duration(seconds: 5),
+                  margin: const EdgeInsets.all(15),
+                );
+              },
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -106,39 +143,57 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
                 ),
               ),
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      if (widget.customer != null) {
-                        final updated = widget.customer!.copyWith(
-                          name: _nameController.text,
-                          phone: _phoneController.text,
-                          address: _addressController.text,
-                        );
-                        await customerController.updateCustomer(updated);
-                      } else {
-                        await customerController.createCustomer(
-                          name: _nameController.text,
-                          phone: _phoneController.text,
-                          address: _addressController.text,
-                        );
-                      }
-                      Get.back();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.deepBlue,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: customerController.isLoading.value
+                        ? null
+                        : () async {
+                            if (_formKey.currentState!.validate()) {
+                              bool success = false;
+                              if (widget.customer != null) {
+                                final updated = widget.customer!.copyWith(
+                                  name: _nameController.text,
+                                  phone: _phoneController.text,
+                                  address: _addressController.text,
+                                );
+                                success = await customerController
+                                    .updateCustomer(updated);
+                              } else {
+                                success = await customerController
+                                    .createCustomer(
+                                      name: _nameController.text,
+                                      phone: _phoneController.text,
+                                      address: _addressController.text,
+                                    );
+                                Navigator.pop(context);
+                              }
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.deepBlue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    widget.customer != null ? 'Mettre à jour' : 'Enregistrer',
-                    style: const TextStyle(fontSize: 18),
+                    child: customerController.isLoading.value
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            widget.customer != null
+                                ? 'Mettre à jour'
+                                : 'Enregistrer',
+                            style: const TextStyle(fontSize: 18),
+                          ),
                   ),
                 ),
               ),

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tontine_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../data/models/customer_model.dart';
 import '../../data/repositories/customer_repository.dart';
@@ -27,13 +29,21 @@ class CustomerController extends GetxController {
     }
   }
 
-  Future<void> createCustomer({
+  Future<bool> createCustomer({
     required String name,
     required String phone,
     String? address,
   }) async {
     final vendorId = _authService.currentVendorId;
-    if (vendorId == null) return;
+    if (vendorId == null) {
+      Get.snackbar(
+        'Erreur',
+        'Veuillez vous reconnecter',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    }
 
     try {
       isLoading.value = true;
@@ -49,30 +59,72 @@ class CustomerController extends GetxController {
 
       await _customerRepository.createCustomer(customer);
 
-      Get.snackbar('Succès', 'Client créé avec succès');
-      Get.back();
+      Get.snackbar(
+        'Succès',
+        'Client créé avec succès',
+        backgroundColor: AppTheme.deepBlue,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(15),
+      );
+      return true;
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la création: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la création: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> updateCustomer(CustomerModel customer) async {
+  Future<bool> updateCustomer(CustomerModel customer) async {
     try {
+      isLoading.value = true;
       await _customerRepository.updateCustomer(customer);
-      Get.snackbar('Succès', 'Client mis à jour');
+      Get.snackbar(
+        'Succès',
+        'Client mis à jour',
+        backgroundColor: AppTheme.deepBlue,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(15),
+      );
+      return true;
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la mise à jour: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la mise à jour: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  Future<void> deleteCustomer(String customerId) async {
+  Future<bool> deleteCustomer(String customerId) async {
     try {
       await _customerRepository.deleteCustomer(customerId);
-      Get.snackbar('Succès', 'Client supprimé');
+      Get.snackbar(
+        'Succès',
+        'Client supprimé',
+        backgroundColor: AppTheme.deepBlue,
+        colorText: Colors.white,
+      );
+      return true;
     } catch (e) {
-      Get.snackbar('Erreur', 'Échec de la suppression: $e');
+      Get.snackbar(
+        'Erreur',
+        'Échec de la suppression: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return false;
     }
   }
 }

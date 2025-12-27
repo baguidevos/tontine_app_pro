@@ -100,10 +100,46 @@ class CustomersPage extends StatelessWidget {
                       ),
                   ],
                 ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.grey),
-                  onPressed: () =>
-                      Get.to(() => CreateCustomerPage(customer: customer)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.grey),
+                      onPressed: () =>
+                          Get.to(() => CreateCustomerPage(customer: customer)),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () {
+                        Get.snackbar(
+                          'Confirmation',
+                          'Supprimer ${customer.name} ?',
+                          backgroundColor: AppTheme.warmCream,
+                          colorText: AppTheme.deepBlue,
+                          snackPosition: SnackPosition.BOTTOM,
+                          mainButton: TextButton(
+                            onPressed: () async {
+                              if (Get.isSnackbarOpen) {
+                                Get.closeCurrentSnackbar();
+                              }
+                              await customerController.deleteCustomer(
+                                customer.id,
+                              );
+                            },
+                            child: const Text(
+                              'SUPPRIMER',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          duration: const Duration(seconds: 5),
+                          margin: const EdgeInsets.all(15),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 onTap: () {
                   // Navigate to customer details/history
