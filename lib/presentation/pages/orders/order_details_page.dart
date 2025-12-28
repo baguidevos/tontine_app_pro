@@ -6,6 +6,7 @@ import '../../controllers/payment_controller.dart';
 import '../../controllers/customer_controller.dart';
 import '../../../data/models/order_model.dart';
 import '../../widgets/confirmation_dialog.dart';
+import 'widgets/payment_entry_dialog.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   const OrderDetailsPage({super.key});
@@ -360,42 +361,11 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   void _showPaymentDialog(OrderItemModel item, String orderId) {
-    final amountController = TextEditingController(
-      text: item.balance.toStringAsFixed(0),
-    );
-
-    Get.defaultDialog(
-      title: 'Nouveau Paiement',
-      content: Column(
-        children: [
-          Text('Article: ${item.name}'),
-          Text('Reste à payer: ${item.balance.toStringAsFixed(0)} FCFA'),
-          const SizedBox(height: 16),
-          TextField(
-            controller: amountController,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Montant',
-              border: OutlineInputBorder(),
-              suffixText: 'FCFA',
-            ),
-          ),
-        ],
-      ),
-      textConfirm: 'Confirmer',
-      textCancel: 'Annuler',
-      confirmTextColor: Colors.white,
-      buttonColor: AppTheme.deepBlue,
-      onConfirm: () async {
-        final amount = double.tryParse(amountController.text);
-        if (amount != null && amount > 0) {
-          if (amount > item.balance + 1) {
-            // Tolerance for float
-            Get.snackbar('Erreur', 'Le montant dépasse le reste à payer');
-            return;
-          }
-
-          Get.back(); // Close dialog first
+    Get.dialog(
+      PaymentEntryDialog(
+        item: item,
+        onConfirm: (amount) async {
+          Get.back(); // Close dialog
           await _paymentController.recordPayment(
             orderId: orderId,
             orderItemId: item.id,
@@ -405,8 +375,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
 
           // Reload order
           _loadOrder();
-        }
-      },
+        },
+      ),
     );
   }
 

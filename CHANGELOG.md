@@ -9,9 +9,14 @@ All notable changes to this project will be documented in this file.
   - **Waves**: Implemented a modern `CreateWaveDialog` with `AppTheme` styling, chip-based status selection, and improved responsiveness.
   - **Orders**: Created `QuantityDialog` featuring counter controls, manual input support, stock validation, and live price calculation.
   - **Confirmations**: Added reusable `ConfirmationDialog` for critical actions (cancelling orders, removing items), supporting "danger" mode styling.
- 
+  - **Payment Entry**: Created dedicated `PaymentEntryDialog` for recording partial payments with validation against remaining balance.
+  - **Wave Selection**: Implemented `WaveSelectionDialog` for product duplication, offering a clean list view of available target waves.
+
 ### Changed
 - **UI & UX Refinements**
+  - **Wave Management**: 
+    - Replaced `PopupMenuButton` in `WavesPage` with a rigorous `ModalBottomSheet` for options (Edit, Close, Delete).
+    - Updated wave deletion flow to use the standardized `ConfirmationDialog`.
   - Updated `CreateOrderPage` to use the new `QuantityDialog`.
   - Updated `OrderDetailsPage` to use `ConfirmationDialog` for consistent validation flows.
   - General visual alignment with the "Premium" aesthetic (rounded corners, warm cream backgrounds, chip selectors).

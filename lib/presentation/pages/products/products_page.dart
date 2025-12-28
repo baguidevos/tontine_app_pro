@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/wave_controller.dart';
 import '../../../data/models/product_model.dart';
+import 'widgets/wave_selection_dialog.dart';
 
 class ProductsPage extends StatelessWidget {
   const ProductsPage({super.key});
@@ -273,23 +274,20 @@ class ProductsPage extends StatelessWidget {
     ProductController controller,
     ProductModel product,
   ) {
-    final waveController = Get.find<WaveController>();
-    Get.defaultDialog(
-      title: 'Dupliquer le produit',
-      content: Obx(
-        () => Column(
-          children: waveController.waves
-              .map(
-                (wave) => ListTile(
-                  title: Text(wave.name),
-                  onTap: () {
-                    controller.duplicateProduct(product, wave.id);
-                    Get.back();
-                  },
-                ),
-              )
-              .toList(),
-        ),
+    Get.dialog(
+      WaveSelectionDialog(
+        onWaveSelected: (waveId) {
+          controller.duplicateProduct(product, waveId);
+          Get.back(); // Close dialog
+          Get.snackbar(
+            'Succès',
+            'Produit dupliqué avec succès',
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+            margin: const EdgeInsets.all(16),
+            borderRadius: 8,
+          );
+        },
       ),
     );
   }

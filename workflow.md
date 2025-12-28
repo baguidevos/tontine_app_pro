@@ -1,0 +1,3 @@
+- Ajoute au change log ce que nous avons fait
+- Fais un commit avec un message explicite et descriptif
+- Et fais le push

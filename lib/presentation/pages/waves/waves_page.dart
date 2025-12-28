@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../controllers/wave_controller.dart';
 import '../../../data/models/wave_model.dart';
+import '../../widgets/confirmation_dialog.dart';
 import 'widgets/create_wave_dialog.dart';
 
 class WavesPage extends StatelessWidget {
@@ -92,50 +93,10 @@ class WavesPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                trailing: PopupMenuButton(
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit_outlined),
-                          SizedBox(width: 8),
-                          Text('Modifier'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'close',
-                      child: Row(
-                        children: [
-                          Icon(Icons.lock_outline),
-                          SizedBox(width: 8),
-                          Text('Clôturer'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_outline, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text(
-                            'Supprimer',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  onSelected: (value) {
-                    if (value == 'delete') {
-                      _confirmDelete(context, waveController, wave.id);
-                    } else if (value == 'edit') {
-                      Get.dialog(CreateWaveDialog(wave: wave));
-                    }
-                    // TODO: Implement close
-                  },
+                trailing: IconButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onPressed: () =>
+                      _showWaveOptions(context, waveController, wave),
                 ),
                 onTap: () {
                   // Navigate to products filtered by this wave?
@@ -190,23 +151,123 @@ class WavesPage extends StatelessWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  void _showWaveOptions(
+    BuildContext context,
+    WaveController controller,
+    WaveModel wave,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              wave.name,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.deepBlue,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.deepBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.edit_outlined,
+                  color: AppTheme.deepBlue,
+                ),
+              ),
+              title: const Text('Modifier la vague'),
+              onTap: () {
+                Get.back();
+                Get.dialog(CreateWaveDialog(wave: wave));
+              },
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.lock_outline, color: Colors.orange),
+              ),
+              title: const Text('Clôturer la vague'),
+              onTap: () {
+                Get.back();
+                // TODO: Implement close logic
+                Get.snackbar('Info', 'Fonctionnalité à venir');
+              },
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.softRed.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: AppTheme.softRed,
+                ),
+              ),
+              title: const Text(
+                'Supprimer la vague',
+                style: TextStyle(color: AppTheme.softRed),
+              ),
+              onTap: () {
+                Get.back();
+                _confirmDelete(context, controller, wave.id);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _confirmDelete(
     BuildContext context,
     WaveController controller,
     String id,
   ) {
-    Get.defaultDialog(
-      title: 'Confirmer la suppression',
-      middleText:
-          'Êtes-vous sûr de vouloir supprimer cette vague ? Cette action est irréversible.',
-      textConfirm: 'Supprimer',
-      textCancel: 'Annuler',
-      confirmTextColor: Colors.white,
-      buttonColor: Colors.red,
-      onConfirm: () {
-        controller.deleteWave(id);
-        Get.back();
-      },
+    Get.dialog(
+      ConfirmationDialog(
+        title: 'Confirmer la suppression',
+        message:
+            'Êtes-vous sûr de vouloir supprimer cette vague ? Cette action est irréversible.',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        isDanger: true,
+        icon: Icons.delete_outline,
+        onConfirm: () {
+          Get.back(); // Close dialog
+          controller.deleteWave(id);
+        },
+      ),
     );
   }
 }
