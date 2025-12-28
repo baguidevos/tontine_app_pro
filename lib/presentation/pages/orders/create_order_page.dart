@@ -7,6 +7,7 @@ import '../../controllers/product_controller.dart';
 import '../../controllers/order_controller.dart';
 import '../../../data/models/order_model.dart';
 import '../../../data/models/product_model.dart';
+import 'widgets/quantity_dialog.dart';
 
 class CreateOrderPage extends StatefulWidget {
   const CreateOrderPage({super.key});
@@ -328,45 +329,13 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   }
 
   void _showQuantityDialog(ProductModel product) {
-    final quantityController = TextEditingController(text: '1');
-
-    Get.defaultDialog(
-      title: 'Quantité',
-      content: Column(
-        children: [
-          Text('Produit: ${product.name}'),
-          const SizedBox(height: 16),
-          TextField(
-            controller: quantityController,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            decoration: const InputDecoration(
-              labelText: 'Quantité',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ],
+    Get.dialog(
+      QuantityDialog(
+        product: product,
+        onConfirm: (quantity) {
+          _addToCart(product, quantity);
+        },
       ),
-      textConfirm: 'Ajouter',
-      textCancel: 'Annuler',
-      confirmTextColor: Colors.white,
-      buttonColor: AppTheme.deepBlue,
-      onConfirm: () {
-        final qty = int.tryParse(quantityController.text) ?? 1;
-        if (qty > 0) {
-          // Check stock?
-          if (qty > product.stock) {
-            Get.snackbar(
-              'Stock insuffisant',
-              'Stock disponible: ${product.stock}',
-            );
-            return;
-          }
-
-          _addToCart(product, qty);
-          Get.back();
-        }
-      },
     );
   }
 

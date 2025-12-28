@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-12-28
+ 
+### Added
+- **Enhanced Dialogs System**
+  - **Waves**: Implemented a modern `CreateWaveDialog` with `AppTheme` styling, chip-based status selection, and improved responsiveness.
+  - **Orders**: Created `QuantityDialog` featuring counter controls, manual input support, stock validation, and live price calculation.
+  - **Confirmations**: Added reusable `ConfirmationDialog` for critical actions (cancelling orders, removing items), supporting "danger" mode styling.
+ 
+### Changed
+- **UI & UX Refinements**
+  - Updated `CreateOrderPage` to use the new `QuantityDialog`.
+  - Updated `OrderDetailsPage` to use `ConfirmationDialog` for consistent validation flows.
+  - General visual alignment with the "Premium" aesthetic (rounded corners, warm cream backgrounds, chip selectors).
+
 ## [0.2.0] - 2025-12-27
 
 - **Profile Page Implementation**

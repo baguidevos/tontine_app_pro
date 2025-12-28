@@ -5,6 +5,7 @@ import '../../controllers/order_controller.dart';
 import '../../controllers/payment_controller.dart';
 import '../../controllers/customer_controller.dart';
 import '../../../data/models/order_model.dart';
+import '../../widgets/confirmation_dialog.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   const OrderDetailsPage({super.key});
@@ -483,35 +484,38 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   void _confirmCancelOrder(String id) {
-    Get.defaultDialog(
-      title: 'Annuler la commande',
-      middleText:
-          'Voulez-vous vraiment annuler cette commande ? Cette action est irréversible.',
-      textConfirm: 'Oui, annuler',
-      textCancel: 'Non',
-      confirmTextColor: Colors.white,
-      buttonColor: AppTheme.softRed,
-      onConfirm: () async {
-        Get.back();
-        await _orderController.cancelOrder(id);
-        _loadOrder();
-      },
+    Get.dialog(
+      ConfirmationDialog(
+        title: 'Annuler la commande',
+        message:
+            'Voulez-vous vraiment annuler cette commande ? Cette action est irréversible.',
+        confirmText: 'Oui, annuler',
+        cancelText: 'Non',
+        isDanger: true,
+        onConfirm: () async {
+          Get.back(); // Close dialog
+          await _orderController.cancelOrder(id);
+          _loadOrder();
+        },
+      ),
     );
   }
 
   void _confirmRemoveItem(String orderId, String itemId, String itemName) {
-    Get.defaultDialog(
-      title: 'Supprimer l\'article',
-      middleText: 'Voulez-vous supprimer "$itemName" de cette commande ?',
-      textConfirm: 'Supprimer',
-      textCancel: 'Annuler',
-      confirmTextColor: Colors.white,
-      buttonColor: AppTheme.softRed,
-      onConfirm: () async {
-        Get.back();
-        await _orderController.removeItemFromOrder(orderId, itemId);
-        _loadOrder();
-      },
+    Get.dialog(
+      ConfirmationDialog(
+        title: 'Supprimer l\'article',
+        message: 'Voulez-vous supprimer "$itemName" de cette commande ?',
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        isDanger: true,
+        icon: Icons.delete_outline,
+        onConfirm: () async {
+          Get.back(); // Close dialog
+          await _orderController.removeItemFromOrder(orderId, itemId);
+          _loadOrder();
+        },
+      ),
     );
   }
 }

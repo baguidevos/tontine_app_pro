@@ -62,7 +62,7 @@ class OrdersList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orderController = Get.find<OrderController>();
-    final customerController = Get.find<CustomerController>();
+    final customerController = Get.put(CustomerController());
 
     return Obx(() {
       if (orderController.isLoading.value) {
