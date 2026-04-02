@@ -55,3 +55,6 @@ app.*.map.json
 android/app/google-services.json
 android/build.gradle.kts
 android/settings.gradle.kts
+
+/firebase.json
+/.qwen/*
