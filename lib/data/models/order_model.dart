@@ -4,6 +4,8 @@ class OrderModel {
   final String id;
   final String vendorId;
   final String customerId;
+  final String?
+  waveId; // Lien vers la vague (optionnel pour rétrocompatibilité)
   final List<OrderItemModel> items;
   final double totalAmount;
   final double totalPaid;
@@ -14,6 +16,7 @@ class OrderModel {
     required this.id,
     required this.vendorId,
     required this.customerId,
+    this.waveId,
     required this.items,
     required this.totalAmount,
     required this.totalPaid,
@@ -26,6 +29,7 @@ class OrderModel {
       'id': id,
       'vendorId': vendorId,
       'customerId': customerId,
+      'waveId': waveId,
       'items': items.map((x) => x.toMap()).toList(),
       'totalAmount': totalAmount,
       'totalPaid': totalPaid,
@@ -39,6 +43,7 @@ class OrderModel {
       id: id,
       vendorId: map['vendorId'] ?? '',
       customerId: map['customerId'] ?? '',
+      waveId: map['waveId'],
       items: List<OrderItemModel>.from(
         (map['items'] as List? ?? []).map((x) => OrderItemModel.fromMap(x)),
       ),
@@ -53,6 +58,7 @@ class OrderModel {
     String? id,
     String? vendorId,
     String? customerId,
+    String? waveId,
     List<OrderItemModel>? items,
     double? totalAmount,
     double? totalPaid,
@@ -63,6 +69,7 @@ class OrderModel {
       id: id ?? this.id,
       vendorId: vendorId ?? this.vendorId,
       customerId: customerId ?? this.customerId,
+      waveId: waveId ?? this.waveId,
       items: items ?? this.items,
       totalAmount: totalAmount ?? this.totalAmount,
       totalPaid: totalPaid ?? this.totalPaid,

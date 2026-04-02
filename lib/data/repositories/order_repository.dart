@@ -55,6 +55,33 @@ class OrderRepository {
         );
   }
 
+  /// Récupère les commandes associées à une vague spécifique
+  Future<List<OrderModel>> getOrdersByWave(String waveId) async {
+    final snapshot = await _firestore
+        .collection('orders')
+        .where('waveId', isEqualTo: waveId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
+  /// Stream des commandes associées à une vague spécifique
+  Stream<List<OrderModel>> watchOrdersByWave(String waveId) {
+    return _firestore
+        .collection('orders')
+        .where('waveId', isEqualTo: waveId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
   Future<void> updateOrder(OrderModel order) async {
     await _firestore
         .collection('orders')

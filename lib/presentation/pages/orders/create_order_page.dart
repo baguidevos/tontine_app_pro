@@ -5,8 +5,10 @@ import '../../../core/theme/app_theme.dart';
 import '../../controllers/customer_controller.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/order_controller.dart';
+import '../../controllers/wave_controller.dart';
 import '../../../data/models/order_model.dart';
 import '../../../data/models/product_model.dart';
+import '../../../data/models/wave_model.dart';
 import 'widgets/quantity_dialog.dart';
 
 class CreateOrderPage extends StatefulWidget {
@@ -19,9 +21,11 @@ class CreateOrderPage extends StatefulWidget {
 class _CreateOrderPageState extends State<CreateOrderPage> {
   final CustomerController _customerController = Get.put(CustomerController());
   final ProductController _productController = Get.put(ProductController());
+  final WaveController _waveController = Get.put(WaveController());
   final OrderController _orderController = Get.find<OrderController>();
 
   String? _selectedCustomerId;
+  String? _selectedWaveId;
   final RxList<OrderItemModel> _cartItems = <OrderItemModel>[].obs;
 
   @override
@@ -42,7 +46,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
       ),
       body: Column(
         children: [
-          // 1. Customer Selection
+          // 1. Customer & Wave Selection
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Obx(() {
@@ -51,9 +55,13 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               }
 
               final customers = _customerController.customers;
+              final waves = _waveController.waves
+                  .where((w) => w.status == WaveStatus.active)
+                  .toList();
 
               return Column(
                 children: [
+                  // Customer Selection
                   Row(
                     children: [
                       Expanded(
@@ -104,10 +112,60 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                   ),
                   if (customers.isEmpty)
                     Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 16.0),
                       child: Text(
                         'Aucun client trouvé. Veuillez en créer un.',
                         style: TextStyle(color: Colors.red[300], fontSize: 12),
+                      ),
+                    ),
+
+                  // Wave Selection
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedWaveId,
+                          decoration: InputDecoration(
+                            labelText: 'Vague (optionnel)',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIcon: const Icon(Icons.waves),
+                          ),
+                          items: [
+                            const DropdownMenuItem(
+                              value: null,
+                              child: Text('Aucune vague'),
+                            ),
+                            ...waves.map(
+                              (w) => DropdownMenuItem(
+                                value: w.id,
+                                child: Text(w.name),
+                              ),
+                            ),
+                          ],
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedWaveId = val;
+                            });
+                          },
+                          hint: const Text('Choisir une vague'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (waves.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Aucune vague active. Créez une vague pour organiser vos commandes.',
+                        style: TextStyle(
+                          color: Colors.orange[300],
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                 ],
@@ -366,6 +424,7 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     _orderController.createOrder(
       customerId: _selectedCustomerId!,
       items: _cartItems.toList(),
+      waveId: _selectedWaveId,
     );
   }
 }

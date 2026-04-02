@@ -12,6 +12,9 @@ class OrderController extends GetxController {
   var orders = <OrderModel>[].obs;
   var isLoading = false.obs;
 
+  // Expose repository for direct access
+  OrderRepository get orderRepository => _orderRepository;
+
   @override
   void onInit() {
     super.onInit();
@@ -30,6 +33,7 @@ class OrderController extends GetxController {
   Future<void> createOrder({
     required String customerId,
     required List<OrderItemModel> items,
+    String? waveId,
   }) async {
     final vendorId = _authService.currentVendorId;
     if (vendorId == null) return;
@@ -47,6 +51,7 @@ class OrderController extends GetxController {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         vendorId: vendorId,
         customerId: customerId,
+        waveId: waveId,
         items: items,
         totalAmount: totalAmount,
         totalPaid: 0.0,
@@ -156,5 +161,12 @@ class OrderController extends GetxController {
   // Helper to get order by ID
   Future<OrderModel?> getOrder(String orderId) async {
     return await _orderRepository.getOrder(orderId);
+  }
+
+  /// Charge les commandes associées à une vague spécifique
+  void loadOrdersByWave(String waveId) {
+    _orderRepository.watchOrdersByWave(waveId).listen((orderList) {
+      orders.value = orderList;
+    });
   }
 }

@@ -99,8 +99,8 @@ class WavesPage extends StatelessWidget {
                       _showWaveOptions(context, waveController, wave),
                 ),
                 onTap: () {
-                  // Navigate to products filtered by this wave?
-                  // Get.toNamed('/products', arguments: wave);
+                  // Navigate to wave details page
+                  Get.toNamed('/waves/details', arguments: wave);
                 },
               ),
             );

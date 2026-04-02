@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-04-01
+
+### Added
+- **Wave-Orders Linking**
+  - Added `waveId` field to `OrderModel` for linking orders to delivery waves
+  - Created `getOrdersByWave()` and `watchOrdersByWave()` in `OrderRepository`
+  - Added wave selection dropdown in `CreateOrderPage` (shows active waves only)
+  - Wave name displayed in `OrdersPage` and `OrderDetailsPage` with wave icon
+
+- **Wave Details Page**
+  - New `WaveDetailsPage` showing all orders linked to a specific wave
+  - Statistics dashboard per wave (total, paid, pending, cancelled orders)
+  - Revenue tracking (collected vs remaining)
+  - Empty state with "Create Order" button when no orders exist
+  - Navigation from `WavesPage` to wave details on tap
+
+- **Enhanced Navigation**
+  - Added `/waves/details` route in `main.dart`
+  - `OrderBinding` now covers wave details page
+
+### Changed
+- **UI/UX Improvements**
+  - **Bottom Navigation Bar**: Complete redesign with custom animated items
+    - Individual item backgrounds with rounded corners
+    - Animated icon sizes (24px → 28px when selected)
+    - Animated text sizes (11px → 13px) and font weights
+    - Better visual feedback for selected tabs
+  - **Orders Page**: Added quick actions section inspired by Dashboard
+    - Horizontal scrollable action chips (New Client, View Clients, Waves, Stats)
+    - Custom TabBar with icons (pending, completed, cancelled)
+    - Search and filter buttons in AppBar (placeholders)
+  - **Inventory Page**: Similar enhancements
+    - Quick actions (New Wave, New Order, New Client, Stats)
+    - Custom TabBar with icons (Waves, Products)
+    - Search and filter buttons in AppBar
+
+- **Profile Page Enhancement**
+  - Added proper loading state management with `AuthService.isLoading`
+  - Three-state UI: loading spinner, not-logged-in message, logged-in content
+  - "Not Connected" state with reconnection button
+  - Fixed infinite loading spinner issue
+
+- **Code Quality**
+  - Fixed Tab overflow issues with `Flexible` widgets and `TextOverflow.ellipsis`
+  - Removed unused imports across multiple files
+  - Fixed deprecated `withOpacity` warnings (minor)
+
+### Fixed
+- **WaveDetailsPage**: Fixed state management issues
+  - Converted from `StreamBuilder` to `StatefulWidget` with local observable list
+  - Eliminated cross-page side effects from shared controller state
+  - Proper error handling and empty state display
+- **ProfilePage**: Fixed infinite loading spinner
+  - Added `isLoading` state to `AuthService`
+  - Proper timeout handling for vendor data loading
+  - Clear error state when vendor data unavailable
+
 ## [0.2.1] - 2025-12-28
  
 ### Added

@@ -9,6 +9,7 @@ class AuthService extends GetxService {
 
   Rx<User?> firebaseUser = Rx<User?>(null);
   Rx<VendorModel?> currentVendor = Rx<VendorModel?>(null);
+  final RxBool isLoading = true.obs;
 
   String? get currentVendorId => firebaseUser.value?.uid;
 
@@ -22,15 +23,23 @@ class AuthService extends GetxService {
         _loadCurrentVendor(user.uid);
       } else {
         currentVendor.value = null;
+        isLoading.value = false;
       }
+    });
+
+    // Mark loading as complete after initial auth check
+    Future.delayed(const Duration(milliseconds: 500), () {
+      isLoading.value = false;
     });
 
     return this;
   }
 
   void _loadCurrentVendor(String vendorId) {
+    isLoading.value = true;
     _vendorRepository.watchVendor(vendorId).listen((vendor) {
       currentVendor.value = vendor;
+      isLoading.value = false;
     });
   }
 

@@ -4,6 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../controllers/order_controller.dart';
 import '../../controllers/payment_controller.dart';
 import '../../controllers/customer_controller.dart';
+import '../../controllers/wave_controller.dart';
 import '../../../data/models/order_model.dart';
 import '../../widgets/confirmation_dialog.dart';
 import 'widgets/payment_entry_dialog.dart';
@@ -19,6 +20,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   final OrderController _orderController = Get.find<OrderController>();
   final PaymentController _paymentController = Get.find<PaymentController>();
   final CustomerController _customerController = Get.find<CustomerController>();
+  final WaveController _waveController = Get.put(WaveController());
 
   String? orderId;
   Rx<OrderModel?> order = Rx<OrderModel?>(null);
@@ -171,6 +173,34 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           ),
                         ],
                       ),
+                      // Affichage de la vague si présente
+                      if (currentOrder.waveId != null) ...[
+                        const SizedBox(height: 8),
+                        Obx(() {
+                          final wave = _waveController.waves.firstWhereOrNull(
+                            (w) => w.id == currentOrder.waveId,
+                          );
+                          if (wave == null) return const SizedBox.shrink();
+                          return Row(
+                            children: [
+                              const Icon(
+                                Icons.waves,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                wave.name,
+                                style: const TextStyle(
+                                  color: AppTheme.deepBlue,
+                                  fontWeight: FontWeight.w600,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                      ],
                       const Divider(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

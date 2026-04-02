@@ -14,6 +14,7 @@ import 'presentation/pages/products/create_product_page.dart';
 import 'presentation/pages/orders/create_order_page.dart';
 import 'presentation/pages/customers/customers_page.dart';
 import 'presentation/pages/customers/create_customer_page.dart';
+import 'presentation/pages/waves/wave_details_page.dart';
 import 'presentation/pages/orders/order_details_page.dart';
 
 // Bindings
@@ -98,6 +99,11 @@ class TontineApp extends StatelessWidget {
         GetPage(
           name: '/orders/details',
           page: () => const OrderDetailsPage(),
+          binding: OrderBinding(),
+        ),
+        GetPage(
+          name: '/waves/details',
+          page: () => const WaveDetailsPage(),
           binding: OrderBinding(),
         ),
       ],

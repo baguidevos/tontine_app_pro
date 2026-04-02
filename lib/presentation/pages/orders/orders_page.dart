@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../controllers/order_controller.dart';
 import '../../controllers/customer_controller.dart';
+import '../../controllers/wave_controller.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -23,21 +24,40 @@ class OrdersPage extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          bottom: const TabBar(
-            labelColor: AppTheme.deepBlue,
-            indicatorColor: AppTheme.deepBlue,
-            tabs: [
-              Tab(text: 'En attente'),
-              Tab(text: 'Payées'),
-              Tab(text: 'Annulées'),
-            ],
-          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search, color: AppTheme.deepBlue),
+              onPressed: () {
+                // TODO: Implement search
+              },
+              tooltip: 'Rechercher',
+            ),
+            IconButton(
+              icon: const Icon(Icons.filter_list, color: AppTheme.deepBlue),
+              onPressed: () {
+                // TODO: Implement filters
+              },
+              tooltip: 'Filtres',
+            ),
+          ],
+          bottom: _buildCustomTabBar(),
         ),
-        body: const TabBarView(
+        body: Column(
           children: [
-            OrdersList(status: 'pending'),
-            OrdersList(status: 'completed'),
-            OrdersList(status: 'cancelled'),
+            // Quick Actions
+            _buildQuickActionsSection(),
+            const SizedBox(height: 8),
+
+            // Tab Bar View
+            const Expanded(
+              child: TabBarView(
+                children: [
+                  OrdersList(status: 'pending'),
+                  OrdersList(status: 'completed'),
+                  OrdersList(status: 'cancelled'),
+                ],
+              ),
+            ),
           ],
         ),
         floatingActionButton: FloatingActionButton.extended(
@@ -48,6 +68,189 @@ class OrdersPage extends StatelessWidget {
             'Nouvelle Commande',
             style: TextStyle(color: Colors.white),
           ),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildCustomTabBar() {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(60),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: TabBar(
+          labelColor: Colors.white,
+          unselectedLabelColor: AppTheme.deepBlue,
+          indicatorColor: Colors.transparent,
+          indicator: BoxDecoration(
+            color: AppTheme.deepBlue,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+          ),
+          tabs: [
+            Tab(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.pending_actions, size: 16),
+                    SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'En attente',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Tab(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.check_circle, size: 16),
+                    SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'Payées',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Tab(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.cancel, size: 16),
+                    SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        'Annulées',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickActionsSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Actions Rapides',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppTheme.deepBlue,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _buildQuickActionChip(
+                  icon: Icons.person_add_outlined,
+                  label: 'Nouveau Client',
+                  onTap: () => Get.toNamed('/customers/create'),
+                ),
+                const SizedBox(width: 12),
+                _buildQuickActionChip(
+                  icon: Icons.people_outline,
+                  label: 'Voir Clients',
+                  onTap: () => Get.toNamed('/customers'),
+                ),
+                const SizedBox(width: 12),
+                _buildQuickActionChip(
+                  icon: Icons.waves_outlined,
+                  label: 'Vagues',
+                  onTap: () => Get.toNamed('/waves'),
+                ),
+                const SizedBox(width: 12),
+                _buildQuickActionChip(
+                  icon: Icons.analytics_outlined,
+                  label: 'Statistiques',
+                  onTap: () {
+                    // TODO: Navigate to stats
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActionChip({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppTheme.deepBlue.withOpacity(0.1)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.deepBlue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 20, color: AppTheme.deepBlue),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.deepBlue,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -63,6 +266,7 @@ class OrdersList extends StatelessWidget {
   Widget build(BuildContext context) {
     final orderController = Get.find<OrderController>();
     final customerController = Get.put(CustomerController());
+    final waveController = Get.put(WaveController());
 
     return Obx(() {
       if (orderController.isLoading.value) {
@@ -112,6 +316,15 @@ class OrdersList extends StatelessWidget {
           );
           final customerName = customer?.name ?? 'Client inconnu';
 
+          // Get wave name if waveId is present
+          String? waveName;
+          if (order.waveId != null) {
+            final wave = waveController.waves.firstWhereOrNull(
+              (w) => w.id == order.waveId,
+            );
+            waveName = wave?.name;
+          }
+
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             elevation: 2,
@@ -137,6 +350,27 @@ class OrdersList extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (waveName != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.waves,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          waveName,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
               trailing: Column(
