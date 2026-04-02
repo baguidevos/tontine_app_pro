@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tontine_app/core/theme/app_theme.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../data/models/order_model.dart';
 import '../../data/repositories/order_repository.dart';

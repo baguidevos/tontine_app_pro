@@ -62,7 +62,7 @@ class _SplashPageState extends State<SplashPage> {
 
             // App Name
             const Text(
-              'TontineManager Pro',
+              'Paya Pro',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
@@ -71,7 +71,7 @@ class _SplashPageState extends State<SplashPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Gérez vos ventes en tontine',
+              'Gérez vos ventes en vague avec facilité',
               style: TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 48),

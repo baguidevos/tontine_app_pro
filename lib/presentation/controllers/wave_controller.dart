@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tontine_app/core/theme/app_theme.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/subscription_service.dart';
 import '../../data/models/wave_model.dart';

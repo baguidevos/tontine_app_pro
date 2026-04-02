@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../../../core/theme/app_theme.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../controllers/product_controller.dart';
 import '../../controllers/wave_controller.dart';
 import '../../../data/models/product_model.dart';
@@ -286,7 +286,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
               //         value == null ? 'Veuillez sélectionner une vague' : null,
               //   );
               // }),
-
               const SizedBox(height: 32),
 
               // Submit Button

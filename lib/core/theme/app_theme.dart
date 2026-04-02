@@ -12,6 +12,7 @@ class AppTheme {
   static const payaOrange = Color(0xFFFF9800); // Action Orange
   static const Color payaRed = Color(0xFFe53935); // Error Red
   static const Color payaGray = Color(0xFF9e9e9e); // Neutral Gray
+  static const Color payaSageGreen = Color(0xFF4caf50); // Sage Green
 
   // Legacy aliases (for backward compatibility)
   static const Color deepBlue = payaBlue;
@@ -19,6 +20,7 @@ class AppTheme {
   static const Color warmCream = payaCream;
   static const Color successGreen = payaGreen;
   static const Color softRed = payaRed;
+  static const Color sageGreen = payaSageGreen;
   static const Color darkerBlue = Color(
     0xFF0d1457,
   ); // Darker version of payaBlue
