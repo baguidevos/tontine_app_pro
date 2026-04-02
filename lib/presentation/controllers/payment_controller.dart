@@ -91,6 +91,7 @@ class PaymentController extends GetxController {
         id: order.id,
         vendorId: order.vendorId,
         customerId: order.customerId,
+        waveId: order.waveId, // ✅ Préserver le waveId
         items: updatedItems,
         totalAmount: order.totalAmount,
         totalPaid: newTotalPaid,
@@ -176,6 +177,7 @@ class PaymentController extends GetxController {
           id: order.id,
           vendorId: order.vendorId,
           customerId: order.customerId,
+          waveId: order.waveId, // ✅ Préserver le waveId
           items: updatedItems,
           totalAmount: order.totalAmount,
           totalPaid: newTotalPaid,
