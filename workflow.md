@@ -292,6 +292,35 @@ echo "📦 AAB location: build/app/outputs/bundle/release/app-release.aab"
 3. ✅ Fichiers de configuration :
    - `google-services.json` (Android)
    - Keystore de signing
+4. ✅ **Politique de confidentialité** (hébergée sur GitHub Pages)
+
+### **Déployer la politique de confidentialité sur GitHub Pages**
+
+#### **Étape 1 : Activer GitHub Pages**
+
+1. Va sur ton repo GitHub : `https://github.com/hbddevos/tontine_app_pro`
+2. Clique sur **Settings** (Paramètres)
+3. Dans le menu de gauche, clique sur **Pages**
+4. Sous **Source**, sélectionne :
+   - Branch : `main`
+   - Folder : `/ (root)`
+5. Clique sur **Save**
+
+#### **Étape 2 : Accéder à la page**
+
+Après 1-2 minutes, ta politique sera accessible à :
+```
+https://hbddevos.github.io/tontine_app_pro/privacy-policy.html
+```
+
+#### **Étape 3 : Vérifier**
+
+Ouvre l'URL dans ton navigateur et vérifie que :
+- ✅ La page s'affiche correctement
+- ✅ Les couleurs Paya sont appliquées
+- ✅ Le contenu est lisible sur mobile
+
+---
 
 ### **Configuration du signing (keystore)**
 

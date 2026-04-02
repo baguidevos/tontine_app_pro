@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de Confidentialité - Paya</title>
+    <style>
+        :root {
+            --paya-blue: #1a237e;
+            --paya-light-blue: #534ba6;
+            --paya-cream: #faf7f0;
+            --paya-white: #ffffff;
+            --paya-gray: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--paya-cream);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--paya-blue), var(--paya-light-blue));
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .logo {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--paya-blue);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--paya-light-blue);
+        }
+
+        h3 {
+            color: var(--paya-light-blue);
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight {
+            background-color: var(--paya-cream);
+            padding: 20px;
+            border-left: 4px solid var(--paya-blue);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .contact-box {
+            background: linear-gradient(135deg, var(--paya-blue), var(--paya-light-blue));
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .contact-box h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .contact-box a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .last-update {
+            text-align: center;
+            color: var(--paya-gray);
+            font-style: italic;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .toc {
+            background-color: var(--paya-cream);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .toc h3 {
+            color: var(--paya-blue);
+            margin-top: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc a {
+            color: var(--paya-light-blue);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: var(--paya-blue);
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--paya-gray);
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--paya-blue);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .logo {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">💰</div>
+        <h1>Politique de Confidentialité</h1>
+        <p>Paya - La tontine simplifiée</p>
+    </header>
+
+    <div class="container">
+        <div class="content">
+            <div class="toc">
+                <h3>📋 Table des matières</h3>
+                <ul>
+                    <li><a href="#introduction">1. Introduction</a></li>
+                    <li><a href="#donnees-collectees">2. Données collectées</a></li>
+                    <li><a href="#utilisation-donnees">3. Utilisation des données</a></li>
+                    <li><a href="#firebase">4. Firebase et services tiers</a></li>
+                    <li><a href="#partage-donnees">5. Partage des données</a></li>
+                    <li><a href="#securite">6. Sécurité</a></li>
+                    <li><a href="#droits-utilisateur">7. Vos droits</a></li>
+                    <li><a href="#cookies">8. Cookies</a></li>
+                    <li><a href="#modifications">9. Modifications</a></li>
+                    <li><a href="#contact">10. Contact</a></li>
+                </ul>
+            </div>
+
+            <h2 id="introduction">1. Introduction</h2>
+            <p>
+                Bienvenue sur <strong>Paya</strong> ("l'Application"). Nous respectons votre vie privée et nous nous engageons 
+                à protéger vos données personnelles. Cette politique de confidentialité explique comment nous collectons, 
+                utilisons et protégeons vos informations lorsque vous utilisez notre application mobile.
+            </p>
+            <div class="highlight">
+                <strong>⚠️ Important :</strong> En utilisant Paya, vous acceptez les pratiques décrites dans cette politique.
+            </div>
+
+            <h2 id="donnees-collectees">2. Données collectées</h2>
+            <p>Nous collectons les types de données suivants :</p>
+
+            <h3>2.1 Données que vous nous fournissez</h3>
+            <ul>
+                <li><strong>Informations de compte</strong> : Nom, adresse email, mot de passe (crypté)</li>
+                <li><strong>Informations professionnelles</strong> : Nom de votre entreprise, type de commerce</li>
+                <li><strong>Données de tontine</strong> : Vagues créées, produits, commandes, clients</li>
+                <li><strong>Informations clients</strong> : Noms et détails de vos clients (que vous ajoutez dans l'app)</li>
+            </ul>
+
+            <h3>2.2 Données collectées automatiquement</h3>
+            <ul>
+                <li><strong>Identifiants d'appareil</strong> : ID unique de votre appareil</li>
+                <li><strong>Données d'utilisation</strong> : Fonctionnalités utilisées, fréquence d'utilisation</li>
+                <li><strong>Logs d'application</strong> : Informations sur les performances et les erreurs</li>
+                <li><strong>État de connexion</strong> : Statut en ligne/hors-ligne</li>
+            </ul>
+
+            <h3>2.3 Données NON collectées</h3>
+            <div class="highlight">
+                ✅ Nous ne collectons PAS :
+                <ul>
+                    <li>Vos données de localisation GPS</li>
+                    <li>Vos contacts téléphoniques</li>
+                    <li>Vos photos personnelles (seules les photos de produits sont stockées)</li>
+                    <li>Vos informations bancaires ou de paiement</li>
+                </ul>
+            </div>
+
+            <h2 id="utilisation-donnees">3. Utilisation des données</h2>
+            <p>Nous utilisons vos données pour :</p>
+            <ol>
+                <li><strong>Fournir le service</strong> : Gérer votre compte, vos vagues de produits et vos commandes</li>
+                <li><strong>Améliorer l'application</strong> : Analyser l'utilisation pour améliorer les fonctionnalités</li>
+                <li><strong>Sécurité</strong> : Authentifier votre compte et protéger contre les accès non autorisés</li>
+                <li><strong>Support</strong> : Répondre à vos demandes d'assistance</li>
+                <li><strong>Notifications</strong> : Vous informer des mises à jour importantes (optionnel)</li>
+            </ol>
+
+            <h2 id="firebase">4. Firebase et services tiers</h2>
+            <p>
+                Paya utilise <strong>Google Firebase</strong> comme backend. Cela signifie que vos données sont stockées 
+                sur les serveurs sécurisés de Google Firebase.
+            </p>
+
+            <h3>4.1 Données stockées sur Firebase</h3>
+            <ul>
+                <li>Informations de compte (authentification Firebase)</li>
+                <li>Données de tontine (vagues, produits, commandes, clients)</li>
+                <li>Préférences utilisateur</li>
+            </ul>
+
+            <h3>4.2 Politique de Firebase</h3>
+            <p>
+                L'utilisation de Firebase est soumise à la 
+                <a href="https://policies.google.com/privacy" target="_blank">Politique de Confidentialité de Google</a>.
+                Vos données sont protégées par les mesures de sécurité de Google Cloud.
+            </p>
+
+            <h2 id="partage-donnees">5. Partage des données</h2>
+            <div class="highlight">
+                <strong>🔒 Nous NE vendons PAS vos données personnelles.</strong>
+            </div>
+            <p>Nous partageons uniquement vos données dans les cas suivants :</p>
+            <ul>
+                <li><strong>Avec Firebase/Google</strong> : Pour le stockage et l'authentification (nécessaire au fonctionnement)</li>
+                <li><strong>Avec votre consentement</strong> : Si vous choisissez de partager des données</li>
+                <li><strong>Obligation légale</strong> : Si requis par la loi ou une autorité judiciaire</li>
+            </ul>
+
+            <h2 id="securite">6. Sécurité</h2>
+            <p>Nous mettons en œuvre des mesures de sécurité pour protéger vos données :</p>
+            <ul>
+                <li>🔐 <strong>Authentification sécurisée</strong> : Mots de passe cryptés via Firebase Auth</li>
+                <li>🔒 <strong>Données cryptées</strong> : Transmission via HTTPS/TLS</li>
+                <li>🛡️ <strong>Protection Firebase</strong> : Règles de sécurité Firestore</li>
+                <li>📱 <strong>Isolation des données</strong> : Chaque vendeur ne voit que ses propres données</li>
+            </ul>
+            <div class="highlight">
+                ⚠️ <strong>Limitation :</strong> Aucune méthode de transmission sur Internet n'est 100% sécurisée. 
+                Nous faisons de notre mieux pour protéger vos données, mais nous ne pouvons garantir une sécurité absolue.
+            </div>
+
+            <h2 id="droits-utilisateur">7. Vos droits</h2>
+            <p>Vous avez les droits suivants sur vos données :</p>
+            <ul>
+                <li>✅ <strong>Accès</strong> : Demander une copie de vos données</li>
+                <li>✅ <strong>Rectification</strong> : Corriger des données inexactes</li>
+                <li>✅ <strong>Suppression</strong> : Demander la suppression de votre compte et de vos données</li>
+                <li>✅ <strong>Export</strong> : Exporter vos données (fonctionnalité dans l'app)</li>
+                <li>✅ <strong>Opposition</strong> : Vous opposer au traitement de vos données</li>
+            </ul>
+            <p>
+                Pour exercer ces droits, contactez-nous à 
+                <a href="mailto:davidhida108@gmail.com">davidhida108@gmail.com</a>
+            </p>
+
+            <h2 id="cookies">8. Cookies</h2>
+            <p>
+                Paya n'utilise pas de cookies traditionnels. Cependant, l'application peut utiliser :
+            </p>
+            <ul>
+                <li><strong>Stockage local</strong> : Pour sauvegarder vos préférences et permettre le mode hors-ligne</li>
+                <li><strong>Identifiants Firebase</strong> : Pour maintenir votre session connectée</li>
+            </ul>
+
+            <h2 id="modifications">9. Modifications de cette politique</h2>
+            <p>
+                Nous pouvons mettre à jour cette politique de confidentialité. Nous vous notifierons de tout changement 
+                important via l'application ou par email. La version la plus récente sera toujours disponible dans 
+                l'application et sur cette page.
+            </p>
+
+            <h2 id="contact">10. Contact</h2>
+            <div class="contact-box">
+                <h3>📧 Nous contacter</h3>
+                <p>
+                    Pour toute question concernant cette politique de confidentialité ou la protection de vos données, 
+                    contactez-nous à :
+                </p>
+                <p style="font-size: 1.2em; margin-top: 15px;">
+                    📧 <a href="mailto:davidhida108@gmail.com">davidhida108@gmail.com</a>
+                </p>
+                <p style="margin-top: 20px; font-size: 0.9em;">
+                    Temps de réponse moyen : 24-48 heures
+                </p>
+            </div>
+
+            <div class="last-update">
+                <p><strong>Dernière mise à jour :</strong> 2 Avril 2026</p>
+                <p><strong>Version :</strong> 1.0</p>
+                <p><strong>Application :</strong> Paya v0.5.0</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                © 2026 Paya - La tontine simplifiée<br>
+                Développé avec ❤️ pour les commerçants africains<br>
+                <a href="https://github.com/hbddevos/tontine_app_pro" target="_blank">GitHub</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
