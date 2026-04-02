@@ -49,6 +49,34 @@ All notable changes to this project will be documented in this file.
   - `setWaveProducts()` now directly updates Firestore without reading document first (prevents race conditions)
   - Exposed `productRepository` and `waveRepository` as public fields in controllers for external access
 
+- **UX Enhancements**
+  - Added loading spinner in WaveDetailsPage products section
+  - Real-time product selection feedback in ProductSelectionSheet
+  - Improved error handling and loading states
+
+### Fixed
+- **Critical**: All waves showing same products issue
+  - Root cause: Shared `waveController.linkedProducts` state across all wave instances
+  - Solution: Each `WaveDetailsPage` now maintains its own `_products` list loaded from `wave.productIds`
+- **Critical**: Products not loading in Wave Details
+  - Changed from `getProductsByWave(waveId)` (uses old `waveId` field) to `getProductsByIds(productIds)` (uses new `productIds` field)
+- **Critical**: Wave object not updating after adding products
+  - Added Firestore refresh in `_loadProducts()` to get latest `productIds` before loading products
+- **UI**: BottomSheet not closing after validation
+  - Changed from `Get.back()` to `Navigator.of(context).pop()` for reliable closure
+- **UI**: Selection state not reflecting in real-time
+  - Each product item now has its own `Obx` wrapper for immediate visual updates
+- **UI**: Loading spinner not rotating
+  - Added `AnimationController` with `RotationTransition` for proper spinner animation
+- **State**: `LateInitializationError` in `WaveDetailsPage`
+  - Changed `late final WaveModel wave` to `late WaveModel wave` to allow reassignment
+
+### Technical Debt
+- Added callback mechanism (`onProductsUpdated`) in `ProductSelectionSheet` for parent notification
+- Proper separation of concerns: Wave data vs Product data loading
+- Consistent use of reactive programming patterns with GetX
+- Added `SingleTickerProviderStateMixin` for animation support in WaveDetailsPage
+
 - **UI/UX Improvements**
   - **CreateOrderPage**: Fixed controller initialization conflicts
     - Changed from `Get.put()` to `Get.find()` to use binding-provided instances
