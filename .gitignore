@@ -50,3 +50,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /webflow-framer-scraper
+
+# Local Android configuration (machine-specific)
+android/app/google-services.json
+android/build.gradle.kts
+android/settings.gradle.kts
