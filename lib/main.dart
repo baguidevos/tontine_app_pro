@@ -48,16 +48,16 @@ void main() async {
 
   Get.put(ConnectivityService());
 
-  runApp(const TontineApp());
+  runApp(const PayaApp());
 }
 
-class TontineApp extends StatelessWidget {
-  const TontineApp({super.key});
+class PayaApp extends StatelessWidget {
+  const PayaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'TontineManager Pro',
+      title: 'Paya',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: '/splash',

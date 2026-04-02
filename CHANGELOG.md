@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-04-02
+
+### Added
+- **Rebranding to Paya**
+  - New app name: "Paya - La tontine simplifiée"
+  - New brand identity with modern color palette
+  - Updated all references from "Tontine App Pro" to "Paya"
+  - New Paya brand colors (payaBlue, payaLightBlue, payaCream, etc.)
+  - Legacy color aliases maintained for backward compatibility
+
+### Changed
+- **App Identity**
+  - Package name: `tontine_app` → `paya_app`
+  - Android applicationId: `com.zashcode.tontine_pro` → `com.paya.app`
+  - Android namespace: `com.zashcode.tontine_pro` → `com.paya.app`
+  - App title: "TontineManager Pro" → "Paya"
+  - Main app class: `TontineApp` → `PayaApp`
+
+- **Theme & Design**
+  - Primary brand color: Deep Blue (#1a237e)
+  - Secondary color: Light Blue (#534ba6)
+  - Background: Warm Cream (#faf7f0)
+  - Updated all UI components to use new Paya colors
+  - Maintained backward compatibility with legacy color names
+
+### Technical
+- Updated `pubspec.yaml` version to 0.5.0+8
+- Updated all documentation (README, VERSIONING, BRANDING)
+- Created `BRANDING_PAYA.md` with complete brand guidelines
+- Created `NOMMING.md` with naming research and alternatives
+
+---
+
 ## [0.4.0] - 2026-04-01
 
 ### Added

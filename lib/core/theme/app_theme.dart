@@ -1,45 +1,59 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color sageGreen = Color(0xFFB2AC88);
-  static const Color softBlue = Color(0xFFA8DADC);
-  static const Color warmCream = Color(0xFFF1FAEE);
-  static const Color deepBlue = Color(0xFF457B9D);
-  static const Color softRed = Color(0xFFE63946);
-  static const Color successGreen = Color.fromARGB(146, 9, 192, 107);
-  static const Color darkerBlue = Color(0xFF1D3557);
+  // Paya Brand Colors
+  static const Color payaBlue = Color(
+    0xFF1a237e,
+  ); // Deep Blue - Primary brand color
+  static const Color payaLightBlue = Color(0xFF534ba6); // Soft Blue - Secondary
+  static const Color payaCream = Color(0xFFFfaf7f0); // Warm Cream - Background
+  static const Color payaWhite = Color(0xFFFFFFFF); // Pure White
+  static const Color payaGreen = Color(0xFF2e7d32); // Success Green
+  static const payaOrange = Color(0xFFFF9800); // Action Orange
+  static const Color payaRed = Color(0xFFe53935); // Error Red
+  static const Color payaGray = Color(0xFF9e9e9e); // Neutral Gray
+
+  // Legacy aliases (for backward compatibility)
+  static const Color deepBlue = payaBlue;
+  static const Color softBlue = payaLightBlue;
+  static const Color warmCream = payaCream;
+  static const Color successGreen = payaGreen;
+  static const Color softRed = payaRed;
+  static const Color darkerBlue = Color(
+    0xFF0d1457,
+  ); // Darker version of payaBlue
 
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: warmCream,
+      scaffoldBackgroundColor: payaCream,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: deepBlue,
-        primary: deepBlue,
-        secondary: softBlue,
-        surface: Colors.white,
+        seedColor: payaBlue,
+        primary: payaBlue,
+        secondary: payaLightBlue,
+        surface: payaWhite,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.white,
+        backgroundColor: payaWhite,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          color: darkerBlue,
+          color: payaBlue,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: darkerBlue),
+        iconTheme: IconThemeData(color: payaBlue),
       ),
       cardTheme: CardThemeData(
-        color: Colors.white,
+        color: payaWhite,
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.05),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: deepBlue,
-          foregroundColor: Colors.white,
+          backgroundColor: payaBlue,
+          foregroundColor: payaWhite,
           minimumSize: const Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),

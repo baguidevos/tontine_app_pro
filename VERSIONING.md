@@ -1,18 +1,36 @@
-# 📦 Versioning & Releases - Tontine App Pro
+# 📦 Versioning & Releases - Paya
 
 **Dernière mise à jour :** 2026-04-02  
-**Version actuelle :** v0.4.0+7
+**Version actuelle :** v0.5.0+8  
+**Nom de code :** Paya Rebranding
 
 ---
 
 ## 🎯 Version actuelle
 
-### **v0.4.0+7** - 2026-04-02
+### **v0.5.0+8** - 2026-04-02
 
 **Statut :** ✅ Production Ready  
-**Type :** MINOR (nouvelles fonctionnalités, compatible backward)
+**Type :** MAJOR REBRAND - Nouvelle identité
+
+### **Changement majeur : Paya !**
+
+L'application change de nom et d'identité !
+
+**Ancien nom :** Tontine App Pro  
+**Nouveau nom :** Paya - La tontine simplifiée
 
 ### **Fonctionnalités principales**
+
+| Feature | Statut | Description |
+|---------|--------|-------------|
+| Nouvelle identité | ✅ Complet | Nom, logo, couleurs Paya |
+| Couleurs de marque | ✅ Complet | payaBlue, payaLightBlue, payaCream |
+| Package rename | ✅ Complet | `paya_app` au lieu de `tontine_app` |
+| Android ID | ✅ Complet | `com.paya.app` |
+| Documentation | ✅ Complet | README, CHANGELOG, BRANDING mis à jour |
+
+### **Features héritées de v0.4.0**
 
 | Feature | Statut | Description |
 |---------|--------|-------------|
