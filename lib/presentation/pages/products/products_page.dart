@@ -197,7 +197,7 @@ class ProductsPage extends StatelessWidget {
                         'Stock: ${product.stock}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: product.stock > 0 ? Colors.green : Colors.red,
+                          color: product.stock > 0 ? Colors.green : Colors.red, 
                         ),
                       ),
                       GestureDetector(

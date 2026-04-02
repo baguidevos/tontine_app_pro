@@ -37,6 +37,13 @@ All notable changes to this project will be documented in this file.
   - Proper isolation of wave-specific data to prevent cross-contamination between waves
 
 ### Changed
+- **Product Creation Simplification**
+  - Removed wave selection dropdown from `CreateProductPage`
+  - Removed stock field (defaults to 0)
+  - Products now created independently and linked to waves afterwards via wave details
+  - Simplified form focuses on essentials: name, price, image
+  - Updated `ProductController.createProduct()` signature: `waveId` and `stock` now optional
+
 - **Data Architecture**
   - Migrated from single `waveId` in Product to many-to-many relationship via `productIds` in Wave
   - `setWaveProducts()` now directly updates Firestore without reading document first (prevents race conditions)

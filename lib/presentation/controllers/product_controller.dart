@@ -90,7 +90,7 @@ class ProductController extends GetxController {
         name: name,
         price: price,
         localImagePath: localImagePath,
-        stock: stock,
+        stock: 0,
       );
 
       await productRepository.createProduct(product, vendorId);
