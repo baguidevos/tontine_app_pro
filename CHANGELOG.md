@@ -2,7 +2,81 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.0] - 2026-04-01
+## [0.4.0] - 2026-04-01
+
+### Added
+- **Wave-Products Linking (Many-to-Many)**
+  - Added `productIds: List<String>` field to `WaveModel` for linking multiple products to waves
+  - Made `waveId` optional in `ProductModel` for backward compatibility
+  - Created `getProductsByIds()` and `watchProductsByIds()` in `ProductRepository` for fetching products by ID list
+  - Added `addProductToWave()`, `removeProductFromWave()`, and `setWaveProducts()` in `WaveRepository`
+
+- **Product Selection UI**
+  - Created `ProductSelectionSheet` - a modern bottom sheet with multi-select product picker
+  - Two-tab interface: "Produits existants" (searchable list) and "Nouveau produit"
+  - Real-time selection feedback with animated checkboxes and border highlights
+  - Validation button with dynamic counter showing selected items count
+  - Direct navigation to product creation from the sheet
+
+- **Wave Creation/Editing Enhancement**
+  - Integrated product selection in `CreateWaveDialog`
+  - Visual list of linked products with remove buttons
+  - Products persist automatically when wave is created or updated
+
+- **Wave Details Page - Products Section**
+  - New "Produits liés" section displaying all products linked to a wave
+  - Product cards showing name, price, and stock count
+  - Add/remove products directly from wave details
+  - Confirmation dialog before removing products
+  - Loading spinner during product refresh for better UX
+  - Empty state with helpful message when no products linked
+
+- **Enhanced State Management**
+  - Added `selectedProductIds` and `linkedProducts` reactive lists in `WaveController`
+  - Methods: `setSelectedProducts()`, `addSelectedProduct()`, `removeSelectedProduct()`, `loadLinkedProducts()`
+  - Proper isolation of wave-specific data to prevent cross-contamination between waves
+
+### Changed
+- **Data Architecture**
+  - Migrated from single `waveId` in Product to many-to-many relationship via `productIds` in Wave
+  - `setWaveProducts()` now directly updates Firestore without reading document first (prevents race conditions)
+  - Exposed `productRepository` and `waveRepository` as public fields in controllers for external access
+
+- **UI/UX Improvements**
+  - **CreateOrderPage**: Fixed controller initialization conflicts
+    - Changed from `Get.put()` to `Get.find()` to use binding-provided instances
+    - Added loading indicator for wave dropdown while data loads
+    - Proper waiting for async data before rendering dropdowns
+  - **ProductSelectionSheet**: Each product item wrapped in individual `Obx` for instant visual feedback
+  - **WaveDetailsPage**: Uses local `_products` list instead of shared controller state to avoid cross-wave contamination
+
+- **Code Quality**
+  - Fixed Hero tag collision in `WavesPage` by adding unique `heroTag`
+  - Resolved GetX reactive state issues by using local state for wave-specific data
+  - Added proper async/await handling in product loading
+  - Improved error handling and loading states throughout
+
+### Fixed
+- **Critical**: All waves showing same products issue
+  - Root cause: Shared `waveController.linkedProducts` state across all wave instances
+  - Solution: Each `WaveDetailsPage` now maintains its own `_products` list loaded from `wave.productIds`
+- **Critical**: Products not loading in Wave Details
+  - Changed from `getProductsByWave(waveId)` (uses old `waveId` field) to `getProductsByIds(productIds)` (uses new `productIds` field)
+- **Critical**: Wave object not updating after adding products
+  - Added Firestore refresh in `_loadProducts()` to get latest `productIds` before loading products
+- **UI**: BottomSheet not closing after validation
+  - Changed from `Get.back()` to `Navigator.of(context).pop()` for reliable closure
+- **UI**: Selection state not reflecting in real-time
+  - Each product item now has its own `Obx` wrapper for immediate visual updates
+- **State**: `LateInitializationError` in `WaveDetailsPage`
+  - Changed `late final WaveModel wave` to `late WaveModel wave` to allow reassignment
+
+### Technical Debt
+- Added callback mechanism (`onProductsUpdated`) in `ProductSelectionSheet` for parent notification
+- Proper separation of concerns: Wave data vs Product data loading
+- Consistent use of reactive programming patterns with GetX
+
+---
 
 ### Added
 - **Wave-Orders Linking**

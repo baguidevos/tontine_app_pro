@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../controllers/wave_controller.dart';
+import '../../../controllers/product_controller.dart';
 import '../../../../data/models/wave_model.dart';
+import '../../../../data/models/product_model.dart';
+import 'product_selection_sheet.dart';
 
 class CreateWaveDialog extends StatefulWidget {
   final WaveModel? wave;
@@ -17,23 +20,34 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late WaveStatus _status;
+  late WaveController _waveController;
+  late ProductController _productController;
+  final RxList<ProductModel> _selectedProducts = <ProductModel>[].obs;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.wave?.name ?? '');
     _status = widget.wave?.status ?? WaveStatus.draft;
-  }
+    _waveController = Get.find<WaveController>();
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
+    // Initialize ProductController if not already registered
+    if (!Get.isRegistered<ProductController>()) {
+      Get.put(ProductController());
+    }
+    _productController = Get.find<ProductController>();
+
+    // Charger les produits déjà liés si édition
+    if (widget.wave != null && widget.wave!.productIds.isNotEmpty) {
+      // Clear any previous state
+      _waveController.clearSelectedProducts();
+      _waveController.setSelectedProducts(widget.wave!.productIds);
+      _waveController.loadLinkedProducts(widget.wave!.productIds);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final waveController = Get.put(WaveController());
     final isEditing = widget.wave != null;
 
     return Dialog(
@@ -42,7 +56,7 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
       elevation: 8,
       child: Container(
         padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: const BoxConstraints(maxWidth: 500),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -192,6 +206,181 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
 
                 const SizedBox(height: 32),
 
+                // Products Section
+                Text(
+                  'Produits liés',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Obx(() {
+                  final linkedProducts = _waveController.linkedProducts;
+                  final hasProducts = linkedProducts.isNotEmpty;
+
+                  return Column(
+                    children: [
+                      if (hasProducts) ...[
+                        Container(
+                          constraints: const BoxConstraints(maxHeight: 200),
+                          decoration: BoxDecoration(
+                            color: AppTheme.warmCream.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppTheme.deepBlue.withOpacity(0.2),
+                            ),
+                          ),
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.all(12),
+                            itemCount: linkedProducts.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 8),
+                            itemBuilder: (context, index) {
+                              final product = linkedProducts[index];
+                              return Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.warmCream,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(
+                                        Icons.shopping_bag_outlined,
+                                        color: AppTheme.deepBlue,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            product.name,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${product.price.toStringAsFixed(0)} FCFA • ${product.stock} en stock',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: AppTheme.softRed,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        _waveController.removeSelectedProduct(
+                                          product.id,
+                                        );
+                                        _waveController.linkedProducts.remove(
+                                          product,
+                                        );
+                                      },
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ] else ...[
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppTheme.warmCream.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: AppTheme.deepBlue.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Aucun produit sélectionné',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            // Use selectedProductIds instead of linkedProducts for reliability
+                            final currentIds = _waveController
+                                .selectedProductIds
+                                .toList();
+                            Get.bottomSheet(
+                              ProductSelectionSheet(
+                                initialProductIds: currentIds,
+                              ),
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.add_circle_outline,
+                            color: AppTheme.deepBlue,
+                          ),
+                          label: const Text(
+                            'Ajouter des produits',
+                            style: TextStyle(
+                              color: AppTheme.deepBlue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTheme.deepBlue,
+                            side: const BorderSide(color: AppTheme.deepBlue),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+
+                const SizedBox(height: 32),
+
                 // Actions
                 Row(
                   children: [
@@ -224,16 +413,23 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
                                 name: _nameController.text,
                                 status: _status,
                                 createdAt: widget.wave!.createdAt,
+                                productIds: _waveController.selectedProductIds
+                                    .toList(),
                               );
-                              await waveController.updateWave(updatedWave);
+                              await _waveController.updateWave(updatedWave);
+                              // Mettre à jour les produits liés
+                              await _waveController.setWaveProducts(
+                                widget.wave!.id,
+                                _waveController.selectedProductIds.toList(),
+                              );
                             } else {
                               final newWave = WaveModel(
-                                id: '', // Generated by repo
+                                id: '',
                                 name: _nameController.text,
                                 status: _status,
                                 createdAt: DateTime.now(),
                               );
-                              await waveController.createWave(newWave);
+                              await _waveController.createWave(newWave);
                             }
                             Get.back();
                           }

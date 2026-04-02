@@ -19,14 +19,22 @@ class CreateOrderPage extends StatefulWidget {
 }
 
 class _CreateOrderPageState extends State<CreateOrderPage> {
-  final CustomerController _customerController = Get.put(CustomerController());
-  final ProductController _productController = Get.put(ProductController());
-  final WaveController _waveController = Get.put(WaveController());
+  late final CustomerController _customerController;
+  late final ProductController _productController;
+  late final WaveController _waveController;
   final OrderController _orderController = Get.find<OrderController>();
 
   String? _selectedCustomerId;
   String? _selectedWaveId;
   final RxList<OrderItemModel> _cartItems = <OrderItemModel>[].obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _customerController = Get.find<CustomerController>();
+    _productController = Get.find<ProductController>();
+    _waveController = Get.find<WaveController>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +63,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               }
 
               final customers = _customerController.customers;
-              final waves = _waveController.waves
-                  .where((w) => w.status == WaveStatus.active)
-                  .toList();
 
               return Column(
                 children: [
@@ -124,50 +129,73 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedWaveId,
-                          decoration: InputDecoration(
-                            labelText: 'Vague (optionnel)',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: const Icon(Icons.waves),
-                          ),
-                          items: [
-                            const DropdownMenuItem(
-                              value: null,
-                              child: Text('Aucune vague'),
-                            ),
-                            ...waves.map(
-                              (w) => DropdownMenuItem(
-                                value: w.id,
-                                child: Text(w.name),
+                        child: Obx(() {
+                          if (_waveController.isLoading.value) {
+                            return const Padding(
+                              padding: EdgeInsets.all(12.0),
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          final waves = _waveController.waves
+                              .where((w) => w.status == WaveStatus.active)
+                              .toList();
+
+                          return DropdownButtonFormField<String>(
+                            value: _selectedWaveId,
+                            decoration: InputDecoration(
+                              labelText: 'Vague (optionnel)',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              prefixIcon: const Icon(Icons.waves),
                             ),
-                          ],
-                          onChanged: (val) {
-                            setState(() {
-                              _selectedWaveId = val;
-                            });
-                          },
-                          hint: const Text('Choisir une vague'),
-                        ),
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('Aucune vague'),
+                              ),
+                              ...waves.map(
+                                (w) => DropdownMenuItem(
+                                  value: w.id,
+                                  child: Text(w.name),
+                                ),
+                              ),
+                            ],
+                            onChanged: (val) {
+                              setState(() {
+                                _selectedWaveId = val;
+                              });
+                            },
+                            hint: const Text('Choisir une vague'),
+                          );
+                        }),
                       ),
                     ],
                   ),
-                  if (waves.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Aucune vague active. Créez une vague pour organiser vos commandes.',
-                        style: TextStyle(
-                          color: Colors.orange[300],
-                          fontSize: 12,
+                  Obx(() {
+                    if (_waveController.isLoading.value) {
+                      return const SizedBox.shrink();
+                    }
+                    final waves = _waveController.waves
+                        .where((w) => w.status == WaveStatus.active)
+                        .toList();
+                    if (waves.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Aucune vague active. Créez une vague pour organiser vos commandes.',
+                          style: TextStyle(
+                            color: Colors.red[800],
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
                 ],
               );
             }),

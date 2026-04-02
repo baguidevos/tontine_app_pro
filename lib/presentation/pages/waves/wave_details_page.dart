@@ -4,8 +4,12 @@ import '../../../core/theme/app_theme.dart';
 import '../../controllers/wave_controller.dart';
 import '../../controllers/order_controller.dart';
 import '../../controllers/customer_controller.dart';
+import '../../controllers/product_controller.dart';
 import '../../../data/models/wave_model.dart';
 import '../../../data/models/order_model.dart';
+import '../../../data/models/product_model.dart';
+import 'widgets/product_selection_sheet.dart';
+import 'widgets/create_wave_dialog.dart';
 
 class WaveDetailsPage extends StatefulWidget {
   const WaveDetailsPage({super.key});
@@ -15,11 +19,14 @@ class WaveDetailsPage extends StatefulWidget {
 }
 
 class _WaveDetailsPageState extends State<WaveDetailsPage> {
-  late final WaveModel wave;
+  late WaveModel wave;
   late final OrderController orderController;
   late final WaveController waveController;
+  late final ProductController productController;
   final RxList<OrderModel> _orders = <OrderModel>[].obs;
+  final RxList<ProductModel> _products = <ProductModel>[].obs;
   final _isLoading = true.obs;
+  final _isRefreshingProducts = false.obs;
 
   @override
   void initState() {
@@ -27,11 +34,18 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
     orderController = Get.find<OrderController>();
     waveController = Get.find<WaveController>();
 
+    // Initialize ProductController if not already registered
+    if (!Get.isRegistered<ProductController>()) {
+      Get.put(ProductController());
+    }
+    productController = Get.find<ProductController>();
+
     // Récupérer la vague passée en argument
     try {
       final args = Get.arguments;
       if (args is WaveModel) {
         wave = args;
+        _loadProducts();
         _loadOrders();
       } else {
         Get.snackbar(
@@ -51,6 +65,33 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
         colorText: Colors.white,
       );
       Future.delayed(Duration.zero, () => Get.back());
+    }
+  }
+
+  Future<void> _loadProducts() async {
+    // Set refreshing state (only if already loaded once)
+    if (!_isLoading.value) {
+      _isRefreshingProducts.value = true;
+    }
+
+    try {
+      // Refresh wave data from Firestore to get latest productIds
+      final updatedWave = await waveController.waveRepository.getWave(wave.id);
+      if (updatedWave != null) {
+        wave = updatedWave;
+      }
+
+      // Load products specific to this wave using productIds
+      if (wave.productIds.isNotEmpty) {
+        final products = await productController.productRepository
+            .getProductsByIds(wave.productIds);
+        _products.value = products;
+      } else {
+        _products.value = [];
+      }
+    } finally {
+      _isRefreshingProducts.value = false;
+      _isLoading.value = false;
     }
   }
 
@@ -80,46 +121,19 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: AppTheme.deepBlue,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              Get.dialog(CreateWaveDialog(wave: wave));
+            },
+          ),
+        ],
       ),
       body: Obx(() {
+        // Check loading state
         if (_isLoading.value) {
           return const Center(child: CircularProgressIndicator());
-        }
-
-        if (_orders.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.shopping_cart_outlined,
-                  size: 80,
-                  color: AppTheme.deepBlue.withOpacity(0.2),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Aucune commande',
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Cette vague n\'a pas encore de commandes',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => Get.toNamed('/orders/create'),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Créer une commande'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.deepBlue,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          );
         }
 
         // Calculer les statistiques
@@ -149,6 +163,11 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
             children: [
               // En-tête de la vague
               _buildWaveHeader(wave),
+
+              const SizedBox(height: 24),
+
+              // Produits liés
+              _buildProductsSection(),
 
               const SizedBox(height: 24),
 
@@ -244,6 +263,248 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
               ),
               _buildStatusChip(wave.status),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProductsSection() {
+    return Obx(() {
+      final products = _products;
+      final isRefreshing = _isRefreshingProducts.value;
+
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Produits liés',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    Text(
+                      '${products.length}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    if (isRefreshing) ...[
+                      const SizedBox(width: 8),
+                      const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppTheme.deepBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (isRefreshing && products.isEmpty) ...[
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ] else if (products.isEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: AppTheme.warmCream.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.inventory_2_outlined,
+                      color: Colors.grey.shade400,
+                      size: 40,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Aucun produit lié',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Ajoutez des produits pour les associer à cette vague',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else ...[
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: products.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.warmCream.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.deepBlue.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppTheme.warmCream,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.shopping_bag_outlined,
+                            color: AppTheme.deepBlue,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${product.price.toStringAsFixed(0)} FCFA • ${product.stock} en stock',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: AppTheme.softRed,
+                            size: 22,
+                          ),
+                          onPressed: () {
+                            _confirmRemoveProduct(product);
+                          },
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Get.bottomSheet(
+                    ProductSelectionSheet(
+                      initialProductIds: _products.map((p) => p.id).toList(),
+                      waveId: wave.id,
+                      onProductsUpdated: _loadProducts,
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    ignoreSafeArea: true,
+                  );
+                },
+                icon: const Icon(
+                  Icons.add_circle_outline,
+                  color: AppTheme.deepBlue,
+                ),
+                label: const Text(
+                  'Ajouter un produit',
+                  style: TextStyle(
+                    color: AppTheme.deepBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.deepBlue,
+                  side: const BorderSide(color: AppTheme.deepBlue),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  void _confirmRemoveProduct(ProductModel product) {
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Retirer le produit'),
+        content: Text(
+          'Voulez-vous vraiment retirer "${product.name}" de cette vague ?',
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () {
+              waveController.removeProductFromWave(wave.id, product.id);
+              _products.remove(product);
+              Get.back();
+            },
+            style: TextButton.styleFrom(foregroundColor: AppTheme.softRed),
+            child: const Text('Retirer'),
           ),
         ],
       ),

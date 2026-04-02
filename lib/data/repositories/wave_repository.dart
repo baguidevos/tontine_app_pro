@@ -7,7 +7,7 @@ class WaveRepository {
   Future<WaveModel> createWave(WaveModel wave, String vendorId) async {
     final ref = _firestore.collection('waves').doc(wave.id);
     final waveData = wave.toMap();
-    waveData['vendorId'] = vendorId; // Add vendorId for multi-tenancy
+    waveData['vendorId'] = vendorId;
     await ref.set(waveData);
     return wave;
   }
@@ -62,5 +62,43 @@ class WaveRepository {
         .where('vendorId', isEqualTo: vendorId)
         .get();
     return snapshot.docs.length;
+  }
+
+  Future<void> addProductToWave(String waveId, String productId) async {
+    final wave = await getWave(waveId);
+    if (wave == null) return;
+
+    if (!wave.productIds.contains(productId)) {
+      final updatedProductIds = List<String>.from(wave.productIds)
+        ..add(productId);
+      final updatedWave = wave.copyWith(productIds: updatedProductIds);
+      await updateWave(updatedWave);
+    }
+  }
+
+  Future<void> removeProductFromWave(String waveId, String productId) async {
+    final wave = await getWave(waveId);
+    if (wave == null) return;
+
+    final updatedProductIds = wave.productIds
+        .where((id) => id != productId)
+        .toList();
+    final updatedWave = wave.copyWith(productIds: updatedProductIds);
+    await updateWave(updatedWave);
+  }
+
+  Future<void> setWaveProducts(String waveId, List<String> productIds) async {
+    // Directly update Firestore without reading the document first
+    // This ensures we only update the specific wave
+    await _firestore.collection('waves').doc(waveId).update({
+      'productIds': productIds,
+    });
+  }
+
+  Future<void> replaceWaveProducts(
+    String waveId,
+    List<String> productIds,
+  ) async {
+    await setWaveProducts(waveId, productIds);
   }
 }

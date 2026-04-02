@@ -1,6 +1,6 @@
 class ProductModel {
   final String id;
-  final String waveId;
+  final String? waveId;
   final String name;
   final double price;
   final String localImagePath;
@@ -8,7 +8,7 @@ class ProductModel {
 
   ProductModel({
     required this.id,
-    required this.waveId,
+    this.waveId,
     required this.name,
     required this.price,
     required this.localImagePath,
@@ -29,7 +29,7 @@ class ProductModel {
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
     return ProductModel(
       id: id,
-      waveId: map['waveId'] ?? '',
+      waveId: map['waveId'],
       name: map['name'] ?? '',
       price: (map['price'] ?? 0.0).toDouble(),
       localImagePath: map['localImagePath'] ?? '',

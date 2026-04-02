@@ -5,12 +5,14 @@ class WaveModel {
   final String name;
   final WaveStatus status;
   final DateTime createdAt;
+  final List<String> productIds;
 
   WaveModel({
     required this.id,
     required this.name,
     required this.status,
     required this.createdAt,
+    this.productIds = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -19,10 +21,12 @@ class WaveModel {
       'name': name,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'productIds': productIds,
     };
   }
 
   factory WaveModel.fromMap(Map<String, dynamic> map, String id) {
+    final productIdsRaw = map['productIds'] as List<dynamic>?;
     return WaveModel(
       id: id,
       name: map['name'] ?? '',
@@ -33,19 +37,23 @@ class WaveModel {
       createdAt: DateTime.parse(
         map['createdAt'] ?? DateTime.now().toIso8601String(),
       ),
+      productIds: productIdsRaw?.map((e) => e.toString()).toList() ?? [],
     );
   }
+
   WaveModel copyWith({
     String? id,
     String? name,
     WaveStatus? status,
     DateTime? createdAt,
+    List<String>? productIds,
   }) {
     return WaveModel(
       id: id ?? this.id,
       name: name ?? this.name,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      productIds: productIds ?? this.productIds,
     );
   }
 }

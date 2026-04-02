@@ -54,15 +54,6 @@ class InventoryPage extends StatelessWidget {
             ),
           ],
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Get.dialog(const CreateWaveDialog()),
-          backgroundColor: AppTheme.deepBlue,
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text(
-            'Nouvelle Vague',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
       ),
     );
   }

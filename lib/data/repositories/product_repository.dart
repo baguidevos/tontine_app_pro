@@ -10,7 +10,7 @@ class ProductRepository {
   ) async {
     final ref = _firestore.collection('products').doc(product.id);
     final productData = product.toMap();
-    productData['vendorId'] = vendorId; // Add vendorId for multi-tenancy
+    productData['vendorId'] = vendorId;
     await ref.set(productData);
     return product;
   }
@@ -45,10 +45,39 @@ class ProductRepository {
         .toList();
   }
 
+  Future<List<ProductModel>> getProductsByIds(List<String> productIds) async {
+    if (productIds.isEmpty) return [];
+
+    final snapshot = await _firestore
+        .collection('products')
+        .where(FieldPath.documentId, whereIn: productIds)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
   Stream<List<ProductModel>> watchProductsByWave(String waveId) {
     return _firestore
         .collection('products')
         .where('waveId', isEqualTo: waveId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
+  Stream<List<ProductModel>> watchProductsByIds(List<String> productIds) {
+    if (productIds.isEmpty) {
+      return Stream.value([]);
+    }
+
+    return _firestore
+        .collection('products')
+        .where(FieldPath.documentId, whereIn: productIds)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

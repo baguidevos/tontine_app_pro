@@ -5,7 +5,7 @@ import '../../data/models/product_model.dart';
 import '../../data/repositories/product_repository.dart';
 
 class ProductController extends GetxController {
-  final ProductRepository _productRepository = ProductRepository();
+  final ProductRepository productRepository = ProductRepository();
   final AuthService _authService = Get.find<AuthService>();
   final SubscriptionService _subscriptionService =
       Get.find<SubscriptionService>();
@@ -40,9 +40,9 @@ class ProductController extends GetxController {
       Future<List<ProductModel>> fetchTask;
 
       if (filterWaveId.value != null) {
-        fetchTask = _productRepository.getProductsByWave(filterWaveId.value!);
+        fetchTask = productRepository.getProductsByWave(filterWaveId.value!);
       } else {
-        fetchTask = _productRepository.getProductsByVendor(vendorId);
+        fetchTask = productRepository.getProductsByVendor(vendorId);
       }
 
       fetchTask
@@ -69,7 +69,7 @@ class ProductController extends GetxController {
     if (vendorId == null) return;
 
     // Check subscription limits
-    final currentCount = await _productRepository.getProductCountByVendor(
+    final currentCount = await productRepository.getProductCountByVendor(
       vendorId,
     );
     if (!_subscriptionService.canCreateProduct(currentCount)) {
@@ -93,7 +93,7 @@ class ProductController extends GetxController {
         stock: stock,
       );
 
-      await _productRepository.createProduct(product, vendorId);
+      await productRepository.createProduct(product, vendorId);
 
       Get.snackbar('Succès', 'Produit créé avec succès');
       loadProducts();
@@ -112,7 +112,7 @@ class ProductController extends GetxController {
     if (vendorId == null) return;
 
     // Check subscription limits
-    final currentCount = await _productRepository.getProductCountByVendor(
+    final currentCount = await productRepository.getProductCountByVendor(
       vendorId,
     );
     if (!_subscriptionService.canCreateProduct(currentCount)) {
@@ -133,7 +133,7 @@ class ProductController extends GetxController {
         waveId: targetWaveId,
       );
 
-      await _productRepository.createProduct(duplicatedProduct, vendorId);
+      await productRepository.createProduct(duplicatedProduct, vendorId);
 
       Get.snackbar('Succès', 'Produit dupliqué avec succès');
       loadProducts();
@@ -146,7 +146,7 @@ class ProductController extends GetxController {
 
   Future<void> updateProduct(ProductModel product) async {
     try {
-      await _productRepository.updateProduct(product);
+      await productRepository.updateProduct(product);
       Get.snackbar('Succès', 'Produit mis à jour');
       loadProducts();
     } catch (e) {
@@ -156,7 +156,7 @@ class ProductController extends GetxController {
 
   Future<void> deleteProduct(String productId) async {
     try {
-      await _productRepository.deleteProduct(productId);
+      await productRepository.deleteProduct(productId);
       Get.snackbar('Succès', 'Produit supprimé');
       loadProducts();
     } catch (e) {
@@ -165,6 +165,6 @@ class ProductController extends GetxController {
   }
 
   Future<List<ProductModel>> getProductsByWave(String waveId) async {
-    return await _productRepository.getProductsByWave(waveId);
+    return await productRepository.getProductsByWave(waveId);
   }
 }

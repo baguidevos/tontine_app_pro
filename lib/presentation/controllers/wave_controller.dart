@@ -4,16 +4,23 @@ import 'package:tontine_app/core/theme/app_theme.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/subscription_service.dart';
 import '../../data/models/wave_model.dart';
+import '../../data/models/product_model.dart';
 import '../../data/repositories/wave_repository.dart';
+import '../../data/repositories/product_repository.dart';
 
 class WaveController extends GetxController {
-  final WaveRepository _waveRepository = WaveRepository();
+  final WaveRepository waveRepository = WaveRepository();
+  final ProductRepository productRepository = ProductRepository();
   final AuthService _authService = Get.find<AuthService>();
   final SubscriptionService _subscriptionService =
       Get.find<SubscriptionService>();
 
   var waves = <WaveModel>[].obs;
   var isLoading = false.obs;
+
+  // Products liés à la vague en cours d'édition/création
+  final RxList<String> selectedProductIds = <String>[].obs;
+  final RxList<ProductModel> linkedProducts = <ProductModel>[].obs;
 
   @override
   void onInit() {
@@ -24,9 +31,36 @@ class WaveController extends GetxController {
   void _loadWaves() {
     final vendorId = _authService.currentVendorId;
     if (vendorId != null) {
-      _waveRepository.watchWavesByVendor(vendorId).listen((waveList) {
+      waveRepository.watchWavesByVendor(vendorId).listen((waveList) {
         waves.value = waveList;
       });
+    }
+  }
+
+  void setSelectedProducts(List<String> productIds) {
+    selectedProductIds.value = productIds;
+  }
+
+  void addSelectedProduct(String productId) {
+    if (!selectedProductIds.contains(productId)) {
+      selectedProductIds.add(productId);
+    }
+  }
+
+  void removeSelectedProduct(String productId) {
+    selectedProductIds.remove(productId);
+  }
+
+  void clearSelectedProducts() {
+    selectedProductIds.clear();
+  }
+
+  Future<void> loadLinkedProducts(List<String> productIds) async {
+    try {
+      final products = await productRepository.getProductsByIds(productIds);
+      linkedProducts.value = products;
+    } catch (e) {
+      Get.snackbar('Erreur', 'Impossible de charger les produits: $e');
     }
   }
 
@@ -34,13 +68,12 @@ class WaveController extends GetxController {
     final vendorId = _authService.currentVendorId;
     if (vendorId == null) return;
 
-    // Check subscription limits if it's a new wave (not sure if we need this check here if we pass the whole object, but safety first)
-    // Actually, usually creation implies +1.
-    final currentCount = await _waveRepository.getWaveCountByVendor(vendorId);
+    final currentCount = await waveRepository.getWaveCountByVendor(vendorId);
     if (!_subscriptionService.canCreateWave(currentCount)) {
       Get.snackbar(
         'Limite Atteinte',
         'Vous avez atteint votre limite de vagues. Passez au Premium pour plus.',
+        duration: const Duration(seconds: 1),
       );
       Get.toNamed('/subscription');
       return;
@@ -48,7 +81,6 @@ class WaveController extends GetxController {
 
     try {
       isLoading.value = true;
-      // Ensure the wave has the correct ID (or we can generate it here if empty)
       final waveToCreate = wave.id.isEmpty
           ? wave.copyWith(
               id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -56,7 +88,16 @@ class WaveController extends GetxController {
             )
           : wave;
 
-      await _waveRepository.createWave(waveToCreate, vendorId);
+      await waveRepository.createWave(waveToCreate, vendorId);
+
+      // Lier les produits sélectionnés à la nouvelle vague en une seule opération
+      if (selectedProductIds.isNotEmpty) {
+        await waveRepository.setWaveProducts(
+          waveToCreate.id,
+          selectedProductIds.toList(),
+        );
+        clearSelectedProducts();
+      }
 
       Get.back();
       Get.snackbar(
@@ -64,6 +105,7 @@ class WaveController extends GetxController {
         'Vague créée avec succès',
         backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     } catch (e) {
       Get.snackbar(
@@ -71,6 +113,7 @@ class WaveController extends GetxController {
         'Échec de la création: $e',
         backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     } finally {
       isLoading.value = false;
@@ -79,13 +122,14 @@ class WaveController extends GetxController {
 
   Future<void> updateWave(WaveModel wave) async {
     try {
-      await _waveRepository.updateWave(wave);
+      await waveRepository.updateWave(wave);
       Get.back();
       Get.snackbar(
         'Succès',
         'Vague mise à jour',
         backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     } catch (e) {
       Get.snackbar(
@@ -93,6 +137,7 @@ class WaveController extends GetxController {
         'Échec de la mise à jour: $e',
         backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     }
   }
@@ -106,13 +151,14 @@ class WaveController extends GetxController {
         createdAt: wave.createdAt,
       );
 
-      await _waveRepository.updateWave(updatedWave);
+      await waveRepository.updateWave(updatedWave);
       Get.back();
       Get.snackbar(
         'Succès',
         'Statut mis à jour',
         backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     } catch (e) {
       Get.snackbar(
@@ -120,18 +166,20 @@ class WaveController extends GetxController {
         'Échec de la mise à jour: $e',
         backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     }
   }
 
   Future<void> deleteWave(String waveId) async {
     try {
-      await _waveRepository.deleteWave(waveId);
+      await waveRepository.deleteWave(waveId);
       Get.snackbar(
         'Succès',
         'Vague supprimée',
         backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     } catch (e) {
       Get.snackbar(
@@ -139,6 +187,70 @@ class WaveController extends GetxController {
         'Échec de la suppression: $e',
         backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
+        duration: const Duration(seconds: 1),
+      );
+    }
+  }
+
+  Future<void> addProductToWave(String waveId, String productId) async {
+    try {
+      await waveRepository.addProductToWave(waveId, productId);
+      Get.snackbar(
+        'Succès',
+        'Produit ajouté à la vague',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 1),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Échec de l\'ajout: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 1),
+      );
+    }
+  }
+
+  Future<void> removeProductFromWave(String waveId, String productId) async {
+    try {
+      await waveRepository.removeProductFromWave(waveId, productId);
+      Get.snackbar(
+        'Succès',
+        'Produit retiré de la vague',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 0),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Échec de la suppression: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 1),
+      );
+    }
+  }
+
+  Future<void> setWaveProducts(String waveId, List<String> productIds) async {
+    try {
+      await waveRepository.setWaveProducts(waveId, productIds);
+      Get.snackbar(
+        'Succès',
+        'Produits mis à jour',
+        backgroundColor: AppTheme.successGreen,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 1),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Erreur',
+        'Échec de la mise à jour: $e',
+        backgroundColor: AppTheme.softRed,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 1),
       );
     }
   }

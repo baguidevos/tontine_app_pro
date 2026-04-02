@@ -241,9 +241,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         fillColor: Colors.white,
                       ),
                       keyboardType: TextInputType.number,
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Champ requis'
-                          : null,
+                      // validator: (value) => value == null || value.isEmpty
+                      //     ? 'Champ requis'
+                      //     : null,
                     ),
                   ),
                 ],

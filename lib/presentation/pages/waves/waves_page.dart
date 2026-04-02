@@ -16,6 +16,7 @@ class WavesPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'waves_page_fab',
         onPressed: () => Get.dialog(const CreateWaveDialog()),
         backgroundColor: AppTheme.deepBlue,
         icon: const Icon(Icons.add, color: Colors.white),
