@@ -193,13 +193,13 @@ class ProductsPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Prix TTC: ${product.prixTTC}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: product.stock > 0 ? Colors.green : Colors.red,
-                        ),
-                      ),
+                      // Text(
+                      //   'Prix TTC: ${product.prixTTC}',
+                      //   style: TextStyle(
+                      //     fontSize: 12,
+                      //     color: product.stock > 0 ? Colors.green : Colors.red,
+                      //   ),
+                      // ),
                       GestureDetector(
                         onTap: () {
                           // Show simpler menu or duplication options

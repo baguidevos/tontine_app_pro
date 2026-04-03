@@ -241,20 +241,20 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _prixTTCController,
-                      decoration: InputDecoration(
-                        labelText: 'Prix TTC (FCFA)',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
+                  // Expanded(
+                  //   child: TextFormField(
+                  //     controller: _prixTTCController,
+                  //     decoration: InputDecoration(
+                  //       labelText: 'Prix TTC (FCFA)',
+                  //       border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(16),
+                  //       ),
+                  //       filled: true,
+                  //       fillColor: Colors.white,
+                  //     ),
+                  //     keyboardType: TextInputType.number,
+                  //   ),
+                  // ),
                 ],
               ),
               const SizedBox(height: 16),
