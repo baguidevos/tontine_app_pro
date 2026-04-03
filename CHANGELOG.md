@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2026-04-03
+
+### Added
+- **New Data Fields**
+  - `ProductModel`: Added optional `prixTTC` field (double?)
+  - `CustomerModel`: Added optional `sexe` field (String?)
+
+### Changed
+- **Controllers Updated**
+  - `ProductController.createProduct()` now accepts `prixTTC` parameter
+  - `CustomerController.createCustomer()` now accepts `sexe` parameter
+
+### Technical
+- Both new fields are optional (nullable) for backward compatibility
+- Old records will have null values for these fields
+- No breaking changes to existing data structure
+
+---
+
 ## [0.5.3] - 2026-04-03
 
 ### Added
