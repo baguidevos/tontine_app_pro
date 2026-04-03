@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5] - 2026-04-03
+
+### Added
+- **UI Enhancements for New Fields**
+  - `CreateProductPage`: Added "Prix TTC" input field
+  - `CreateCustomerPage`: Added "Sexe" dropdown selector (Homme/Femme)
+
+### Changed
+- **Forms Updated**
+  - Product creation/edit forms now capture `prixTTC`
+  - Customer creation/edit forms now capture `sexe`
+
+---
+
 ## [0.5.4] - 2026-04-03
 
 ### Added
