@@ -62,6 +62,7 @@ class ProductController extends GetxController {
     required String waveId,
     required String name,
     required double price,
+    double? prixTTC,
     required String localImagePath,
     required int stock,
   }) async {
@@ -89,8 +90,9 @@ class ProductController extends GetxController {
         waveId: waveId,
         name: name,
         price: price,
+        prixTTC: prixTTC,
         localImagePath: localImagePath,
-        stock: 0,
+        stock: stock,
       );
 
       await productRepository.createProduct(product, vendorId);

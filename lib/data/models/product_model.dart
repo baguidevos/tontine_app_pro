@@ -3,6 +3,7 @@ class ProductModel {
   final String? waveId;
   final String name;
   final double price;
+  final double? prixTTC; // Nouveau champ optionnel
   final String localImagePath;
   final int stock;
 
@@ -11,6 +12,7 @@ class ProductModel {
     this.waveId,
     required this.name,
     required this.price,
+    this.prixTTC,
     required this.localImagePath,
     required this.stock,
   });
@@ -21,6 +23,7 @@ class ProductModel {
       'waveId': waveId,
       'name': name,
       'price': price,
+      'prixTTC': prixTTC,
       'localImagePath': localImagePath,
       'stock': stock,
     };
@@ -32,6 +35,8 @@ class ProductModel {
       waveId: map['waveId'],
       name: map['name'] ?? '',
       price: (map['price'] ?? 0.0).toDouble(),
+      prixTTC: map['prixTTC']
+          ?.toDouble(), // Gestion rétrocompatible (null si absent)
       localImagePath: map['localImagePath'] ?? '',
       stock: map['stock'] ?? 0,
     );
@@ -42,6 +47,7 @@ class ProductModel {
     String? waveId,
     String? name,
     double? price,
+    double? prixTTC,
     String? localImagePath,
     int? stock,
   }) {
@@ -50,6 +56,7 @@ class ProductModel {
       waveId: waveId ?? this.waveId,
       name: name ?? this.name,
       price: price ?? this.price,
+      prixTTC: prixTTC ?? this.prixTTC,
       localImagePath: localImagePath ?? this.localImagePath,
       stock: stock ?? this.stock,
     );

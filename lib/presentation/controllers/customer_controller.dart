@@ -33,6 +33,7 @@ class CustomerController extends GetxController {
     required String name,
     required String phone,
     String? address,
+    String? sexe,
   }) async {
     final vendorId = _authService.currentVendorId;
     if (vendorId == null) {
@@ -54,6 +55,7 @@ class CustomerController extends GetxController {
         name: name,
         phone: phone,
         address: address,
+        sexe: sexe,
         createdAt: DateTime.now(),
       );
 
