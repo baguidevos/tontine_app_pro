@@ -1,2 +1,2 @@
-#include "../../Flutter/Flutter-Debug.xcconfig"
+#include "package:paya_app/Flutter/Flutter-Debug.xcconfig"
 #include "Warnings.xcconfig"

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/profile_controller.dart';
-import '../../../core/services/auth_service.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/core/services/auth_service.dart';
+import 'package:paya_app/presentation/controllers/profile_controller.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});

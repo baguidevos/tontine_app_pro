@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-04-03
+
+### Added
+- **Dashboard UI Enhancements**
+  - Added borders to dashboard cards for better visual separation
+  - Improved card styling with consistent border colors
+
+### Fixed
+- **Build Crash - Import Path Issues**
+  - Fixed relative import paths causing build failures
+  - Migrated from relative imports (`../../core/...`) to package imports (`package:paya_app/core/...`)
+  - Updated `dashboard_page.dart` with proper package imports
+  - Resolved "path not found" errors during compilation
+
+### Technical
+- Standardized import strategy across the codebase
+- Using `package:paya_app/` prefix for all internal imports
+- Improves build reliability and IDE navigation
+
+---
+
+## [0.5.1] - 2026-04-02
+
+### Fixed
+- **Critical: waveId lost during payments**
+  - Added `waveId: order.waveId` in `PaymentController.recordPayment()`
+  - Added `waveId: order.waveId` in `PaymentController.deleteTransaction()`
+  - Commands now maintain wave association after payment operations
+
+### Added
+- **Privacy Policy Page**
+  - Created `index.html` for GitHub Pages deployment
+  - Complete privacy policy in French
+  - Mobile-responsive design with Paya branding
+  - URL: `https://hbddevos.github.io/tontine_app_pro/`
+
+---
+
 ## [0.5.0] - 2026-04-02
 
 ### Added

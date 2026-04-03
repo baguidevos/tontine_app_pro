@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/services/subscription_service.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:paya_app/core/services/subscription_service.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 
 class SubscriptionPage extends StatelessWidget {
   const SubscriptionPage({super.key});

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../../core/services/auth_service.dart';
+import 'package:paya_app/core/services/auth_service.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();

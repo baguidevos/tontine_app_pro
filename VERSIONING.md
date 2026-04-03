@@ -258,7 +258,7 @@ v0.1.x    ░░░░░░░░░░░░░░░░░░░░    0%
 - [CHANGELOG.md](CHANGELOG.md) - Journal des changements détaillé
 - [workflow.md](workflow.md) - Workflow de développement et déploiement
 - [README.md](README.md) - Documentation du projet
-- [Git Tags](../../tags) - Liste des tags Git
+- [Git Tags](package:paya_app/tags) - Liste des tags Git
 - [Google Play Console](https://play.google.com/console) - Console de déploiement
 
 ---

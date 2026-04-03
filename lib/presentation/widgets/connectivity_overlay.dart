@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/services/connectivity_service.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:paya_app/core/services/connectivity_service.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 
 class ConnectivityOverlay extends StatelessWidget {
   final Widget child;

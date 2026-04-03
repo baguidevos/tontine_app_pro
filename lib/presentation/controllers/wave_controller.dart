@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/services/subscription_service.dart';
-import '../../data/models/wave_model.dart';
-import '../../data/models/product_model.dart';
-import '../../data/repositories/wave_repository.dart';
-import '../../data/repositories/product_repository.dart';
+import 'package:paya_app/core/services/auth_service.dart';
+import 'package:paya_app/core/services/subscription_service.dart';
+import 'package:paya_app/data/models/wave_model.dart';
+import 'package:paya_app/data/models/product_model.dart';
+import 'package:paya_app/data/repositories/wave_repository.dart';
+import 'package:paya_app/data/repositories/product_repository.dart';
 
 class WaveController extends GetxController {
   final WaveRepository waveRepository = WaveRepository();

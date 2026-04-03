@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/services/connectivity_service.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:paya_app/core/services/connectivity_service.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/inventory/inventory_page.dart';
 import '../pages/orders/orders_page.dart';

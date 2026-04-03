@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/wave_controller.dart';
-import '../../controllers/order_controller.dart';
-import '../../controllers/customer_controller.dart';
-import '../../controllers/product_controller.dart';
-import '../../../data/models/wave_model.dart';
-import '../../../data/models/order_model.dart';
-import '../../../data/models/product_model.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/wave_model.dart';
+import 'package:paya_app/data/models/order_model.dart';
+import 'package:paya_app/data/models/product_model.dart';
+import 'package:paya_app/presentation/controllers/customer_controller.dart';
+import 'package:paya_app/presentation/controllers/order_controller.dart';
+import 'package:paya_app/presentation/controllers/product_controller.dart';
+import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'widgets/product_selection_sheet.dart';
 import 'widgets/create_wave_dialog.dart';
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/customer_controller.dart';
-import '../../../data/models/customer_model.dart';
+import 'package:paya_app/presentation/controllers/customer_controller.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/customer_model.dart';
 
 class CreateCustomerPage extends StatefulWidget {
   final CustomerModel? customer;

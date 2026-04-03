@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/theme/app_theme.dart';
-import '../../data/models/payment_transaction_model.dart';
-import '../../data/models/order_model.dart';
-import '../../data/repositories/payment_repository.dart';
-import '../../data/repositories/order_repository.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/payment_transaction_model.dart';
+import 'package:paya_app/data/models/order_model.dart';
+import 'package:paya_app/data/repositories/payment_repository.dart';
+import 'package:paya_app/data/repositories/order_repository.dart';
 
 class PaymentController extends GetxController {
   final PaymentRepository _paymentRepository = PaymentRepository();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../data/models/order_model.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/order_model.dart';
 
 class PaymentEntryDialog extends StatefulWidget {
   final OrderItemModel item;

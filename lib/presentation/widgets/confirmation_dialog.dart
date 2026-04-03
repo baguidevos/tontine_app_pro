@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   final String title;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/wave_controller.dart';
-import '../../../data/models/wave_model.dart';
-import '../../widgets/confirmation_dialog.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/wave_model.dart';
+import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/confirmation_dialog.dart';
 import 'widgets/create_wave_dialog.dart';
 
 class WavesPage extends StatelessWidget {
@@ -61,9 +61,11 @@ class WavesPage extends StatelessWidget {
           itemBuilder: (context, index) {
             final wave = waveController.waves[index];
             return Card(
+              
               margin: const EdgeInsets.only(bottom: 16),
               elevation: 2,
               shape: RoundedRectangleBorder(
+                side: BorderSide(color: AppTheme.payaGray.withOpacity(0.5)),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: ListTile(

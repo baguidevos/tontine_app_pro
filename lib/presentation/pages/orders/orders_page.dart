@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/order_controller.dart';
-import '../../controllers/customer_controller.dart';
-import '../../controllers/wave_controller.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/presentation/controllers/customer_controller.dart';
+import 'package:paya_app/presentation/controllers/order_controller.dart';
+import 'package:paya_app/presentation/controllers/wave_controller.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -329,6 +329,7 @@ class OrdersList extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 16),
             elevation: 2,
             shape: RoundedRectangleBorder(
+              side: BorderSide(color: AppTheme.payaGray.withOpacity(0.5)),
               borderRadius: BorderRadius.circular(16),
             ),
             child: ListTile(
@@ -393,7 +394,7 @@ class OrdersList extends StatelessWidget {
 
     switch (status) {
       case 'completed':
-        color = Colors.green;
+        color = AppTheme.payaSageGreen;
         label = 'Terminée';
         break;
       case 'cancelled':
@@ -407,21 +408,29 @@ class OrdersList extends StatelessWidget {
         break;
     }
 
-    return Container(
+    return Chip(
+      label: Text(label),
+      backgroundColor: color.withOpacity(0.1),
+      labelStyle: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.5)),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      autofocus: true,
+      
     );
+    // Container(
+    //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    //   decoration: BoxDecoration(
+    //     color: color.withOpacity(0.1),
+    //     borderRadius: BorderRadius.circular(8),
+    //     border: Border.all(color: color.withOpacity(0.5)),
+    //   ),
+    //   child: Text(
+    //     label,
+    //     style: TextStyle(
+    //       color: color,
+    //       fontSize: 10,
+    //       fontWeight: FontWeight.bold,
+    //     ),
+    //   ),
+    // );
   }
 }

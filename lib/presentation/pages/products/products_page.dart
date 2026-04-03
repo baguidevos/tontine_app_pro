@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/product_controller.dart';
-import '../../controllers/wave_controller.dart';
-import '../../../data/models/product_model.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/product_model.dart';
+import 'package:paya_app/presentation/controllers/product_controller.dart';
+import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'widgets/wave_selection_dialog.dart';
 
 class ProductsPage extends StatelessWidget {
@@ -197,7 +197,7 @@ class ProductsPage extends StatelessWidget {
                         'Stock: ${product.stock}',
                         style: TextStyle(
                           fontSize: 12,
-                          color: product.stock > 0 ? Colors.green : Colors.red, 
+                          color: product.stock > 0 ? Colors.green : Colors.red,
                         ),
                       ),
                       GestureDetector(

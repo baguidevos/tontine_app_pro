@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../controllers/order_controller.dart';
-import '../../controllers/payment_controller.dart';
-import '../../controllers/customer_controller.dart';
-import '../../controllers/wave_controller.dart';
-import '../../../data/models/order_model.dart';
-import '../../widgets/confirmation_dialog.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/order_model.dart';
+import 'package:paya_app/presentation/controllers/customer_controller.dart';
+import 'package:paya_app/presentation/controllers/order_controller.dart';
+import 'package:paya_app/presentation/controllers/payment_controller.dart';
+import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/confirmation_dialog.dart';
 import 'widgets/payment_entry_dialog.dart';
 
 class OrderDetailsPage extends StatefulWidget {

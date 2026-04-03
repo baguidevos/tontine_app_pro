@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/auth_controller.dart';
-import '../../../core/theme/app_theme.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/presentation/controllers/auth_controller.dart';
 
 class RegistrationPage extends StatelessWidget {
   const RegistrationPage({super.key});

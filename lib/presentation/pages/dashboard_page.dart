@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../core/services/auth_service.dart';
-import '../../core/theme/app_theme.dart';
+import 'package:paya_app/core/services/auth_service.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/presentation/controllers/customer_controller.dart';
+import 'package:paya_app/presentation/controllers/dashboard_controller.dart';
 
 import 'waves/widgets/create_wave_dialog.dart';
-import '../controllers/dashboard_controller.dart';
-import '../controllers/customer_controller.dart';
-import '../../data/models/order_model.dart';
+import 'package:paya_app/data/models/order_model.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -19,10 +19,11 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
       appBar: AppBar(
+        leading: const Icon(Icons.dashboard_outlined),
         title: Obx(() {
           final vendor = authService.currentVendor.value;
           return Text(
-            vendor?.businessName ?? 'Dashboard',
+            'PayaApp - ${vendor?.businessName}' ?? 'Dashboard',
             style: const TextStyle(fontWeight: FontWeight.bold),
           );
         }),
@@ -209,53 +210,53 @@ class DashboardPage extends StatelessWidget {
               onTap: () => Get.toNamed('/customers'),
             ),
 
-            // const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-            // // Recent Orders Section
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     const Text(
-            //       'Commandes Récentes',
-            //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 12),
+            // Recent Orders Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Commandes Récentes',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
-            // Obx(() {
-            //   final recents = dashboardController.recentOrders;
-            //   if (recents.isEmpty) {
-            //     return Container(
-            //       width: double.infinity,
-            //       padding: const EdgeInsets.all(24),
-            //       decoration: BoxDecoration(
-            //         color: Colors.white,
-            //         borderRadius: BorderRadius.circular(16),
-            //       ),
-            //       child: Column(
-            //         children: [
-            //           Icon(
-            //             Icons.receipt_long_outlined,
-            //             size: 48,
-            //             color: Colors.grey.shade300,
-            //           ),
-            //           const SizedBox(height: 12),
-            //           Text(
-            //             'Aucune commande pour le moment',
-            //             style: TextStyle(color: Colors.grey.shade600),
-            //           ),
-            //         ],
-            //       ),
-            //     );
-            //   }
+            Obx(() {
+              final recents = dashboardController.recentOrders;
+              if (recents.isEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 48,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Aucune commande pour le moment',
+                        style: TextStyle(color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                );
+              }
 
-            //   return Column(
-            //     children: recents
-            //         .map((order) => _buildOrderTile(order))
-            //         .toList(),
-            //   );
-            // }),
+              return Column(
+                children: recents
+                    .map((order) => _buildOrderTile(order))
+                    .toList(),
+              );
+            }),
             const SizedBox(height: 32),
           ],
         ),
@@ -404,13 +405,14 @@ class DashboardPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        border: Border.all(color: AppTheme.payaGray.withOpacity(0.5)),
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: const Offset(0, 5),            
           ),
         ],
       ),

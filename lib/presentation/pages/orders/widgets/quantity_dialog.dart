@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/app_theme.dart';
-import '../../../../data/models/product_model.dart';
+import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/product_model.dart';
 
 class QuantityDialog extends StatefulWidget {
   final ProductModel product;
@@ -35,16 +35,16 @@ class _QuantityDialogState extends State<QuantityDialog> {
 
   void _updateQuantity(int newQuantity) {
     if (newQuantity < 1) return;
-    if (newQuantity > widget.product.stock) {
-      Get.snackbar(
-        'Stock Limité',
-        'Seulement ${widget.product.stock} articles disponibles',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange.withOpacity(0.1),
-        colorText: Colors.orange,
-      );
-      return;
-    }
+    // if (newQuantity > widget.product.stock) {
+    //   Get.snackbar(
+    //     'Stock Limité',
+    //     'Seulement ${widget.product.stock} articles disponibles',
+    //     snackPosition: SnackPosition.BOTTOM,
+    //     backgroundColor: Colors.orange.withOpacity(0.1),
+    //     colorText: Colors.orange,
+    //   );
+    //   return;
+    // }
     setState(() {
       _quantity = newQuantity;
       _controller.text = _quantity.toString();
@@ -115,13 +115,14 @@ class _QuantityDialogState extends State<QuantityDialog> {
                     ? AppTheme.successGreen.withOpacity(0.1)
                     : Colors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(20),
+                border:Border.all(color: AppTheme.payaGray)
               ),
               child: Text(
-                'Stock disponible: ${widget.product.stock}',
+                'Prix Unitaire: ${widget.product.price.toStringAsFixed(0)} FCFA',
                 style: TextStyle(
                   color: widget.product.stock > 0
                       ? AppTheme.successGreen
-                      : Colors.red,
+                      : AppTheme.sageGreen,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
@@ -165,7 +166,7 @@ class _QuantityDialogState extends State<QuantityDialog> {
                 _buildIconButton(
                   icon: Icons.add,
                   onTap: () => _updateQuantity(_quantity + 1),
-                  enabled: _quantity < widget.product.stock,
+                  enabled: true,
                 ),
               ],
             ),

@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 import 'order_controller.dart';
 import 'wave_controller.dart';
-import '../../data/models/wave_model.dart';
-import '../../data/models/order_model.dart';
+import 'package:paya_app/data/models/wave_model.dart';
+import 'package:paya_app/data/models/order_model.dart';
 
 class DashboardController extends GetxController {
   final OrderController _orderController = Get.find<OrderController>();

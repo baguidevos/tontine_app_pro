@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../data/models/vendor_model.dart';
-import '../../data/repositories/vendor_repository.dart';
+import 'package:paya_app/data/models/vendor_model.dart';
+import 'package:paya_app/data/repositories/vendor_repository.dart';
 
 class AuthService extends GetxService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
