@@ -150,6 +150,7 @@ class MainLayout extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
+        
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
@@ -157,6 +158,9 @@ class MainLayout extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected ? AppTheme.deepBlue.withOpacity(0.08) : null,
             borderRadius: BorderRadius.circular(16),
+            border: isSelected
+                ? Border.all(color: AppTheme.payaGray.withOpacity(0.5))
+                : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

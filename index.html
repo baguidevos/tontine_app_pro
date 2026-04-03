@@ -1,370 +1,1372 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Politique de Confidentialité - Paya</title>
-    <style>
-        :root {
-            --paya-blue: #1a237e;
-            --paya-light-blue: #534ba6;
-            --paya-cream: #faf7f0;
-            --paya-white: #ffffff;
-            --paya-gray: #666666;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paya — Politique de Confidentialité</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+  <style>
+    /* ══════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    :root {
+      --paya-blue: #1a237e;
+      --paya-light-blue: #534ba6;
+      --paya-purple: #7c4dff;
+      --paya-cream: #faf7f0;
+      --paya-gold: #f9a825;
+      --paya-green: #2e7d32;
+      --paya-red: #c62828;
+      --paya-orange: #e65100;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.04);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,.1), 0 4px 8px rgba(0,0,0,.05);
+      --shadow-xl: 0 20px 50px rgba(0,0,0,.12), 0 8px 16px rgba(0,0,0,.06);
+      --transition: 0.3s cubic-bezier(.4,0,.2,1);
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: var(--paya-cream);
-        }
+    html { scroll-behavior: smooth; scroll-padding-top: 100px; }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-700);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        header {
-            background: linear-gradient(135deg, var(--paya-blue), var(--paya-light-blue));
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-            border-radius: 0 0 20px 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+    a { color: var(--paya-blue); text-decoration: none; transition: color var(--transition); }
+    a:hover { color: var(--paya-purple); }
 
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
+    img { max-width: 100%; height: auto; }
 
-        header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+    /* ══════════════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════════════ */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(1); opacity: .6; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+    .fade-in { animation: fadeInUp .7s ease both; }
+    .fade-in-d1 { animation-delay: .15s; }
+    .fade-in-d2 { animation-delay: .3s; }
+    .fade-in-d3 { animation-delay: .45s; }
+    .fade-in-d4 { animation-delay: .6s; }
 
-        .logo {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      html { scroll-behavior: auto; }
+    }
 
-        .content {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 30px;
-        }
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--paya-blue) 0%, var(--paya-light-blue) 50%, var(--paya-purple) 100%);
+      padding: 3rem 1.5rem 5rem;
+      text-align: center;
+      color: #fff;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
 
-        h2 {
-            color: var(--paya-blue);
-            margin-top: 30px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--paya-light-blue);
-        }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,.08) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(124,77,255,.15) 0%, transparent 40%);
+      animation: float 8s ease-in-out infinite;
+    }
 
-        h3 {
-            color: var(--paya-light-blue);
-            margin-top: 25px;
-            margin-bottom: 10px;
-        }
+    .hero > * { position: relative; z-index: 2; }
 
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
+    .hero-brand {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      margin-bottom: 2rem;
+    }
+    .hero-brand img {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.15);
+      padding: 4px;
+      backdrop-filter: blur(10px);
+    }
+    .hero-brand-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .hero-brand-version {
+      font-size: .7rem;
+      font-weight: 600;
+      background: rgba(255,255,255,.18);
+      padding: 2px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(6px);
+    }
 
-        ul, ol {
-            margin-left: 30px;
-            margin-bottom: 15px;
-        }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, #f9a825, #ffcc02);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
-        li {
-            margin-bottom: 8px;
-        }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      opacity: .88;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.6;
+    }
 
-        .highlight {
-            background-color: var(--paya-cream);
-            padding: 20px;
-            border-left: 4px solid var(--paya-blue);
-            border-radius: 8px;
-            margin: 20px 0;
-        }
+    .hero-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-stat {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 999px;
+      padding: .5rem 1.2rem;
+      font-size: .85rem;
+      font-weight: 500;
+      backdrop-filter: blur(8px);
+      transition: var(--transition);
+    }
+    .hero-stat:hover {
+      background: rgba(255,255,255,.18);
+      transform: translateY(-2px);
+    }
+    .hero-stat svg { width: 18px; height: 18px; opacity: .9; }
 
-        .contact-box {
-            background: linear-gradient(135deg, var(--paya-blue), var(--paya-light-blue));
-            color: white;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 30px;
-        }
+    .hero-wave {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      line-height: 0;
+    }
+    .hero-wave svg {
+      width: 100%;
+      height: 60px;
+    }
 
-        .contact-box h3 {
-            color: white;
-            margin-bottom: 15px;
-        }
+    /* ══════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════ */
+    .main-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
 
-        .contact-box a {
-            color: white;
-            text-decoration: underline;
-        }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
 
-        .last-update {
-            text-align: center;
-            color: var(--paya-gray);
-            font-style: italic;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-        }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
 
-        .toc {
-            background-color: var(--paya-cream);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-        }
+    /* ══════════════════════════════════════
+       SIDEBAR / TOC
+    ══════════════════════════════════════ */
+    .sidebar {
+      position: sticky;
+      top: 1.5rem;
+    }
 
-        .toc h3 {
-            color: var(--paya-blue);
-            margin-top: 0;
-        }
+    @media (max-width: 900px) {
+      .sidebar { position: static; order: -1; }
+    }
 
-        .toc ul {
-            list-style: none;
-        }
+    .toc-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+    }
 
-        .toc a {
-            color: var(--paya-light-blue);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
+    .toc-header {
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--gray-400);
+      padding: 0 .5rem;
+      margin-bottom: .75rem;
+    }
 
-        .toc a:hover {
-            color: var(--paya-blue);
-            text-decoration: underline;
-        }
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: .55rem .5rem;
+      border-radius: 8px;
+      font-size: .88rem;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.4;
+    }
+    .toc-item:hover, .toc-item.active {
+      background: var(--paya-blue);
+      color: #fff;
+    }
+    .toc-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .toc-num {
+      margin-left: auto;
+      font-size: .7rem;
+      font-weight: 600;
+      opacity: .5;
+    }
 
-        footer {
-            text-align: center;
-            padding: 30px;
-            color: var(--paya-gray);
-            font-size: 0.9em;
-        }
+    .version-card {
+      margin-top: 1rem;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+    }
+    .version-card-row {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .version-card-row svg { width: 14px; height: 14px; }
+    .version-card-value {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-top: .15rem;
+      padding-left: 1.2rem;
+    }
 
-        footer a {
-            color: var(--paya-blue);
-            text-decoration: none;
-        }
+    /* ══════════════════════════════════════
+       SECTION CARDS
+    ══════════════════════════════════════ */
+    .section-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-200);
+      margin-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+    .section-card:hover {
+      box-shadow: var(--shadow-lg);
+    }
 
-        footer a:hover {
-            text-decoration: underline;
-        }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--paya-blue), var(--paya-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-icon svg { width: 22px; height: 22px; color: #fff; }
 
-        @media (max-width: 768px) {
-            .content {
-                padding: 20px;
-            }
+    .section-badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--paya-purple);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      letter-spacing: -.02em;
+    }
 
-            header h1 {
-                font-size: 2em;
-            }
+    .section-body p {
+      margin-bottom: 1rem;
+      font-size: .95rem;
+      color: var(--gray-600);
+    }
 
-            .logo {
-                font-size: 2.5em;
-            }
-        }
-    </style>
+    /* ══════════════════════════════════════
+       HIGHLIGHT BOXES
+    ══════════════════════════════════════ */
+    .highlight-box {
+      display: flex;
+      gap: .75rem;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      margin: 1.25rem 0;
+    }
+    .highlight-box svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 2px; }
+    .hl-title { font-weight: 700; margin-bottom: .25rem; }
+    .hl-body { font-size: .9rem; }
+
+    .hl-info { background: #eef2ff; color: var(--paya-blue); border: 1px solid #c7d2fe; }
+    .hl-success { background: #ecfdf5; color: var(--paya-green); border: 1px solid #a7f3d0; }
+    .hl-warning { background: #fffbeb; color: var(--paya-orange); border: 1px solid #fde68a; }
+
+    /* ══════════════════════════════════════
+       ACCORDION
+    ══════════════════════════════════════ */
+    .accordion { margin-top: 1rem; }
+
+    .accordion-item {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      margin-bottom: .5rem;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .accordion-item:hover { border-color: var(--gray-300); }
+    .accordion-item.open { border-color: var(--paya-purple); box-shadow: 0 0 0 3px rgba(124,77,255,.1); }
+
+    .accordion-trigger {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      width: 100%;
+      background: var(--gray-50);
+      border: none;
+      padding: .85rem 1rem;
+      font-size: .92rem;
+      font-weight: 600;
+      color: var(--gray-700);
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: left;
+      font-family: inherit;
+    }
+    .accordion-trigger:hover { background: var(--gray-100); }
+    .accordion-item.open .accordion-trigger { background: #f5f3ff; color: var(--paya-purple); }
+
+    .acc-icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .chevron {
+      width: 18px; height: 18px; margin-left: auto; flex-shrink: 0;
+      transition: transform var(--transition);
+    }
+    .accordion-item.open .chevron { transform: rotate(180deg); }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .4s ease, padding .3s ease;
+      padding: 0 1rem;
+    }
+    .accordion-item.open .accordion-content {
+      max-height: 600px;
+      padding: 1rem;
+    }
+
+    /* ══════════════════════════════════════
+       DATA LIST
+    ══════════════════════════════════════ */
+    .data-list { display: flex; flex-direction: column; gap: .6rem; }
+
+    .data-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      padding: .6rem .75rem;
+      background: var(--gray-50);
+      border-radius: 8px;
+    }
+    .data-item svg { width: 16px; height: 16px; color: var(--paya-purple); flex-shrink: 0; margin-top: 3px; }
+    .data-item-title { font-weight: 600; font-size: .88rem; color: var(--gray-800); }
+    .data-item-desc { font-size: .82rem; color: var(--gray-500); }
+
+    .not-collected-list { display: flex; flex-direction: column; gap: .4rem; margin-top: .5rem; }
+    .not-collected-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .88rem;
+      color: var(--paya-green);
+      font-weight: 500;
+    }
+    .not-collected-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════
+       GRID CARDS (Utilisation des données)
+    ══════════════════════════════════════ */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .grid-card {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+    }
+    .grid-card:hover { border-color: var(--paya-purple); background: #f5f3ff; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+
+    .grid-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--paya-blue), var(--paya-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .grid-card-icon svg { width: 18px; height: 18px; color: #fff; }
+    .grid-card-title { font-weight: 600; font-size: .9rem; color: var(--gray-800); }
+    .grid-card-desc { font-size: .82rem; color: var(--gray-500); margin-top: .15rem; }
+
+    /* ══════════════════════════════════════
+       INFO GRID (Firebase)
+    ══════════════════════════════════════ */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 700px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-block {
+      padding: 1.25rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-100);
+    }
+    .info-block-title {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: .75rem;
+    }
+    .info-block-title svg { width: 18px; height: 18px; color: var(--paya-purple); }
+
+    .info-block ul { list-style: none; padding: 0; }
+    .info-block li {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      padding: .35rem 0;
+      font-size: .88rem;
+      color: var(--gray-600);
+    }
+    .info-block li svg { width: 14px; height: 14px; color: var(--paya-purple); flex-shrink: 0; margin-top: 4px; }
+    .info-block p { font-size: .88rem; color: var(--gray-600); }
+
+    /* ══════════════════════════════════════
+       SHARE LIST
+    ══════════════════════════════════════ */
+    .share-list { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+
+    .share-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .85rem 1rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+    }
+    .share-item:hover { border-color: var(--gray-300); background: #fff; }
+    .share-item svg { width: 20px; height: 20px; color: var(--paya-purple); flex-shrink: 0; margin-top: 2px; }
+    .share-item strong { font-size: .9rem; color: var(--gray-800); }
+    .share-item p { font-size: .84rem; color: var(--gray-500); margin-top: .15rem; margin-bottom: 0; }
+
+    /* ══════════════════════════════════════
+       SECURITY GRID
+    ══════════════════════════════════════ */
+    .security-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 600px) { .security-grid { grid-template-columns: 1fr; } }
+
+    .security-card {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-100);
+      transition: var(--transition);
+    }
+    .security-card:hover { border-color: var(--paya-green); background: #ecfdf5; }
+    .security-card .emoji { font-size: 1.5rem; }
+    .security-card strong { font-size: .9rem; color: var(--gray-800); display: block; }
+    .security-card p { font-size: .82rem; color: var(--gray-500); margin: .15rem 0 0 0; }
+
+    /* ══════════════════════════════════════
+       RIGHTS LIST
+    ══════════════════════════════════════ */
+    .rights-list { display: flex; flex-direction: column; gap: .5rem; margin-top: 1rem; }
+
+    .rights-item {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .65rem .85rem;
+      background: var(--gray-50);
+      border-radius: 8px;
+      font-size: .9rem;
+      transition: var(--transition);
+    }
+    .rights-item:hover { background: #f5f3ff; }
+    .rights-item svg { width: 18px; height: 18px; color: var(--paya-green); flex-shrink: 0; }
+    .rights-item strong { color: var(--gray-800); }
+    .rights-item span { color: var(--gray-500); }
+
+    .contact-box {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      border-radius: var(--radius);
+      text-align: center;
+      border: 1px solid #c7d2fe;
+    }
+    .contact-box p { margin: 0; font-size: .9rem; }
+    .contact-box a { font-weight: 700; }
+
+    /* ══════════════════════════════════════
+       CONTACT SECTION
+    ══════════════════════════════════════ */
+    .contact-section {
+      background: linear-gradient(135deg, var(--paya-blue), var(--paya-purple)) !important;
+      color: #fff;
+      text-align: center;
+      padding: 3rem 2rem;
+      border: none !important;
+    }
+    .contact-section-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    .contact-section-icon svg { width: 28px; height: 28px; color: #fff; }
+    .contact-section h2 { color: #fff; font-size: 1.6rem; margin-bottom: .5rem; }
+    .contact-section p { color: rgba(255,255,255,.85); margin-bottom: 1.5rem; }
+    .contact-section hr {
+      border: none;
+      height: 1px;
+      background: rgba(255,255,255,.2);
+      margin: 1.5rem 0;
+    }
+
+    .contact-email-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      color: #fff;
+      padding: .75rem 1.5rem;
+      border-radius: 999px;
+      font-size: .95rem;
+      font-weight: 600;
+      transition: var(--transition);
+      backdrop-filter: blur(8px);
+    }
+    .contact-email-btn:hover {
+      background: rgba(255,255,255,.25);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+    .contact-email-btn svg { width: 18px; height: 18px; }
+
+    .contact-response {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      margin-top: 1.25rem;
+      font-size: .82rem;
+      color: rgba(255,255,255,.7);
+    }
+    .contact-response svg { width: 14px; height: 14px; }
+
+    /* ══════════════════════════════════════
+       VERSION FOOTER (content)
+    ══════════════════════════════════════ */
+    .version-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 1.25rem;
+      font-size: .82rem;
+      color: var(--gray-400);
+    }
+    .version-footer-item {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .version-footer-item svg { width: 14px; height: 14px; }
+    .version-footer-sep {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gray-300);
+    }
+
+    /* ══════════════════════════════════════
+       SITE FOOTER
+    ══════════════════════════════════════ */
+    .site-footer {
+      background: var(--gray-900);
+      color: var(--gray-400);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .site-footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .site-footer-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .6rem;
+      margin-bottom: 1rem;
+    }
+    .site-footer-brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+    .site-footer-name { font-size: .9rem; font-weight: 600; color: var(--gray-300); }
+    .site-footer-sub { font-size: .78rem; }
+    .site-footer-sub svg { width: 14px; height: 14px; vertical-align: middle; color: #ef4444; }
+
+    .site-footer-bottom {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--gray-700);
+      font-size: .78rem;
+      color: var(--gray-500);
+    }
+    .site-footer-bottom a { color: var(--gray-400); }
+    .site-footer-bottom a:hover { color: #fff; }
+
+    /* ══════════════════════════════════════
+       BACK TO TOP
+    ══════════════════════════════════════ */
+    .back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--paya-blue);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: var(--transition);
+      z-index: 99;
+    }
+    .back-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    .back-to-top:hover { background: var(--paya-purple); transform: translateY(-2px); }
+    .back-to-top svg { width: 20px; height: 20px; }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="logo">💰</div>
-        <h1>Politique de Confidentialité</h1>
-        <p>Paya - La tontine simplifiée</p>
-    </header>
 
-    <div class="container">
-        <div class="content">
-            <div class="toc">
-                <h3>📋 Table des matières</h3>
-                <ul>
-                    <li><a href="#introduction">1. Introduction</a></li>
-                    <li><a href="#donnees-collectees">2. Données collectées</a></li>
-                    <li><a href="#utilisation-donnees">3. Utilisation des données</a></li>
-                    <li><a href="#firebase">4. Firebase et services tiers</a></li>
-                    <li><a href="#partage-donnees">5. Partage des données</a></li>
-                    <li><a href="#securite">6. Sécurité</a></li>
-                    <li><a href="#droits-utilisateur">7. Vos droits</a></li>
-                    <li><a href="#cookies">8. Cookies</a></li>
-                    <li><a href="#modifications">9. Modifications</a></li>
-                    <li><a href="#contact">10. Contact</a></li>
-                </ul>
+  <!-- ═══ HERO ═══ -->
+  <header class="hero">
+    <div class="hero-brand fade-in">
+      <img src="paya-logo.png" alt="Paya Logo">
+      <span class="hero-brand-name">Paya</span>
+      <span class="hero-brand-version">v0.5.0</span>
+    </div>
+
+    <h1 class="fade-in fade-in-d2">
+      Politique de <span>Confidentialité</span>
+    </h1>
+    <p class="hero-subtitle fade-in fade-in-d3">
+      La tontine simplifiée pour les commerçants africains.<br>
+      Nous respectons votre vie privée et protégeons vos données.
+    </p>
+
+    <div class="hero-stats fade-in fade-in-d4">
+      <div class="hero-stat">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Chiffrement TLS
+      </div>
+      <div class="hero-stat">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+        Firebase Security
+      </div>
+      <div class="hero-stat">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        Transparence
+      </div>
+    </div>
+
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 60" fill="none" preserveAspectRatio="none">
+        <path d="M0 60V20C240 0 480 40 720 30C960 20 1200 0 1440 20V60H0Z" fill="#f8fafc"/>
+      </svg>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main-container">
+    <div class="layout">
+
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar">
+        <nav class="toc-card">
+          <div class="toc-header">Sommaire</div>
+          <div class="toc-list">
+            <button class="toc-item" data-target="introduction" onclick="scrollTo_('introduction')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Introduction
+              <span class="toc-num">01</span>
+            </button>
+            <button class="toc-item" data-target="donnees-collectees" onclick="scrollTo_('donnees-collectees')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+              Données collectées
+              <span class="toc-num">02</span>
+            </button>
+            <button class="toc-item" data-target="utilisation-donnees" onclick="scrollTo_('utilisation-donnees')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              Utilisation des données
+              <span class="toc-num">03</span>
+            </button>
+            <button class="toc-item" data-target="firebase" onclick="scrollTo_('firebase')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+              Firebase
+              <span class="toc-num">04</span>
+            </button>
+            <button class="toc-item" data-target="partage-donnees" onclick="scrollTo_('partage-donnees')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Partage des données
+              <span class="toc-num">05</span>
+            </button>
+            <button class="toc-item" data-target="securite" onclick="scrollTo_('securite')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+              Sécurité
+              <span class="toc-num">06</span>
+            </button>
+            <button class="toc-item" data-target="droits-utilisateur" onclick="scrollTo_('droits-utilisateur')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Vos droits
+              <span class="toc-num">07</span>
+            </button>
+            <button class="toc-item" data-target="cookies" onclick="scrollTo_('cookies')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 0 0-3 3c0 1.5 3 5 3 5s3-3.5 3-5a3 3 0 0 0-3-3Z"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
+              Cookies
+              <span class="toc-num">08</span>
+            </button>
+            <button class="toc-item" data-target="modifications" onclick="scrollTo_('modifications')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+              Modifications
+              <span class="toc-num">09</span>
+            </button>
+            <button class="toc-item" data-target="contact" onclick="scrollTo_('contact')">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              Contact
+              <span class="toc-num">10</span>
+            </button>
+          </div>
+        </nav>
+        <div class="version-card">
+          <div class="version-card-row">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Dernière mise à jour
+          </div>
+          <p class="version-card-value">2 Avril 2026</p>
+          <div class="version-card-row" style="margin-top:.5rem">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Version
+          </div>
+          <p class="version-card-value">Paya v0.5.0</p>
+        </div>
+      </aside>
+
+      <!-- ── Content ── -->
+      <div>
+
+        <!-- 01 Introduction -->
+        <div id="introduction" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
             </div>
-
-            <h2 id="introduction">1. Introduction</h2>
+            <div>
+              <span class="section-badge">01</span>
+              <h2 class="section-title">Introduction</h2>
+            </div>
+          </div>
+          <div class="section-body">
             <p>
-                Bienvenue sur <strong>Paya</strong> ("l'Application"). Nous respectons votre vie privée et nous nous engageons 
-                à protéger vos données personnelles. Cette politique de confidentialité explique comment nous collectons, 
-                utilisons et protégeons vos informations lorsque vous utilisez notre application mobile.
+              Bienvenue sur <strong>Paya</strong> ("l'Application"). Nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles. Cette politique de confidentialité explique comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez notre application mobile.
             </p>
-            <div class="highlight">
-                <strong>⚠️ Important :</strong> En utilisant Paya, vous acceptez les pratiques décrites dans cette politique.
+            <div class="highlight-box hl-info">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <p class="hl-title">Important</p>
+                <p class="hl-body">En utilisant Paya, vous acceptez les pratiques décrites dans cette politique.</p>
+              </div>
             </div>
-
-            <h2 id="donnees-collectees">2. Données collectées</h2>
-            <p>Nous collectons les types de données suivants :</p>
-
-            <h3>2.1 Données que vous nous fournissez</h3>
-            <ul>
-                <li><strong>Informations de compte</strong> : Nom, adresse email, mot de passe (crypté)</li>
-                <li><strong>Informations professionnelles</strong> : Nom de votre entreprise, type de commerce</li>
-                <li><strong>Données de tontine</strong> : Vagues créées, produits, commandes, clients</li>
-                <li><strong>Informations clients</strong> : Noms et détails de vos clients (que vous ajoutez dans l'app)</li>
-            </ul>
-
-            <h3>2.2 Données collectées automatiquement</h3>
-            <ul>
-                <li><strong>Identifiants d'appareil</strong> : ID unique de votre appareil</li>
-                <li><strong>Données d'utilisation</strong> : Fonctionnalités utilisées, fréquence d'utilisation</li>
-                <li><strong>Logs d'application</strong> : Informations sur les performances et les erreurs</li>
-                <li><strong>État de connexion</strong> : Statut en ligne/hors-ligne</li>
-            </ul>
-
-            <h3>2.3 Données NON collectées</h3>
-            <div class="highlight">
-                ✅ Nous ne collectons PAS :
-                <ul>
-                    <li>Vos données de localisation GPS</li>
-                    <li>Vos contacts téléphoniques</li>
-                    <li>Vos photos personnelles (seules les photos de produits sont stockées)</li>
-                    <li>Vos informations bancaires ou de paiement</li>
-                </ul>
-            </div>
-
-            <h2 id="utilisation-donnees">3. Utilisation des données</h2>
-            <p>Nous utilisons vos données pour :</p>
-            <ol>
-                <li><strong>Fournir le service</strong> : Gérer votre compte, vos vagues de produits et vos commandes</li>
-                <li><strong>Améliorer l'application</strong> : Analyser l'utilisation pour améliorer les fonctionnalités</li>
-                <li><strong>Sécurité</strong> : Authentifier votre compte et protéger contre les accès non autorisés</li>
-                <li><strong>Support</strong> : Répondre à vos demandes d'assistance</li>
-                <li><strong>Notifications</strong> : Vous informer des mises à jour importantes (optionnel)</li>
-            </ol>
-
-            <h2 id="firebase">4. Firebase et services tiers</h2>
-            <p>
-                Paya utilise <strong>Google Firebase</strong> comme backend. Cela signifie que vos données sont stockées 
-                sur les serveurs sécurisés de Google Firebase.
-            </p>
-
-            <h3>4.1 Données stockées sur Firebase</h3>
-            <ul>
-                <li>Informations de compte (authentification Firebase)</li>
-                <li>Données de tontine (vagues, produits, commandes, clients)</li>
-                <li>Préférences utilisateur</li>
-            </ul>
-
-            <h3>4.2 Politique de Firebase</h3>
-            <p>
-                L'utilisation de Firebase est soumise à la 
-                <a href="https://policies.google.com/privacy" target="_blank">Politique de Confidentialité de Google</a>.
-                Vos données sont protégées par les mesures de sécurité de Google Cloud.
-            </p>
-
-            <h2 id="partage-donnees">5. Partage des données</h2>
-            <div class="highlight">
-                <strong>🔒 Nous NE vendons PAS vos données personnelles.</strong>
-            </div>
-            <p>Nous partageons uniquement vos données dans les cas suivants :</p>
-            <ul>
-                <li><strong>Avec Firebase/Google</strong> : Pour le stockage et l'authentification (nécessaire au fonctionnement)</li>
-                <li><strong>Avec votre consentement</strong> : Si vous choisissez de partager des données</li>
-                <li><strong>Obligation légale</strong> : Si requis par la loi ou une autorité judiciaire</li>
-            </ul>
-
-            <h2 id="securite">6. Sécurité</h2>
-            <p>Nous mettons en œuvre des mesures de sécurité pour protéger vos données :</p>
-            <ul>
-                <li>🔐 <strong>Authentification sécurisée</strong> : Mots de passe cryptés via Firebase Auth</li>
-                <li>🔒 <strong>Données cryptées</strong> : Transmission via HTTPS/TLS</li>
-                <li>🛡️ <strong>Protection Firebase</strong> : Règles de sécurité Firestore</li>
-                <li>📱 <strong>Isolation des données</strong> : Chaque vendeur ne voit que ses propres données</li>
-            </ul>
-            <div class="highlight">
-                ⚠️ <strong>Limitation :</strong> Aucune méthode de transmission sur Internet n'est 100% sécurisée. 
-                Nous faisons de notre mieux pour protéger vos données, mais nous ne pouvons garantir une sécurité absolue.
-            </div>
-
-            <h2 id="droits-utilisateur">7. Vos droits</h2>
-            <p>Vous avez les droits suivants sur vos données :</p>
-            <ul>
-                <li>✅ <strong>Accès</strong> : Demander une copie de vos données</li>
-                <li>✅ <strong>Rectification</strong> : Corriger des données inexactes</li>
-                <li>✅ <strong>Suppression</strong> : Demander la suppression de votre compte et de vos données</li>
-                <li>✅ <strong>Export</strong> : Exporter vos données (fonctionnalité dans l'app)</li>
-                <li>✅ <strong>Opposition</strong> : Vous opposer au traitement de vos données</li>
-            </ul>
-            <p>
-                Pour exercer ces droits, contactez-nous à 
-                <a href="mailto:davidhida108@gmail.com">davidhida108@gmail.com</a>
-            </p>
-
-            <h2 id="cookies">8. Cookies</h2>
-            <p>
-                Paya n'utilise pas de cookies traditionnels. Cependant, l'application peut utiliser :
-            </p>
-            <ul>
-                <li><strong>Stockage local</strong> : Pour sauvegarder vos préférences et permettre le mode hors-ligne</li>
-                <li><strong>Identifiants Firebase</strong> : Pour maintenir votre session connectée</li>
-            </ul>
-
-            <h2 id="modifications">9. Modifications de cette politique</h2>
-            <p>
-                Nous pouvons mettre à jour cette politique de confidentialité. Nous vous notifierons de tout changement 
-                important via l'application ou par email. La version la plus récente sera toujours disponible dans 
-                l'application et sur cette page.
-            </p>
-
-            <h2 id="contact">10. Contact</h2>
-            <div class="contact-box">
-                <h3>📧 Nous contacter</h3>
-                <p>
-                    Pour toute question concernant cette politique de confidentialité ou la protection de vos données, 
-                    contactez-nous à :
-                </p>
-                <p style="font-size: 1.2em; margin-top: 15px;">
-                    📧 <a href="mailto:davidhida108@gmail.com">davidhida108@gmail.com</a>
-                </p>
-                <p style="margin-top: 20px; font-size: 0.9em;">
-                    Temps de réponse moyen : 24-48 heures
-                </p>
-            </div>
-
-            <div class="last-update">
-                <p><strong>Dernière mise à jour :</strong> 2 Avril 2026</p>
-                <p><strong>Version :</strong> 1.0</p>
-                <p><strong>Application :</strong> Paya v0.5.0</p>
-            </div>
+          </div>
         </div>
 
-        <footer>
-            <p>
-                © 2026 Paya - La tontine simplifiée<br>
-                Développé avec ❤️ pour les commerçants africains<br>
-                <a href="https://github.com/hbddevos/tontine_app_pro" target="_blank">GitHub</a>
-            </p>
-        </footer>
+        <!-- 02 Données collectées -->
+        <div id="donnees-collectees" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">02</span>
+              <h2 class="section-title">Données collectées</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Nous collectons les types de données suivants :</p>
+            <div class="accordion">
+              <!-- Données fournies -->
+              <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                  <svg class="acc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  Données que vous nous fournissez
+                  <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                  <div class="data-list">
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Informations de compte</p><p class="data-item-desc">Nom, adresse email, mot de passe (crypté)</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Informations professionnelles</p><p class="data-item-desc">Nom de votre entreprise, type de commerce</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Données de tontine</p><p class="data-item-desc">Vagues créées, produits, commandes, clients</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Informations clients</p><p class="data-item-desc">Noms et détails de vos clients (que vous ajoutez dans l'app)</p></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Données automatiques -->
+              <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                  <svg class="acc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+                  Données collectées automatiquement
+                  <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                  <div class="data-list">
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Identifiants d'appareil</p><p class="data-item-desc">ID unique de votre appareil</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Données d'utilisation</p><p class="data-item-desc">Fonctionnalités utilisées, fréquence d'utilisation</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">Logs d'application</p><p class="data-item-desc">Informations sur les performances et les erreurs</p></div>
+                    </div>
+                    <div class="data-item">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <div><p class="data-item-title">État de connexion</p><p class="data-item-desc">Statut en ligne/hors-ligne</p></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- NON collectées -->
+              <div class="accordion-item">
+                <button class="accordion-trigger" onclick="toggleAccordion(this)">
+                  <svg class="acc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  Données NON collectées
+                  <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div class="accordion-content">
+                  <div class="highlight-box hl-success">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <div>
+                      <p class="hl-title">Nous ne collectons PAS :</p>
+                      <div class="not-collected-list">
+                        <div class="not-collected-item">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          Vos données de localisation GPS
+                        </div>
+                        <div class="not-collected-item">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          Vos contacts téléphoniques
+                        </div>
+                        <div class="not-collected-item">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          Vos photos personnelles
+                        </div>
+                        <div class="not-collected-item">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                          Vos informations bancaires ou de paiement
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 Utilisation des données -->
+        <div id="utilisation-donnees" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">03</span>
+              <h2 class="section-title">Utilisation des données</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Nous utilisons vos données pour :</p>
+            <div class="grid-2">
+              <div class="grid-card">
+                <div class="grid-card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                </div>
+                <div><p class="grid-card-title">Fournir le service</p><p class="grid-card-desc">Gérer votre compte, vos vagues de produits et vos commandes</p></div>
+              </div>
+              <div class="grid-card">
+                <div class="grid-card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+                </div>
+                <div><p class="grid-card-title">Améliorer l'application</p><p class="grid-card-desc">Analyser l'utilisation pour améliorer les fonctionnalités</p></div>
+              </div>
+              <div class="grid-card">
+                <div class="grid-card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+                </div>
+                <div><p class="grid-card-title">Sécurité</p><p class="grid-card-desc">Authentifier votre compte et protéger contre les accès non autorisés</p></div>
+              </div>
+              <div class="grid-card">
+                <div class="grid-card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div><p class="grid-card-title">Support</p><p class="grid-card-desc">Répondre à vos demandes d'assistance</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 Firebase -->
+        <div id="firebase" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">04</span>
+              <h2 class="section-title">Firebase et services tiers</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Paya utilise <strong>Google Firebase</strong> comme backend. Cela signifie que vos données sont stockées sur les serveurs sécurisés de Google Firebase.</p>
+            <div class="info-grid">
+              <div class="info-block">
+                <h4 class="info-block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                  Données stockées sur Firebase
+                </h4>
+                <ul>
+                  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>Informations de compte (authentification Firebase)</li>
+                  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>Données de tontine (vagues, produits, commandes, clients)</li>
+                  <li><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>Préférences utilisateur</li>
+                </ul>
+              </div>
+              <div class="info-block">
+                <h4 class="info-block-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                  Politique de Firebase
+                </h4>
+                <p>
+                  L'utilisation de Firebase est soumise à la
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Politique de Confidentialité de Google</a>.
+                  Vos données sont protégées par les mesures de sécurité de Google Cloud.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 Partage des données -->
+        <div id="partage-donnees" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">05</span>
+              <h2 class="section-title">Partage des données</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <div class="highlight-box hl-success">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <div><p class="hl-title">Nous NE vendons PAS vos données personnelles.</p></div>
+            </div>
+            <p>Nous partageons uniquement vos données dans les cas suivants :</p>
+            <div class="share-list">
+              <div class="share-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                <div><strong>Avec Firebase/Google</strong><p>Pour le stockage et l'authentification (nécessaire au fonctionnement)</p></div>
+              </div>
+              <div class="share-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <div><strong>Avec votre consentement</strong><p>Si vous choisissez de partager des données</p></div>
+              </div>
+              <div class="share-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                <div><strong>Obligation légale</strong><p>Si requis par la loi ou une autorité judiciaire</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 06 Sécurité -->
+        <div id="securite" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">06</span>
+              <h2 class="section-title">Sécurité</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Nous mettons en oeuvre des mesures de sécurité pour protéger vos données :</p>
+            <div class="security-grid">
+              <div class="security-card">
+                <span class="emoji">&#x1F510;</span>
+                <div><strong>Authentification sécurisée</strong><p>Mots de passe cryptés via Firebase Auth</p></div>
+              </div>
+              <div class="security-card">
+                <span class="emoji">&#x1F512;</span>
+                <div><strong>Données cryptées</strong><p>Transmission via HTTPS/TLS</p></div>
+              </div>
+              <div class="security-card">
+                <span class="emoji">&#x1F6E1;&#xFE0F;</span>
+                <div><strong>Protection Firebase</strong><p>Règles de sécurité Firestore</p></div>
+              </div>
+              <div class="security-card">
+                <span class="emoji">&#x1F4F1;</span>
+                <div><strong>Isolation des données</strong><p>Chaque vendeur ne voit que ses propres données</p></div>
+              </div>
+            </div>
+            <div class="highlight-box hl-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <div>
+                <p><strong>Limitation :</strong> Aucune méthode de transmission sur Internet n'est 100% sécurisée. Nous faisons de notre mieux pour protéger vos données, mais nous ne pouvons garantir une sécurité absolue.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 07 Vos droits -->
+        <div id="droits-utilisateur" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">07</span>
+              <h2 class="section-title">Vos droits</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Vous avez les droits suivants sur vos données :</p>
+            <div class="rights-list">
+              <div class="rights-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Accès</strong><span>— Demander une copie de vos données</span></div>
+              <div class="rights-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Rectification</strong><span>— Corriger des données inexactes</span></div>
+              <div class="rights-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Suppression</strong><span>— Demander la suppression de votre compte et de vos données</span></div>
+              <div class="rights-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Export</strong><span>— Exporter vos données (fonctionnalité dans l'app)</span></div>
+              <div class="rights-item"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Opposition</strong><span>— Vous opposer au traitement de vos données</span></div>
+            </div>
+            <div class="contact-box">
+              <p>Pour exercer ces droits, contactez-nous à <a href="mailto:davidhida108@gmail.com">davidhida108@gmail.com</a></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 08 Cookies -->
+        <div id="cookies" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 0 0-3 3c0 1.5 3 5 3 5s3-3.5 3-5a3 3 0 0 0-3-3Z"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">08</span>
+              <h2 class="section-title">Cookies</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Paya n'utilise pas de cookies traditionnels. Cependant, l'application peut utiliser :</p>
+            <div class="share-list">
+              <div class="share-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 0 0-3 3c0 1.5 3 5 3 5s3-3.5 3-5a3 3 0 0 0-3-3Z"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
+                <div><strong>Stockage local</strong><p>Pour sauvegarder vos préférences et permettre le mode hors-ligne</p></div>
+              </div>
+              <div class="share-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8a3 3 0 0 0-3 3c0 1.5 3 5 3 5s3-3.5 3-5a3 3 0 0 0-3-3Z"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
+                <div><strong>Identifiants Firebase</strong><p>Pour maintenir votre session connectée</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 09 Modifications -->
+        <div id="modifications" class="section-card">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            </div>
+            <div>
+              <span class="section-badge">09</span>
+              <h2 class="section-title">Modifications de cette politique</h2>
+            </div>
+          </div>
+          <div class="section-body">
+            <p>Nous pouvons mettre à jour cette politique de confidentialité. Nous vous notifierons de tout changement important via l'application ou par email. La version la plus récente sera toujours disponible dans l'application et sur cette page.</p>
+          </div>
+        </div>
+
+        <!-- 10 Contact -->
+        <div id="contact" class="contact-section section-card">
+          <div class="contact-section-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          </div>
+          <h2>Nous contacter</h2>
+          <p>Pour toute question concernant cette politique de confidentialité ou la protection de vos données, contactez-nous.</p>
+          <hr>
+          <a href="mailto:davidhida108@gmail.com" class="contact-email-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            davidhida108@gmail.com
+          </a>
+          <div class="contact-response">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Temps de réponse moyen : 24-48 heures
+          </div>
+        </div>
+
+        <!-- Version footer -->
+        <div class="version-footer">
+          <span class="version-footer-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Dernière mise à jour : 2 Avril 2026
+          </span>
+          <span class="version-footer-sep"></span>
+          <span class="version-footer-item">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Version 1.0
+          </span>
+          <span class="version-footer-sep"></span>
+          <span>Paya v0.5.0</span>
+        </div>
+
+      </div>
     </div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">
+        <img src="paya-logo.png" alt="Paya">
+        <div>
+          <p class="site-footer-name">&copy; 2026 Paya &mdash; La tontine simplifiée</p>
+          <p class="site-footer-sub">Développé avec <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> pour les commerçants africains</p>
+        </div>
+      </div>
+      <div class="site-footer-bottom">
+        <p>Ce document constitue un accord de confidentialité entre vous et Paya.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ BACK TO TOP ═══ -->
+  <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
+
+  <!-- ═══ SCRIPTS ═══ -->
+  <script>
+    // Smooth scroll to section
+    function scrollTo_(id) {
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Accordion toggle
+    function toggleAccordion(btn) {
+      var item = btn.parentElement;
+      var wasOpen = item.classList.contains('open');
+      // Close all in same accordion
+      var siblings = item.parentElement.querySelectorAll('.accordion-item');
+      for (var i = 0; i < siblings.length; i++) {
+        siblings[i].classList.remove('open');
+      }
+      if (!wasOpen) item.classList.add('open');
+    }
+
+    // Back to top button visibility
+    window.addEventListener('scroll', function() {
+      var btn = document.getElementById('backToTop');
+      if (window.scrollY > 400) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    });
+
+    // Active TOC highlight on scroll
+    (function() {
+      var sections = document.querySelectorAll('[id]');
+      var tocItems = document.querySelectorAll('.toc-item');
+      var ids = [];
+      for (var i = 0; i < tocItems.length; i++) {
+        ids.push(tocItems[i].getAttribute('data-target'));
+      }
+
+      function onScroll() {
+        var scrollY = window.scrollY + 120;
+        var current = '';
+        for (var i = 0; i < ids.length; i++) {
+          var sec = document.getElementById(ids[i]);
+          if (sec && sec.offsetTop <= scrollY) {
+            current = ids[i];
+          }
+        }
+        for (var j = 0; j < tocItems.length; j++) {
+          if (tocItems[j].getAttribute('data-target') === current) {
+            tocItems[j].classList.add('active');
+          } else {
+            tocItems[j].classList.remove('active');
+          }
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+
 </body>
 </html>

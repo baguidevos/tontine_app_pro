@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3] - 2026-04-03
+
+### Added
+- **WaveDetailsPage UI Polish**
+  - Added borders to stats cards for better visual definition
+  - Added borders to money stat items
+  - Enhanced order tiles with splash color effect
+  - Improved border consistency using `payaGray` color
+
+### Changed
+- **Visual Refinements**
+  - Stats cards now have subtle gray borders (`payaGray.withOpacity(0.5)`)
+  - Money stat items have colored borders matching their theme
+  - Order tiles use consistent gray borders instead of blue
+  - Added `splashColor` to order tile InkWell for better touch feedback
+
+---
+
 ## [0.5.2] - 2026-04-03
 
 ### Added

@@ -254,6 +254,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 final double balance = totalPrice - item.paidAmount;
 
                 return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(color: AppTheme.payaGray.withOpacity(0.5)),
+                  ),
                   margin: const EdgeInsets.only(bottom: 12),
                   child: Padding(
                     padding: const EdgeInsets.all(12.0),

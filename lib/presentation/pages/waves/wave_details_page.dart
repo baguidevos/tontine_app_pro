@@ -559,6 +559,7 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
+        border: Border.all(color: AppTheme.payaGray.withOpacity(0.5)),
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -649,6 +650,7 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -684,6 +686,7 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
         children: [
@@ -721,14 +724,16 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
     final customerName = customer?.name ?? 'Client Inconnu';
 
     return InkWell(
+      splashColor: AppTheme.payaLightBlue,
       onTap: () => Get.toNamed('/orders/details', arguments: order),
       borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
+          
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.deepBlue.withOpacity(0.1)),
+          border: Border.all(color: AppTheme.payaGray.withOpacity(0.5)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
