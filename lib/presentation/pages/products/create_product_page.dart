@@ -20,6 +20,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
   late TextEditingController _nameController;
   late TextEditingController _priceController;
+  late TextEditingController _prixTTCController;
   late TextEditingController _stockController;
 
   String? _selectedWaveId;
@@ -40,6 +41,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
     _priceController = TextEditingController(
       text: _editingProduct?.price.toInt().toString() ?? '',
     );
+    _prixTTCController = TextEditingController(
+      text: _editingProduct?.prixTTC?.toInt().toString() ?? '',
+    );
     _stockController = TextEditingController(
       text: _editingProduct?.stock.toString() ?? 0.toString(),
     );
@@ -59,6 +63,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
+    _prixTTCController.dispose();
     _stockController.dispose();
     super.dispose();
   }
@@ -87,6 +92,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
       final name = _nameController.text;
       final price = double.parse(_priceController.text);
+      final prixTTC = _prixTTCController.text.isEmpty
+          ? null
+          : double.parse(_prixTTCController.text);
       // final stock = int.parse(_stockController.text);
       final stock = 0;
 
@@ -95,6 +103,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
         final updatedProduct = _editingProduct!.copyWith(
           name: name,
           price: price,
+          prixTTC: prixTTC,
           stock: stock,
           waveId: '',
           localImagePath: _localImagePath,
@@ -106,6 +115,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
         await productController.createProduct(
           name: name,
           price: price,
+          prixTTC: prixTTC,
           stock: stock,
           waveId: "",
           localImagePath: _localImagePath!,
@@ -231,23 +241,20 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // Expanded(
-                  //   child: TextFormField(
-                  //     controller: _stockController,
-                  //     decoration: InputDecoration(
-                  //       labelText: 'Stock',
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(16),
-                  //       ),
-                  //       filled: true,
-                  //       fillColor: Colors.white,
-                  //     ),
-                  //     keyboardType: TextInputType.number,
-                  //     // validator: (value) => value == null || value.isEmpty
-                  //     //     ? 'Champ requis'
-                  //     //     : null,
-                  //   ),
-                  // ),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _prixTTCController,
+                      decoration: InputDecoration(
+                        labelText: 'Prix TTC (FCFA)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),

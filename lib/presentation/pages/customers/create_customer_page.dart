@@ -17,6 +17,7 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
   late TextEditingController _nameController;
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
+  String? _selectedSexe;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
     _addressController = TextEditingController(
       text: widget.customer?.address ?? '',
     );
+    _selectedSexe = widget.customer?.sexe;
   }
 
   @override
@@ -142,6 +144,28 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
                   prefixIcon: const Icon(Icons.location_on),
                 ),
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedSexe,
+                decoration: InputDecoration(
+                  labelText: 'Sexe (Optionnel)',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  prefixIcon: const Icon(Icons.wc),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Homme', child: Text('Homme')),
+                  DropdownMenuItem(value: 'Femme', child: Text('Femme')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSexe = value;
+                  });
+                },
+              ),
               const SizedBox(height: 32),
               Obx(
                 () => SizedBox(
@@ -158,6 +182,7 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
                                   name: _nameController.text,
                                   phone: _phoneController.text,
                                   address: _addressController.text,
+                                  sexe: _selectedSexe,
                                 );
                                 success = await customerController
                                     .updateCustomer(updated);
@@ -167,6 +192,7 @@ class _CreateCustomerPageState extends State<CreateCustomerPage> {
                                       name: _nameController.text,
                                       phone: _phoneController.text,
                                       address: _addressController.text,
+                                      sexe: _selectedSexe,
                                     );
                                 Navigator.pop(context);
                               }
