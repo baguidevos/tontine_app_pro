@@ -5,6 +5,8 @@ class WaveModel {
   final String name;
   final WaveStatus status;
   final DateTime createdAt;
+  final DateTime? openDate; // Date d'ouverture de la vague
+  final DateTime? closeDate; // Date de fermeture de la vague
   final List<String> productIds;
 
   WaveModel({
@@ -12,6 +14,8 @@ class WaveModel {
     required this.name,
     required this.status,
     required this.createdAt,
+    this.openDate,
+    this.closeDate,
     this.productIds = const [],
   });
 
@@ -21,6 +25,8 @@ class WaveModel {
       'name': name,
       'status': status.name,
       'createdAt': createdAt.toIso8601String(),
+      'openDate': openDate?.toIso8601String(),
+      'closeDate': closeDate?.toIso8601String(),
       'productIds': productIds,
     };
   }
@@ -37,6 +43,12 @@ class WaveModel {
       createdAt: DateTime.parse(
         map['createdAt'] ?? DateTime.now().toIso8601String(),
       ),
+      openDate: map['openDate'] != null
+          ? DateTime.parse(map['openDate'])
+          : null,
+      closeDate: map['closeDate'] != null
+          ? DateTime.parse(map['closeDate'])
+          : null,
       productIds: productIdsRaw?.map((e) => e.toString()).toList() ?? [],
     );
   }
@@ -46,6 +58,8 @@ class WaveModel {
     String? name,
     WaveStatus? status,
     DateTime? createdAt,
+    DateTime? openDate,
+    DateTime? closeDate,
     List<String>? productIds,
   }) {
     return WaveModel(
@@ -53,6 +67,8 @@ class WaveModel {
       name: name ?? this.name,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      openDate: openDate ?? this.openDate,
+      closeDate: closeDate ?? this.closeDate,
       productIds: productIds ?? this.productIds,
     );
   }

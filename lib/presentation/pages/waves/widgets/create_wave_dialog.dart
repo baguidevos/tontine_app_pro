@@ -23,12 +23,16 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
   late WaveController _waveController;
   late ProductController _productController;
   final RxList<ProductModel> _selectedProducts = <ProductModel>[].obs;
+  DateTime? _openDate;
+  DateTime? _closeDate;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.wave?.name ?? '');
     _status = widget.wave?.status ?? WaveStatus.draft;
+    _openDate = widget.wave?.openDate;
+    _closeDate = widget.wave?.closeDate;
     _waveController = Get.find<WaveController>();
 
     // Initialize ProductController if not already registered
@@ -202,6 +206,42 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
                       );
                     }).toList(),
                   ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Date Pickers
+                Text(
+                  'Dates de la vague',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    // Open Date
+                    Expanded(
+                      child: _buildDatePickerField(
+                        label: 'Date d\'ouverture',
+                        date: _openDate,
+                        icon: Icons.calendar_today,
+                        onTap: () => _selectDate(context, isOpenDate: true),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Close Date
+                    Expanded(
+                      child: _buildDatePickerField(
+                        label: 'Date de clôture',
+                        date: _closeDate,
+                        icon: Icons.event_available,
+                        onTap: () => _selectDate(context, isCloseDate: true),
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 32),
@@ -413,6 +453,8 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
                                 name: _nameController.text,
                                 status: _status,
                                 createdAt: widget.wave!.createdAt,
+                                openDate: _openDate,
+                                closeDate: _closeDate,
                                 productIds: _waveController.selectedProductIds
                                     .toList(),
                               );
@@ -428,6 +470,8 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
                                 name: _nameController.text,
                                 status: _status,
                                 createdAt: DateTime.now(),
+                                openDate: _openDate,
+                                closeDate: _closeDate,
                               );
                               await _waveController.createWave(newWave);
                             }
@@ -472,5 +516,95 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  Future<void> _selectDate(
+    BuildContext context, {
+    bool isOpenDate = false,
+    bool isCloseDate = false,
+  }) async {
+    final initialDate = isOpenDate
+        ? _openDate
+        : (isCloseDate ? _closeDate : DateTime.now());
+    final firstDate = DateTime.now().subtract(const Duration(days: 365));
+    final lastDate = DateTime.now().add(const Duration(days: 365 * 2));
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? DateTime.now(),
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppTheme.deepBlue,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: AppTheme.deepBlue,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isOpenDate) {
+          _openDate = picked;
+        } else if (isCloseDate) {
+          _closeDate = picked;
+        }
+      });
+    }
+  }
+
+  Widget _buildDatePickerField({
+    required String label,
+    required DateTime? date,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppTheme.warmCream.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.deepBlue.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 16, color: AppTheme.deepBlue),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              date != null ? _formatDate(date) : 'Sélectionner',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: date != null ? AppTheme.deepBlue : Colors.grey.shade400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

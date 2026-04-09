@@ -258,6 +258,50 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
                       'Créée le ${_formatDate(wave.createdAt)}',
                       style: const TextStyle(color: Colors.white70),
                     ),
+                    if (wave.openDate != null || wave.closeDate != null) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          if (wave.openDate != null) ...[
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 14,
+                              color: Colors.white70,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'Ouverture: ${_formatDate(wave.openDate!)}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                          if (wave.closeDate != null) ...[
+                            const SizedBox(width: 12),
+                            const Icon(
+                              Icons.event_available,
+                              size: 14,
+                              color: Colors.white70,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                'Clôture: ${_formatDate(wave.closeDate!)}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -730,7 +774,6 @@ class _WaveDetailsPageState extends State<WaveDetailsPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppTheme.payaGray.withOpacity(0.5)),

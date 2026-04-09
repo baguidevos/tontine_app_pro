@@ -16,6 +16,7 @@ import 'presentation/pages/customers/customers_page.dart';
 import 'presentation/pages/customers/create_customer_page.dart';
 import 'presentation/pages/waves/wave_details_page.dart';
 import 'presentation/pages/orders/order_details_page.dart';
+import 'presentation/pages/products/product_details_page.dart';
 
 // Bindings
 import 'presentation/bindings/main_layout_binding.dart';
@@ -105,6 +106,10 @@ class PayaApp extends StatelessWidget {
           name: '/waves/details',
           page: () => const WaveDetailsPage(),
           binding: OrderBinding(),
+        ),
+        GetPage(
+          name: '/products/details',
+          page: () => const ProductDetailsPage(),
         ),
       ],
     );

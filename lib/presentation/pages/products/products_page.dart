@@ -193,22 +193,40 @@ class ProductsPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Text(
-                      //   'Prix TTC: ${product.prixTTC}',
-                      //   style: TextStyle(
-                      //     fontSize: 12,
-                      //     color: product.stock > 0 ? Colors.green : Colors.red,
-                      //   ),
-                      // ),
+                      // View details button
                       GestureDetector(
                         onTap: () {
-                          // Show simpler menu or duplication options
+                          Get.toNamed('/products/details', arguments: product);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.deepBlue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.visibility_outlined,
+                            size: 18,
+                            color: AppTheme.deepBlue,
+                          ),
+                        ),
+                      ),
+                      // Edit options
+                      GestureDetector(
+                        onTap: () {
                           _showProductOptions(context, controller, product);
                         },
-                        child: const Icon(
-                          Icons.more_vert,
-                          size: 20,
-                          color: Colors.grey,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.more_vert,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ],

@@ -4,6 +4,7 @@ import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/presentation/controllers/customer_controller.dart';
 import 'package:paya_app/presentation/controllers/order_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
@@ -15,6 +16,12 @@ class OrdersPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppTheme.warmCream,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              MainLayout.scaffoldKey.currentState?.openDrawer();
+            },
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: const Text(
@@ -411,10 +418,13 @@ class OrdersList extends StatelessWidget {
     return Chip(
       label: Text(label),
       backgroundColor: color.withOpacity(0.1),
-      labelStyle: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+      labelStyle: TextStyle(
+        color: color,
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       autofocus: true,
-      
     );
     // Container(
     //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

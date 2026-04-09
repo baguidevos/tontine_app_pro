@@ -1,8 +1,10 @@
 import 'dart:ui';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/services/connectivity_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/presentation/widgets/app_drawer.dart';
 import '../pages/dashboard_page.dart';
 import '../pages/inventory/inventory_page.dart';
 import '../pages/orders/orders_page.dart';
@@ -11,6 +13,10 @@ import '../controllers/main_layout_controller.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({super.key});
+
+  // Global key to access scaffold state
+  static final GlobalKey<ScaffoldState> scaffoldKey =
+      GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +31,8 @@ class MainLayout extends StatelessWidget {
     ];
 
     return Scaffold(
+      key: scaffoldKey,
+      drawer: const AppDrawer(),
       body: Stack(
         children: [
           Obx(() => pages[mainLayoutController.currentIndex.value]),
@@ -150,7 +158,6 @@ class MainLayout extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
-        
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(

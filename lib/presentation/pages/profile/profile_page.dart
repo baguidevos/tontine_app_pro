@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/presentation/controllers/profile_controller.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 
 class ProfilePage extends GetView<ProfileController> {
   const ProfilePage({super.key});
@@ -14,6 +15,12 @@ class ProfilePage extends GetView<ProfileController> {
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            MainLayout.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
         title: const Text(
           'Mon Profil',
           style: TextStyle(

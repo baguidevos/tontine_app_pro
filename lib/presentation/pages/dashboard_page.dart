@@ -4,6 +4,7 @@ import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/presentation/controllers/customer_controller.dart';
 import 'package:paya_app/presentation/controllers/dashboard_controller.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 
 import 'waves/widgets/create_wave_dialog.dart';
 import 'package:paya_app/data/models/order_model.dart';
@@ -19,7 +20,12 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
       appBar: AppBar(
-        leading: const Icon(Icons.dashboard_outlined),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            MainLayout.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
         title: Obx(() {
           final vendor = authService.currentVendor.value;
           return Text(
@@ -412,7 +418,7 @@ class DashboardPage extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 5),            
+            offset: const Offset(0, 5),
           ),
         ],
       ),

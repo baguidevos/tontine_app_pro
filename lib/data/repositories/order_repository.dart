@@ -82,6 +82,33 @@ class OrderRepository {
         );
   }
 
+  /// Récupère les commandes contenant un produit spécifique
+  Future<List<OrderModel>> getOrdersByProduct(String productId) async {
+    final snapshot = await _firestore
+        .collection('orders')
+        .where('items.productId', isEqualTo: productId)
+        .orderBy('createdAt', descending: true)
+        .get();
+
+    return snapshot.docs
+        .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
+  /// Stream des commandes contenant un produit spécifique
+  Stream<List<OrderModel>> watchOrdersByProduct(String productId) {
+    return _firestore
+        .collection('orders')
+        .where('items.productId', isEqualTo: productId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
+  }
+
   Future<void> updateOrder(OrderModel order) async {
     await _firestore
         .collection('orders')

@@ -27,7 +27,7 @@
 
 ### Contexte
 
-**TontineManager Pro** est une plateforme B2B2C conçue pour les commerçants de détail utilisant des systèmes de paiement échelonnés (ventes à tempérament). L'application permet de suivre précisément les paiements des clients, article par article, de gérer les stocks et de superviser les vagues de livraison.
+**TontineManager Pro** 
 
 ### Public Cible
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 import '../waves/waves_page.dart';
 import '../products/products_page.dart';
 import '../waves/widgets/create_wave_dialog.dart';
@@ -15,6 +16,12 @@ class InventoryPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppTheme.warmCream,
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              MainLayout.scaffoldKey.currentState?.openDrawer();
+            },
+          ),
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: const Text(

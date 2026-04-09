@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-04-08
+
+### Added
+- **Product Details Page with Customer Payment Tracking**
+  - Created `ProductDetailsPage` showing all customers who ordered a specific product
+  - Wave filtering dropdown to view customers by specific wave or all waves
+  - Payment status indicators: "Payé ✓" (green), "Partiel" (orange), "En attente" (gray)
+  - Displays customer name, quantity ordered, payment amount, and associated wave
+  - Real-time updates via Firestore streams
+
+- **WhatsApp Sharing Feature**
+  - Formatted message generation for easy sharing to WhatsApp groups
+  - Shows product name, price (PTT), customer list with quantities and colors
+  - Payment status for each customer (confirmed, partial, pending)
+  - Automatic close date from wave settings
+  - Copy to clipboard option and direct share via system share sheet
+  - Preview dialog before sharing
+
+- **Wave Date Management**
+  - Added `openDate` and `closeDate` fields to `WaveModel`
+  - Date pickers in `CreateWaveDialog` for setting wave duration
+  - Display of wave dates in `WaveDetailsPage` header
+  - WhatsApp messages automatically use wave's close date
+  - French month names in formatted dates
+
+- **Navigation Drawer**
+  - Created `AppDrawer` with comprehensive navigation menu
+  - Quick Actions section: New Order, New Customer, New Wave, New Product
+  - Main Navigation: Dashboard, Orders, Inventory, Profile with active state indicators
+  - Active Waves section showing up to 3 waves with quick access
+  - Management section: Customers, Products, Statistics
+  - Logout button with confirmation dialog
+  - Footer with version number
+  - Integrated hamburger menu (☰) in all main pages (Dashboard, Orders, Inventory, Profile)
+
+### Changed
+- **Order Repository Enhancement**
+  - Added `getOrdersByProduct()` and `watchOrdersByProduct()` methods
+  - Enables filtering orders by specific product ID
+
+- **Product Navigation**
+  - ProductsPage now has separate view details (👁️) and edit (⋮) buttons
+  - Direct navigation to product details from product grid
+
+- **Main Layout**
+  - Added global drawer to `MainLayout` with scaffold key
+  - AuthController registered in MainLayoutBinding for drawer access
+
+### Technical
+- New `ProductDetailsController` with reactive state management
+- Local order filtering to work around Firestore nested array query limitations
+- `share_plus` package integration for cross-platform sharing
+- Proper enum comparison fixes for WaveStatus
+- Flexible text widgets in wave dates to prevent overflow errors
+- Debug logging in controller for troubleshooting payment display issues
+
+---
+
 ## [0.5.5] - 2026-04-03
 
 ### Added
