@@ -21,10 +21,13 @@ class _SplashPageState extends State<SplashPage> {
     // Wait for a moment to show splash screen
     await Future.delayed(const Duration(seconds: 2));
 
-    final authService = Get.find<AuthService>();
-
-    if (authService.isLoggedIn) {
-      Get.offAllNamed('/');
+    if (Get.isRegistered<AuthService>()) {
+      final authService = Get.find<AuthService>();
+      if (authService.isLoggedIn) {
+        Get.offAllNamed('/');
+      } else {
+        Get.offAllNamed('/login');
+      }
     } else {
       Get.offAllNamed('/login');
     }

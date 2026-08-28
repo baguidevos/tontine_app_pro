@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/services/subscription_service.dart';
@@ -27,15 +28,15 @@ import 'presentation/bindings/customer_binding.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Note: Firebase initialization will fail without google-services.json
-  // but we provide the structure as requested.
   // Initialize Services
   bool firebaseInitialized = false;
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     firebaseInitialized = true;
   } catch (e) {
-    debugPrint('Firebase init failed (expected in dev without config): $e');
+    debugPrint('Firebase init failed: $e');
   }
 
   if (firebaseInitialized) {

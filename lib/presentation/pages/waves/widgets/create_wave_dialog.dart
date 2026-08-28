@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/wave_model.dart';
-import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'product_selection_sheet.dart';
@@ -21,8 +20,6 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
   late TextEditingController _nameController;
   late WaveStatus _status;
   late WaveController _waveController;
-  late ProductController _productController;
-  final RxList<ProductModel> _selectedProducts = <ProductModel>[].obs;
   DateTime? _openDate;
   DateTime? _closeDate;
 
@@ -39,7 +36,6 @@ class _CreateWaveDialogState extends State<CreateWaveDialog> {
     if (!Get.isRegistered<ProductController>()) {
       Get.put(ProductController());
     }
-    _productController = Get.find<ProductController>();
 
     // Charger les produits déjà liés si édition
     if (widget.wave != null && widget.wave!.productIds.isNotEmpty) {

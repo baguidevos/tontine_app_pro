@@ -53,8 +53,7 @@ app.*.map.json
 
 # Local Android configuration (machine-specific)
 android/app/google-services.json
-android/build.gradle.kts
-android/settings.gradle.kts
+android/build/
 
 /firebase.json
 /.qwen/*
