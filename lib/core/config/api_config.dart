@@ -20,4 +20,34 @@ class ApiConfig {
   static String get logoutUrl => '$baseUrl/v1/auth/logout';
   static String get imagesUrl => '$baseUrl/v1/images';
   static String imageUrl(String imageId) => '$baseUrl/v1/images/$imageId';
+
+  /// URL de base de l'application Flutter Web (hébergée sur Firebase Hosting, Vercel, etc.)
+  /// Modifiable via compilation: --dart-define=WEB_APP_BASE_URL=https://...
+  static const String webAppBaseUrl = String.fromEnvironment(
+    'WEB_APP_BASE_URL',
+    defaultValue: 'https://tontine-pro-97133.web.app',
+  );
+
+  /// Génère l'URL de commande directe d'un produit pour partage WhatsApp
+  static String buildOrderShareUrl({
+    required String productId,
+    required String vendorId,
+    String? waveId,
+  }) {
+    final cleanBase = webAppBaseUrl.endsWith('/')
+        ? webAppBaseUrl.substring(0, webAppBaseUrl.length - 1)
+        : webAppBaseUrl;
+
+    final queryParams = <String, String>{
+      'p': productId,
+      'v': vendorId,
+      if (waveId != null && waveId.isNotEmpty) 'w': waveId,
+    };
+
+    final queryString = queryParams.entries
+        .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+
+    return '$cleanBase/#/order?$queryString';
+  }
 }

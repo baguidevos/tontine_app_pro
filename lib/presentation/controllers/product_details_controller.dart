@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:paya_app/core/config/api_config.dart';
 import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/data/models/customer_model.dart';
 import 'package:paya_app/data/models/order_model.dart';
@@ -166,7 +167,6 @@ class ProductDetailsController extends GetxController {
       case WaveStatus.draft:
         return 'orange';
     }
-    return 'grey';
   }
 
   /// Generates formatted text for WhatsApp sharing
@@ -225,6 +225,18 @@ class ProductDetailsController extends GetxController {
     // Add empty slots up to 10
     for (int i = index; i <= 10; i++) {
       message.writeln('$i-');
+    }
+
+    final vendorId = _authService.currentVendorId;
+    if (vendorId != null && vendorId.isNotEmpty) {
+      final orderUrl = ApiConfig.buildOrderShareUrl(
+        productId: currentProduct.id,
+        vendorId: vendorId,
+        waveId: selectedWaveId.value ?? currentProduct.waveId,
+      );
+      message.writeln('');
+      message.writeln('👉 Commandez directement ici :');
+      message.writeln(orderUrl);
     }
 
     message.writeln('');

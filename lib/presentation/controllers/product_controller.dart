@@ -67,12 +67,14 @@ class ProductController extends GetxController {
   }
 
   Future<void> createProduct({
-    required String waveId,
     required String name,
     required double price,
     double? prixTTC,
-    required String localImagePath,
     required int stock,
+    required String waveId,
+    required String localImagePath,
+    Uint8List? imageBytes,
+    String? imageName,
   }) async {
     final vendorId = _authService.currentVendorId;
     if (vendorId == null) return;
@@ -97,25 +99,39 @@ class ProductController extends GetxController {
       String? imageUrl;
       String? imageId;
 
-      if (_imageServerService != null && localImagePath.isNotEmpty) {
-        final sourceFile = File(localImagePath);
-        if (await sourceFile.exists()) {
-          // 1. Sauvegarde locale permanente dans le stockage interne de l'application
-          finalLocalPath =
-              await _imageServerService!.saveImagePermanently(sourceFile);
-
-          // 2. Upload vers le serveur d'images Laravel
-          final uploadResult =
-              await _imageServerService!.uploadImage(File(finalLocalPath));
-          if (uploadResult.success) {
-            imageUrl = uploadResult.downloadUrl;
-            imageId = uploadResult.imageId;
-            debugPrint('[ProductController] Image en ligne liée: $imageUrl');
-          } else {
-            debugPrint(
-              '[ProductController] Échec upload distant: ${uploadResult.error}. Utilisation locale.',
-            );
+      if (_imageServerService != null) {
+        // 1. Sauvegarde locale permanente sur mobile
+        if (!kIsWeb && localImagePath.isNotEmpty) {
+          final sourceFile = File(localImagePath);
+          if (await sourceFile.exists()) {
+            finalLocalPath =
+                await _imageServerService!.saveImagePermanently(sourceFile);
           }
+        }
+
+        // 2. Upload distant
+        ImageUploadResult? uploadResult;
+        if (imageBytes != null && imageBytes.isNotEmpty) {
+          uploadResult = await _imageServerService!.uploadImageBytes(
+            bytes: imageBytes,
+            filename: imageName ??
+                'prod_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+        } else if (!kIsWeb && finalLocalPath.isNotEmpty) {
+          final file = File(finalLocalPath);
+          if (await file.exists()) {
+            uploadResult = await _imageServerService!.uploadImage(file);
+          }
+        }
+
+        if (uploadResult != null && uploadResult.success) {
+          imageUrl = uploadResult.downloadUrl;
+          imageId = uploadResult.imageId;
+          debugPrint('[ProductController] Image en ligne liée: $imageUrl');
+        } else if (uploadResult != null) {
+          debugPrint(
+            '[ProductController] Échec upload distant: ${uploadResult.errorMessage}. Utilisation locale.',
+          );
         }
       }
 
@@ -136,8 +152,8 @@ class ProductController extends GetxController {
       Get.snackbar(
         'Succès',
         imageUrl != null
-            ? 'Produit créé avec succès (synchronisé en ligne)'
-            : 'Produit créé avec succès (image locale conservée)',
+            ? 'Produit créé avec succès (synchronisé sur le serveur)'
+            : 'Produit créé avec succès (enregistré localement)',
       );
       loadProducts();
     } catch (e) {
@@ -190,15 +206,18 @@ class ProductController extends GetxController {
   Future<void> updateProduct(
     ProductModel product, {
     String? newLocalImagePath,
+    Uint8List? newImageBytes,
+    String? newImageName,
   }) async {
     try {
       isLoading.value = true;
       ProductModel toUpdate = product;
 
-      // Détecter si une nouvelle image a été sélectionnée
-      final bool hasNewImage = newLocalImagePath != null &&
-          newLocalImagePath.isNotEmpty &&
-          newLocalImagePath != product.localImagePath;
+      // Détecter si une nouvelle image a été sélectionnée (soit bytes, soit chemin local différent)
+      final bool hasNewImage = (newImageBytes != null && newImageBytes.isNotEmpty) ||
+          (newLocalImagePath != null &&
+              newLocalImagePath.isNotEmpty &&
+              newLocalImagePath != product.localImagePath);
 
       // Déterminer si le produit a besoin d'être synchronisé sur le serveur
       // (soit nouvelle image, soit imageId / imageUrl manquants)
@@ -206,48 +225,63 @@ class ProductController extends GetxController {
               product.imageUrl!.isEmpty ||
               product.imageId == null ||
               product.imageId!.isEmpty) &&
-          (newLocalImagePath != null && newLocalImagePath.isNotEmpty);
+          (newImageBytes != null ||
+              (newLocalImagePath != null && newLocalImagePath.isNotEmpty));
 
       ImageUploadResult? uploadResult;
 
       if (_imageServerService != null && (hasNewImage || needsServerUpload)) {
-        final imagePathToProcess = newLocalImagePath;
-        if (imagePathToProcess.isNotEmpty) {
-          final sourceFile = File(imagePathToProcess);
+        String? permanentPath;
+
+        // 1. Sauvegarde locale permanente sur mobile si fichier local
+        if (!kIsWeb &&
+            newLocalImagePath != null &&
+            newLocalImagePath.isNotEmpty) {
+          final sourceFile = File(newLocalImagePath);
           if (await sourceFile.exists()) {
-            // Sauvegarde locale permanente si nouveau fichier sélectionné
-            final permanentPath = hasNewImage
+            permanentPath = hasNewImage
                 ? await _imageServerService!.saveImagePermanently(sourceFile)
-                : imagePathToProcess;
-
-            // Upload vers le serveur d'images
-            uploadResult =
-                await _imageServerService!.uploadImage(File(permanentPath));
-
-            if (uploadResult.success) {
-              // Si une ancienne image distante existait et a été remplacée, la supprimer du serveur
-              if (hasNewImage &&
-                  product.imageId != null &&
-                  product.imageId!.isNotEmpty &&
-                  product.imageId != uploadResult.imageId) {
-                await _imageServerService!.deleteImage(product.imageId!);
-              }
-
-              toUpdate = toUpdate.copyWith(
-                localImagePath: permanentPath,
-                imageUrl: uploadResult.downloadUrl,
-                imageId: uploadResult.imageId,
-              );
-            } else {
-              debugPrint(
-                '[ProductController] Échec upload distant: ${uploadResult.errorMessage}',
-              );
-              // Conserver la copie locale
-              toUpdate = toUpdate.copyWith(
-                localImagePath: permanentPath,
-              );
-            }
+                : newLocalImagePath;
           }
+        }
+
+        // 2. Upload vers le serveur d'images
+        if (newImageBytes != null && newImageBytes.isNotEmpty) {
+          uploadResult = await _imageServerService!.uploadImageBytes(
+            bytes: newImageBytes,
+            filename: newImageName ??
+                'prod_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          );
+        } else if (permanentPath != null) {
+          uploadResult =
+              await _imageServerService!.uploadImage(File(permanentPath));
+        } else if (!kIsWeb &&
+            newLocalImagePath != null &&
+            newLocalImagePath.isNotEmpty) {
+          final file = File(newLocalImagePath);
+          if (await file.exists()) {
+            uploadResult = await _imageServerService!.uploadImage(file);
+          }
+        }
+
+        if (uploadResult != null && uploadResult.success) {
+          // Si une ancienne image distante existait et a été remplacée, la supprimer du serveur
+          if (hasNewImage &&
+              product.imageId != null &&
+              product.imageId!.isNotEmpty &&
+              product.imageId != uploadResult.imageId) {
+            await _imageServerService!.deleteImage(product.imageId!);
+          }
+
+          toUpdate = toUpdate.copyWith(
+            localImagePath: permanentPath ?? toUpdate.localImagePath,
+            imageUrl: uploadResult.downloadUrl,
+            imageId: uploadResult.imageId,
+          );
+        } else if (permanentPath != null) {
+          toUpdate = toUpdate.copyWith(
+            localImagePath: permanentPath,
+          );
         }
       }
 
@@ -262,7 +296,7 @@ class ProductController extends GetxController {
         } else {
           Get.snackbar(
             'Attention',
-            'Produit mis à jour localement, mais échec serveur: ${uploadResult.errorMessage}',
+            'Produit mis à jour, mais échec serveur: ${uploadResult.errorMessage}',
             duration: const Duration(seconds: 5),
           );
         }

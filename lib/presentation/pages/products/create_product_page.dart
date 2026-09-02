@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,8 +23,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
   late TextEditingController _prixTTCController;
   late TextEditingController _stockController;
 
-  String? _selectedWaveId;
   String? _localImagePath;
+  Uint8List? _newImageBytes;
+  String? _newImageName;
   ProductModel? _editingProduct;
 
   final ImagePicker _picker = ImagePicker();
@@ -46,16 +48,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
     _stockController = TextEditingController(
       text: _editingProduct?.stock.toString() ?? 0.toString(),
     );
-    _selectedWaveId = _editingProduct?.waveId;
     _localImagePath = _editingProduct?.localImagePath;
-
-    // Auto-select wave if filtering is active and creating new
-    if (_editingProduct == null) {
-      final productController = Get.find<ProductController>();
-      if (productController.filterWaveId.value != null) {
-        _selectedWaveId = productController.filterWaveId.value;
-      }
-    }
   }
 
   @override
@@ -70,19 +63,21 @@ class _CreateProductPageState extends State<CreateProductPage> {
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
         _localImagePath = image.path;
+        _newImageBytes = bytes;
+        _newImageName = image.name;
       });
     }
   }
 
   Future<void> _saveProduct() async {
     if (_formKey.currentState!.validate()) {
-      // if (_selectedWaveId == null) {
-      //   Get.snackbar('Erreur', 'Veuillez sélectionner une vague');
-      //   return;
-      // }
-      if (_localImagePath == null || _localImagePath!.isEmpty) {
+      if ((_localImagePath == null || _localImagePath!.isEmpty) &&
+          _newImageBytes == null &&
+          (_editingProduct?.imageUrl == null ||
+              _editingProduct!.imageUrl!.isEmpty)) {
         Get.snackbar('Erreur', 'Veuillez ajouter une image');
         return;
       }
@@ -94,7 +89,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
       final prixTTC = _prixTTCController.text.isEmpty
           ? null
           : double.parse(_prixTTCController.text);
-      // final stock = int.parse(_stockController.text);
       final stock = 0;
 
       if (_editingProduct != null) {
@@ -109,6 +103,8 @@ class _CreateProductPageState extends State<CreateProductPage> {
         await productController.updateProduct(
           updatedProduct,
           newLocalImagePath: _localImagePath,
+          newImageBytes: _newImageBytes,
+          newImageName: _newImageName,
         );
       } else {
         // Create
@@ -118,7 +114,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
           prixTTC: prixTTC,
           stock: stock,
           waveId: "",
-          localImagePath: _localImagePath!,
+          localImagePath: _localImagePath ?? '',
+          imageBytes: _newImageBytes,
+          imageName: _newImageName,
         );
       }
       Get.back();
@@ -127,8 +125,6 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
   @override
   Widget build(BuildContext context) {
-    final waveController = Get.find<WaveController>();
-
     return Scaffold(
       backgroundColor: AppTheme.warmCream,
       appBar: AppBar(
@@ -158,8 +154,9 @@ class _CreateProductPageState extends State<CreateProductPage> {
                 child: GestureDetector(
                   onTap: () => _showImageSourceModal(),                  child: Builder(
                     builder: (context) {
-                      final hasImage =
-                          (_localImagePath != null && _localImagePath!.isNotEmpty) ||
+                      final hasImage = _newImageBytes != null ||
+                          (_localImagePath != null &&
+                              _localImagePath!.isNotEmpty) ||
                           (_editingProduct?.imageUrl != null &&
                               _editingProduct!.imageUrl!.isNotEmpty);
 
@@ -184,13 +181,22 @@ class _CreateProductPageState extends State<CreateProductPage> {
                             ? Stack(
                                 children: [
                                   Positioned.fill(
-                                    child: ProductImage(
-                                      product: _editingProduct,
-                                      localImagePath: _localImagePath,
-                                      width: 200,
-                                      height: 200,
-                                      fit: BoxFit.cover,
+                                    child: ClipRRect(
                                       borderRadius: BorderRadius.circular(24),
+                                      child: _newImageBytes != null
+                                          ? Image.memory(
+                                              _newImageBytes!,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : ProductImage(
+                                              product: _editingProduct,
+                                              localImagePath: _localImagePath,
+                                              width: 200,
+                                              height: 200,
+                                              fit: BoxFit.cover,
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                            ),
                                     ),
                                   ),
                                   Positioned(

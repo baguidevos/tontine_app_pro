@@ -70,6 +70,7 @@ class ImageServerService extends GetxService {
 
   /// Charge le token stocké localement au démarrage
   Future<void> _loadSavedToken() async {
+    if (kIsWeb) return;
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File(p.join(dir.path, 'image_server_token.txt'));
@@ -84,6 +85,7 @@ class ImageServerService extends GetxService {
   /// Sauvegarde le token localement
   Future<void> _saveToken(String token) async {
     _cachedToken = token;
+    if (kIsWeb) return;
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File(p.join(dir.path, 'image_server_token.txt'));
@@ -96,6 +98,7 @@ class ImageServerService extends GetxService {
   /// Efface le token en cache
   Future<void> clearToken() async {
     _cachedToken = null;
+    if (kIsWeb) return;
     try {
       final dir = await getApplicationDocumentsDirectory();
       final file = File(p.join(dir.path, 'image_server_token.txt'));
@@ -121,12 +124,12 @@ class ImageServerService extends GetxService {
       final auth = Get.find<AuthService>();
       final vendor = auth.currentVendor.value;
       if (vendor != null && vendor.email.isNotEmpty) {
-        email = vendor.email;
+        email = vendor.email.trim().toLowerCase();
         name = vendor.businessName.isNotEmpty ? vendor.businessName : 'Vendeur';
         password = 'Paya_${vendor.id.padRight(12, '0')}!';
       } else if (auth.firebaseUser.value?.email != null &&
           auth.firebaseUser.value!.email!.isNotEmpty) {
-        email = auth.firebaseUser.value!.email!;
+        email = auth.firebaseUser.value!.email!.trim().toLowerCase();
         final uid = auth.firebaseUser.value!.uid;
         password = 'Paya_${uid.padRight(12, '0')}!';
       }
@@ -195,6 +198,7 @@ class ImageServerService extends GetxService {
 
   /// Sauvegarde une image localement de manière permanente dans le dossier documents de l'app
   Future<String> saveImagePermanently(File sourceFile) async {
+    if (kIsWeb) return sourceFile.path;
     try {
       final dir = await getApplicationDocumentsDirectory();
       final productsDir = Directory(p.join(dir.path, 'products'));
@@ -217,14 +221,15 @@ class ImageServerService extends GetxService {
     }
   }
 
-  /// Upload une image vers le serveur Laravel
-  Future<ImageUploadResult> uploadImage(
-    File file, {
+  /// Upload une image vers le serveur Laravel depuis des bytes (compatible Mobile + Web)
+  Future<ImageUploadResult> uploadImageBytes({
+    required Uint8List bytes,
+    required String filename,
     bool retryOnAuthError = true,
   }) async {
     try {
-      if (!await file.exists()) {
-        return ImageUploadResult.failure('Le fichier image local n\'existe pas.');
+      if (bytes.isEmpty) {
+        return ImageUploadResult.failure('L\'image sélectionnée est vide.');
       }
 
       // S'assurer d'être authentifié
@@ -236,7 +241,7 @@ class ImageServerService extends GetxService {
       }
 
       debugPrint(
-        '[ImageServerService] Début upload image: ${file.path} vers ${ApiConfig.imagesUrl}',
+        '[ImageServerService] Début upload image (bytes: ${bytes.length}) vers ${ApiConfig.imagesUrl}',
       );
 
       final request = http.MultipartRequest(
@@ -245,10 +250,10 @@ class ImageServerService extends GetxService {
       );
       request.headers.addAll(authHeaders);
 
-      final multipartFile = await http.MultipartFile.fromPath(
+      final multipartFile = http.MultipartFile.fromBytes(
         'image',
-        file.path,
-        filename: p.basename(file.path),
+        bytes,
+        filename: filename,
       );
       request.files.add(multipartFile);
 
@@ -271,14 +276,21 @@ class ImageServerService extends GetxService {
           imageId: imageId,
           downloadUrl: downloadUrl,
         );
-      } else if (response.statusCode == 401 && retryOnAuthError) {
+      } else if ((response.statusCode == 401 ||
+              (response.statusCode == 500 &&
+                  response.body.contains('Route [login] not defined'))) &&
+          retryOnAuthError) {
         debugPrint(
-          '[ImageServerService] 401 sur upload, réauthentification et tentative unique...',
+          '[ImageServerService] Erreur d\'authentification sur upload (${response.statusCode}), réauthentification...',
         );
         await clearToken();
         final reAuth = await ensureAuthenticated();
         if (reAuth) {
-          return uploadImage(file, retryOnAuthError: false);
+          return uploadImageBytes(
+            bytes: bytes,
+            filename: filename,
+            retryOnAuthError: false,
+          );
         }
         return ImageUploadResult.failure('Session expirée (401).');
       } else {
@@ -289,6 +301,27 @@ class ImageServerService extends GetxService {
     } catch (e) {
       debugPrint('[ImageServerService] Erreur réseau lors de l\'upload: $e');
       return ImageUploadResult.failure('Serveur d\'images injoignable: $e');
+    }
+  }
+
+  /// Upload une image vers le serveur Laravel depuis un File (Mobile/Desktop)
+  Future<ImageUploadResult> uploadImage(
+    File file, {
+    bool retryOnAuthError = true,
+  }) async {
+    try {
+      if (!await file.exists()) {
+        return ImageUploadResult.failure('Le fichier image local n\'existe pas.');
+      }
+      final bytes = await file.readAsBytes();
+      return uploadImageBytes(
+        bytes: bytes,
+        filename: p.basename(file.path),
+        retryOnAuthError: retryOnAuthError,
+      );
+    } catch (e) {
+      debugPrint('[ImageServerService] Erreur lecture fichier image: $e');
+      return ImageUploadResult.failure('Erreur lecture image: $e');
     }
   }
 
@@ -313,7 +346,10 @@ class ImageServerService extends GetxService {
         '[ImageServerService] Réponse suppression ($imageId): ${response.statusCode}',
       );
 
-      if (response.statusCode == 401 && retryOnAuthError) {
+      if ((response.statusCode == 401 ||
+              (response.statusCode == 500 &&
+                  response.body.contains('Route [login] not defined'))) &&
+          retryOnAuthError) {
         await clearToken();
         final reAuth = await ensureAuthenticated();
         if (reAuth) {

@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../core/services/image_server_service.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/utils/platform_file_image.dart';
 import '../../data/models/product_model.dart';
 
 /// Widget pour afficher l'image d'un produit avec stratégie de résilience complète :
@@ -60,9 +60,9 @@ class ProductImage extends StatelessWidget {
         placeholder: (context, url) => placeholder ?? _buildLoadingPlaceholder(),
         errorWidget: (context, url, error) {
           // Fallback immédiat vers l'image locale si l'image distante échoue
-          if (_hasValidLocalFile(localPath)) {
-            return Image.file(
-              File(localPath!),
+          if (hasValidPlatformFile(localPath)) {
+            return buildPlatformFileImage(
+              path: localPath!,
               width: width,
               height: height,
               fit: fit,
@@ -73,10 +73,10 @@ class ProductImage extends StatelessWidget {
           return errorWidget ?? _buildDefaultPlaceholder();
         },
       );
-    } else if (_hasValidLocalFile(localPath)) {
+    } else if (hasValidPlatformFile(localPath)) {
       // 2. Pas d'URL distante mais fichier local disponible
-      content = Image.file(
-        File(localPath!),
+      content = buildPlatformFileImage(
+        path: localPath!,
         width: width,
         height: height,
         fit: fit,
@@ -96,16 +96,6 @@ class ProductImage extends StatelessWidget {
     }
 
     return content;
-  }
-
-  bool _hasValidLocalFile(String? path) {
-    if (path == null || path.isEmpty) return false;
-    try {
-      final file = File(path);
-      return file.existsSync();
-    } catch (_) {
-      return false;
-    }
   }
 
   Widget _buildLoadingPlaceholder() {

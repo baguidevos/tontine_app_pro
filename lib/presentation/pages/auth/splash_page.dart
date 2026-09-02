@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/services/auth_service.dart';
@@ -18,6 +19,16 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _checkAuthStatus() async {
+    if (kIsWeb) {
+      final uri = Uri.base;
+      if (uri.path.contains('/order') ||
+          uri.fragment.contains('/order') ||
+          uri.queryParameters.containsKey('p')) {
+        Get.offAllNamed('/order');
+        return;
+      }
+    }
+
     // Wait for a moment to show splash screen
     await Future.delayed(const Duration(seconds: 2));
 
