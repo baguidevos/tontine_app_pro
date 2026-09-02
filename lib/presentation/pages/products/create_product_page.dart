@@ -29,6 +29,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
   String? _newImageName;
   ProductModel? _editingProduct;
   String? _selectedWaveId;
+  bool _isSaving = false;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -88,18 +89,26 @@ class _CreateProductPageState extends State<CreateProductPage> {
   }
 
   Future<void> _saveProduct() async {
+    if (_isSaving) return;
+
     if (_formKey.currentState!.validate()) {
       if ((_localImagePath == null || _localImagePath!.isEmpty) &&
           _newImageBytes == null &&
           (_editingProduct?.imageUrl == null ||
               _editingProduct!.imageUrl!.isEmpty)) {
-        Get.snackbar('Erreur', 'Veuillez ajouter une image');
+        Get.snackbar(
+          'Image requise',
+          'Veuillez ajouter une image pour le produit',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+        );
         return;
       }
 
       final productController = Get.find<ProductController>();
 
-      final name = _nameController.text;
+      final name = _nameController.text.trim();
       final price = double.parse(_priceController.text);
       final prixTTC = _prixTTCController.text.isEmpty
           ? null
@@ -110,42 +119,79 @@ class _CreateProductPageState extends State<CreateProductPage> {
       final waveIdsToSave =
           (waveIdToSave.isNotEmpty) ? [waveIdToSave] : <String>[];
 
-      if (_editingProduct != null) {
-        // Update
-        final existingWaveIds = List<String>.from(_editingProduct!.waveIds);
-        if (waveIdToSave.isNotEmpty && !existingWaveIds.contains(waveIdToSave)) {
-          existingWaveIds.add(waveIdToSave);
+      setState(() => _isSaving = true);
+
+      try {
+        final bool isEditing = _editingProduct != null;
+
+        if (isEditing) {
+          // Update
+          final existingWaveIds = List<String>.from(_editingProduct!.waveIds);
+          if (waveIdToSave.isNotEmpty &&
+              !existingWaveIds.contains(waveIdToSave)) {
+            existingWaveIds.add(waveIdToSave);
+          }
+
+          final updatedProduct = _editingProduct!.copyWith(
+            name: name,
+            price: price,
+            prixTTC: prixTTC,
+            stock: stock,
+            waveId: waveIdToSave,
+            waveIds:
+                existingWaveIds.isNotEmpty ? existingWaveIds : waveIdsToSave,
+          );
+          await productController.updateProduct(
+            updatedProduct,
+            newLocalImagePath: _localImagePath,
+            newImageBytes: _newImageBytes,
+            newImageName: _newImageName,
+          );
+        } else {
+          // Create
+          await productController.createProduct(
+            name: name,
+            price: price,
+            prixTTC: prixTTC,
+            stock: stock,
+            waveId: waveIdToSave,
+            waveIds: waveIdsToSave,
+            localImagePath: _localImagePath ?? '',
+            imageBytes: _newImageBytes,
+            imageName: _newImageName,
+          );
         }
 
-        final updatedProduct = _editingProduct!.copyWith(
-          name: name,
-          price: price,
-          prixTTC: prixTTC,
-          stock: stock,
-          waveId: waveIdToSave,
-          waveIds: existingWaveIds.isNotEmpty ? existingWaveIds : waveIdsToSave,
+        // Fermer la page d'édition
+        Get.back();
+
+        // Afficher la notification sur l'écran parent
+        Get.snackbar(
+          'Succès',
+          isEditing
+              ? 'Produit "$name" modifié avec succès'
+              : 'Produit "$name" créé avec succès',
+          backgroundColor: AppTheme.successGreen,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+          icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+          duration: const Duration(seconds: 3),
+          margin: const EdgeInsets.all(16),
+          borderRadius: 12,
         );
-        await productController.updateProduct(
-          updatedProduct,
-          newLocalImagePath: _localImagePath,
-          newImageBytes: _newImageBytes,
-          newImageName: _newImageName,
+      } catch (e) {
+        Get.snackbar(
+          'Erreur',
+          'Impossible d\'enregistrer le produit: $e',
+          backgroundColor: AppTheme.softRed,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
         );
-      } else {
-        // Create
-        await productController.createProduct(
-          name: name,
-          price: price,
-          prixTTC: prixTTC,
-          stock: stock,
-          waveId: waveIdToSave,
-          waveIds: waveIdsToSave,
-          localImagePath: _localImagePath ?? '',
-          imageBytes: _newImageBytes,
-          imageName: _newImageName,
-        );
+      } finally {
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
       }
-      Get.back();
     }
   }
 
@@ -375,25 +421,36 @@ class _CreateProductPageState extends State<CreateProductPage> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _saveProduct,
+                  onPressed: _isSaving ? null : _saveProduct,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.deepBlue,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        AppTheme.deepBlue.withOpacity(0.6),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     elevation: 5,
                     shadowColor: AppTheme.deepBlue.withOpacity(0.4),
                   ),
-                  child: Text(
-                    _editingProduct != null
-                        ? 'Mettre à jour'
-                        : 'Créer le produit',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: _isSaving
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(
+                          _editingProduct != null
+                              ? 'Mettre à jour'
+                              : 'Créer le produit',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ],
