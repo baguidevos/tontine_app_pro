@@ -1,13 +1,19 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:paya_app/core/config/api_config.dart';
+import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/core/utils/platform_file_image.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
+import 'package:paya_app/presentation/controllers/product_details_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/widgets/product_image.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CreateProductPage extends StatefulWidget {
   const CreateProductPage({super.key});
@@ -213,6 +219,14 @@ class _CreateProductPageState extends State<CreateProductPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          if (_editingProduct != null)
+            IconButton(
+              icon: const Icon(Icons.share_rounded, color: AppTheme.deepBlue),
+              tooltip: 'Partager sur WhatsApp',
+              onPressed: _shareToWhatsApp,
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -453,11 +467,345 @@ class _CreateProductPageState extends State<CreateProductPage> {
                         ),
                 ),
               ),
+
+              if (_editingProduct != null) ...[
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: OutlinedButton.icon(
+                    onPressed: _shareToWhatsApp,
+                    icon: const Icon(Icons.share_rounded,
+                        color: AppTheme.successGreen),
+                    label: const Text(
+                      'Partager sur WhatsApp',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.successGreen,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                          color: AppTheme.successGreen, width: 1.8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _shareToWhatsApp() async {
+    if (_editingProduct == null) return;
+
+    final currentProduct = _editingProduct!;
+    final name = _nameController.text.trim().isNotEmpty
+        ? _nameController.text.trim()
+        : currentProduct.name;
+    final price =
+        double.tryParse(_priceController.text) ?? currentProduct.price;
+    final prixTTC = _prixTTCController.text.isNotEmpty
+        ? double.tryParse(_prixTTCController.text) ??
+            (currentProduct.prixTTC ?? price)
+        : (currentProduct.prixTTC ?? price);
+
+    String? targetWaveId = _selectedWaveId;
+    if (targetWaveId == null || targetWaveId.isEmpty) {
+      targetWaveId = currentProduct.waveId;
+    }
+
+    final waveController = Get.isRegistered<WaveController>()
+        ? Get.find<WaveController>()
+        : Get.put(WaveController());
+    final waves = waveController.waves;
+
+    // Si le produit appartient à plusieurs vagues et aucune sélectionnée
+    if (targetWaveId == null || targetWaveId.isEmpty) {
+      final activeWavesForProduct = waves.where((w) {
+        return w.status == WaveStatus.active &&
+            (w.productIds.contains(currentProduct.id) ||
+                currentProduct.waveIds.contains(w.id));
+      }).toList();
+
+      if (activeWavesForProduct.length > 1) {
+        final selected = await Get.bottomSheet<String>(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Choisir la vague à partager',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.deepBlue,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ce produit est associé à plusieurs vagues actives. Choisissez celle pour laquelle vous lancez les commandes :',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 16),
+                ...activeWavesForProduct.map((w) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      leading:
+                          const Icon(Icons.waves, color: AppTheme.deepBlue),
+                      title: Text(
+                        w.name,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: w.closeDate != null
+                          ? Text(
+                              'Clôture le ${w.closeDate!.day}/${w.closeDate!.month}/${w.closeDate!.year}',
+                            )
+                          : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      tileColor: AppTheme.warmCream.withOpacity(0.5),
+                      trailing:
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                      onTap: () => Get.back(result: w.id),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Annuler'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (selected == null) return;
+        targetWaveId = selected;
+      } else if (activeWavesForProduct.length == 1) {
+        targetWaveId = activeWavesForProduct.first.id;
+      }
+    }
+
+    // Nom de vague et date de clôture
+    String waveName = 'Toutes les vagues';
+    DateTime? closeDate;
+    if (targetWaveId != null && targetWaveId.isNotEmpty) {
+      for (final w in waves) {
+        if (w.id == targetWaveId) {
+          waveName = w.name;
+          closeDate = w.closeDate;
+          break;
+        }
+      }
+    }
+
+    final closeDateString = closeDate != null
+        ? '${closeDate.day} ${_getMonthName(closeDate.month)} ${closeDate.year}'
+        : 'À venir';
+
+    final StringBuffer buffer = StringBuffer();
+    buffer.writeln('Nouvelle commande du $name 😁😇');
+    buffer.writeln('');
+    buffer.writeln(
+        'PTT(toutes taxes comprises) : ${prixTTC.toStringAsFixed(0)}f');
+    buffer.writeln('Vague : $waveName');
+    buffer.writeln('');
+
+    int index = 1;
+    if (Get.isRegistered<ProductDetailsController>()) {
+      final detailsCtrl = Get.find<ProductDetailsController>();
+      for (final entry in detailsCtrl.customerPayments) {
+        final status = entry.orderItem.isReadyForDelivery
+            ? '(payé ou confirmé)'
+            : entry.orderItem.paidAmount > 0
+                ? '(partiel: ${entry.orderItem.paidAmount.toStringAsFixed(0)}f)'
+                : '(en attente)';
+        buffer.writeln(
+            '$index- ${entry.customer.name} : ${entry.orderItem.quantity} $status');
+        index++;
+      }
+    }
+    for (int i = index; i <= 10; i++) {
+      buffer.writeln('$i-');
+    }
+
+    // Lien de commande client direct
+    final vendorId = Get.isRegistered<AuthService>()
+        ? Get.find<AuthService>().currentVendorId
+        : null;
+    if (vendorId != null && vendorId.isNotEmpty) {
+      final orderUrl = ApiConfig.buildOrderShareUrl(
+        productId: currentProduct.id,
+        vendorId: vendorId,
+        waveId: targetWaveId,
+      );
+      buffer.writeln('');
+      buffer.writeln('👉 Commandez directement ici :');
+      buffer.writeln(orderUrl);
+    }
+
+    buffer.writeln('');
+    buffer.writeln('Date de clôture : $closeDateString');
+
+    final message = buffer.toString();
+
+    // Afficher la boîte de prévisualisation et options de partage
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Partager sur WhatsApp',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.deepBlue,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 180),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: SingleChildScrollView(
+                child: SelectableText(
+                  message,
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Copier le texte
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: message));
+                  Get.back();
+                  Get.snackbar(
+                    'Copié !',
+                    'Texte copié dans le presse-papiers',
+                    backgroundColor: AppTheme.successGreen,
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.TOP,
+                  );
+                },
+                icon: const Icon(Icons.copy),
+                label: const Text('Copier le texte'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.deepBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Partager avec photo
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  Get.back();
+                  await _sendWhatsAppWithImage(currentProduct, message);
+                },
+                icon: const Icon(Icons.share),
+                label: const Text('Partager avec photo'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.successGreen,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('Annuler',
+                  style: TextStyle(color: AppTheme.payaGray)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendWhatsAppWithImage(
+      ProductModel prod, String message) async {
+    final localPath = _localImagePath ?? prod.localImagePath;
+
+    if (hasValidPlatformFile(localPath)) {
+      try {
+        await Share.shareXFiles([XFile(localPath)], text: message);
+        return;
+      } catch (e) {
+        debugPrint('[Share] Échec partage image locale: $e');
+      }
+    }
+
+    final onlineUrl = prod.imageUrl;
+    if (onlineUrl != null && onlineUrl.isNotEmpty) {
+      try {
+        final res = await http.get(Uri.parse(onlineUrl));
+        if (res.statusCode == 200 && res.bodyBytes.isNotEmpty) {
+          final xFile = XFile.fromData(
+            res.bodyBytes,
+            mimeType: 'image/jpeg',
+            name: '${prod.name}.jpg',
+          );
+          await Share.shareXFiles([xFile], text: message);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[Share] Échec téléchargement image en ligne: $e');
+      }
+    }
+
+    await Share.share(message);
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre',
+    ];
+    return (month >= 1 && month <= 12) ? months[month - 1] : '';
   }
 
   void _showImageSourceModal() {
