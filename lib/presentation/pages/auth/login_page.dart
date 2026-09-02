@@ -20,24 +20,49 @@ class LoginPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo/Title Section
-                const Icon(
-                  Icons.store_rounded,
-                  size: 80,
-                  color: AppTheme.deepBlue,
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.deepBlue.withOpacity(0.12),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset(
+                      'assets/logo.png',
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.store_rounded,
+                        size: 80,
+                        color: AppTheme.deepBlue,
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 const Text(
-                  'TontineManager Pro',
+                  'PAYA',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 34,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.deepBlue,
+                    letterSpacing: 1.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Gérez vos ventes en tontine',
-                  style: TextStyle(fontSize: 16, color: AppTheme.darkerBlue),
+                  'Gérez vos ventes et commandes en toute simplicité',
+                  style: TextStyle(fontSize: 15, color: AppTheme.darkerBlue),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
 

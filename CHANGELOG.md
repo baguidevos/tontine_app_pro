@@ -25,6 +25,10 @@ All notable changes to this project will be documented in this file.
   - Anonymous Firebase Auth sign-in to permit guest reading and order submission.
   - Real-time total calculation and WhatsApp vendor confirmation redirect.
 
+- **Brand Identity Unification (PAYA & logo.png)**
+  - Replaced legacy storefront icon and "TontineManager Pro" title with official `logo.png` asset and "PAYA" on Login and Splash screens.
+  - Added new modern tagline: "Gérez vos ventes et commandes en toute simplicité".
+
 ### Fixed
 - **DropdownButton Assertion Error in `CreateProductPage`**
   - Normalized `_selectedWaveId` in `CreateProductPage` to prevent crashes when `waveId` is empty string or not present in active waves.

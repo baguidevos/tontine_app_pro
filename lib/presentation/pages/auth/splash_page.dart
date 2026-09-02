@@ -66,27 +66,36 @@ class _SplashPageState extends State<SplashPage> {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.store_rounded,
-                size: 80,
-                color: AppTheme.deepBlue,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.store_rounded,
+                    size: 60,
+                    color: AppTheme.deepBlue,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 28),
 
             // App Name
             const Text(
-              'Paya Pro',
+              'PAYA',
               style: TextStyle(
-                fontSize: 32,
+                fontSize: 34,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+                letterSpacing: 1.5,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Gérez vos ventes en vague avec facilité',
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+              'Gérez vos ventes et commandes en toute simplicité',
+              style: TextStyle(fontSize: 15, color: Colors.white70),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
 
