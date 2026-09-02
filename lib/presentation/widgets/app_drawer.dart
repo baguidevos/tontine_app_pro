@@ -310,7 +310,7 @@ class AppDrawer extends StatelessWidget {
               const Icon(Icons.info_outline, size: 16, color: Colors.grey),
               const SizedBox(width: 8),
               Text(
-                'Version 0.5.5',
+                'Version 0.7.0',
                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
             ],
