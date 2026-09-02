@@ -54,27 +54,27 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             // App Icon/Logo
             Container(
-              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 30,
+                    color: Colors.black.withOpacity(0.35),
+                    blurRadius: 25,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(28),
                 child: Image.asset(
                   'assets/logo.png',
+                  width: 130,
+                  height: 130,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => const Icon(
                     Icons.store_rounded,
-                    size: 60,
-                    color: AppTheme.deepBlue,
+                    size: 80,
+                    color: Colors.white,
                   ),
                 ),
               ),
