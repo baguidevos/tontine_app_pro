@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -6,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/services/subscription_service.dart';
 import 'core/services/auth_service.dart';
+import 'core/services/image_server_service.dart';
 import 'presentation/widgets/main_layout.dart';
 import 'presentation/pages/subscription_page.dart';
 import 'presentation/pages/auth/splash_page.dart';
@@ -25,8 +28,26 @@ import 'presentation/bindings/order_binding.dart';
 import 'presentation/bindings/inventory_binding.dart';
 import 'presentation/bindings/customer_binding.dart';
 
+class DevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+        return kDebugMode &&
+            (host == 'imageserver.test' ||
+                host == '10.0.2.2' ||
+                host == 'localhost' ||
+                host == '127.0.0.1');
+      };
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kDebugMode) {
+    HttpOverrides.global = DevHttpOverrides();
+  }
 
   // Initialize Services
   bool firebaseInitialized = false;
@@ -49,6 +70,7 @@ void main() async {
   }
 
   Get.put(ConnectivityService());
+  Get.put(ImageServerService());
 
   runApp(const PayaApp());
 }

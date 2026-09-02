@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
@@ -6,6 +5,7 @@ import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'widgets/wave_selection_dialog.dart';
+import 'package:paya_app/presentation/widgets/product_image.dart';
 
 class ProductsPage extends StatelessWidget {
   const ProductsPage({super.key});
@@ -141,28 +141,13 @@ class ProductsPage extends StatelessWidget {
           children: [
             // Image Section
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  color: Colors.grey.shade200,
-                  image: product.localImagePath.isNotEmpty
-                      ? DecorationImage(
-                          image: FileImage(File(product.localImagePath)),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
+              child: ProductImage(
+                product: product,
+                width: double.infinity,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
                 ),
-                child: product.localImagePath.isEmpty
-                    ? Center(
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 40,
-                          color: Colors.grey.shade400,
-                        ),
-                      )
-                    : null,
+                fit: BoxFit.cover,
               ),
             ),
 

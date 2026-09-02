@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
@@ -9,6 +8,7 @@ import 'package:paya_app/presentation/controllers/customer_controller.dart';
 import 'package:paya_app/presentation/controllers/order_controller.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/product_image.dart';
 import 'widgets/quantity_dialog.dart';
 
 class CreateOrderPage extends StatefulWidget {
@@ -383,16 +383,12 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
                   itemBuilder: (context, index) {
                     final product = products[index];
                     return ListTile(
-                      leading: Container(
+                      leading: ProductImage(
+                        product: product,
                         width: 50,
                         height: 50,
-                        color: Colors.grey.shade200,
-                        child: product.localImagePath.isNotEmpty
-                            ? Image.file(
-                                File(product.localImagePath),
-                                fit: BoxFit.cover,
-                              )
-                            : const Icon(Icons.image),
+                        borderRadius: BorderRadius.circular(8),
+                        fit: BoxFit.cover,
                       ),
                       title: Text(product.name),
                       subtitle: Text(

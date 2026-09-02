@@ -1,9 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/presentation/controllers/product_details_controller.dart';
+import 'package:paya_app/presentation/widgets/product_image.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ProductDetailsPage extends StatelessWidget {
@@ -79,22 +79,12 @@ class ProductDetailsPage extends StatelessWidget {
       child: Row(
         children: [
           // Product Image
-          Container(
+          ProductImage(
+            product: product,
             width: 80,
             height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.grey.shade200,
-              image: product.localImagePath.isNotEmpty
-                  ? DecorationImage(
-                      image: FileImage(File(product.localImagePath)),
-                      fit: BoxFit.cover,
-                    )
-                  : null,
-            ),
-            child: product.localImagePath.isEmpty
-                ? const Icon(Icons.image, size: 40, color: Colors.grey)
-                : null,
+            borderRadius: BorderRadius.circular(12),
+            fit: BoxFit.cover,
           ),
           const SizedBox(width: 16),
           // Product Info

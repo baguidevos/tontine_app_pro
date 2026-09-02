@@ -1,12 +1,11 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/product_model.dart';
-import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/product_image.dart';
 
 class CreateProductPage extends StatefulWidget {
   const CreateProductPage({super.key});
@@ -106,10 +105,11 @@ class _CreateProductPageState extends State<CreateProductPage> {
           prixTTC: prixTTC,
           stock: stock,
           waveId: '',
-          localImagePath: _localImagePath,
         );
-        await productController.updateProduct(updatedProduct);
-        Get.back();
+        await productController.updateProduct(
+          updatedProduct,
+          newLocalImagePath: _localImagePath,
+        );
       } else {
         // Create
         await productController.createProduct(
@@ -156,50 +156,80 @@ class _CreateProductPageState extends State<CreateProductPage> {
               // Image Picker
               Center(
                 child: GestureDetector(
-                  onTap: () => _showImageSourceModal(),
-                  child: Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: AppTheme.deepBlue.withOpacity(0.2),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
+                  onTap: () => _showImageSourceModal(),                  child: Builder(
+                    builder: (context) {
+                      final hasImage =
+                          (_localImagePath != null && _localImagePath!.isNotEmpty) ||
+                          (_editingProduct?.imageUrl != null &&
+                              _editingProduct!.imageUrl!.isNotEmpty);
+
+                      return Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: AppTheme.deepBlue.withOpacity(0.2),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                      ],
-                      image:
-                          _localImagePath != null && _localImagePath!.isNotEmpty
-                          ? DecorationImage(
-                              image: FileImage(File(_localImagePath!)),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: _localImagePath == null || _localImagePath!.isEmpty
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_a_photo_outlined,
-                                size: 48,
-                                color: AppTheme.deepBlue.withOpacity(0.5),
+                        child: hasImage
+                            ? Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: ProductImage(
+                                      product: _editingProduct,
+                                      localImagePath: _localImagePath,
+                                      width: 200,
+                                      height: 200,
+                                      fit: BoxFit.cover,
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    right: 10,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.deepBlue.withOpacity(0.85),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        size: 18,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_a_photo_outlined,
+                                    size: 48,
+                                    color: AppTheme.deepBlue.withOpacity(0.5),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Ajouter une photo',
+                                    style: TextStyle(
+                                      color: AppTheme.deepBlue.withOpacity(0.5),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Ajouter une photo',
-                                style: TextStyle(
-                                  color: AppTheme.deepBlue.withOpacity(0.5),
-                                ),
-                              ),
-                            ],
-                          )
-                        : null,
+                      );
+                    },
                   ),
                 ),
               ),

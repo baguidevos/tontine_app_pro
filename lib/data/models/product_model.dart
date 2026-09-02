@@ -5,6 +5,8 @@ class ProductModel {
   final double price;
   final double? prixTTC; // Nouveau champ optionnel
   final String localImagePath;
+  final String? imageUrl; // URL en ligne sur le serveur d'images
+  final String? imageId; // ID unique du média sur le serveur d'images
   final int stock;
 
   ProductModel({
@@ -14,6 +16,8 @@ class ProductModel {
     required this.price,
     this.prixTTC,
     required this.localImagePath,
+    this.imageUrl,
+    this.imageId,
     required this.stock,
   });
 
@@ -25,6 +29,8 @@ class ProductModel {
       'price': price,
       'prixTTC': prixTTC,
       'localImagePath': localImagePath,
+      'imageUrl': imageUrl,
+      'imageId': imageId,
       'stock': stock,
     };
   }
@@ -38,6 +44,8 @@ class ProductModel {
       prixTTC: map['prixTTC']
           ?.toDouble(), // Gestion rétrocompatible (null si absent)
       localImagePath: map['localImagePath'] ?? '',
+      imageUrl: map['imageUrl'],
+      imageId: map['imageId'],
       stock: map['stock'] ?? 0,
     );
   }
@@ -49,6 +57,8 @@ class ProductModel {
     double? price,
     double? prixTTC,
     String? localImagePath,
+    String? imageUrl,
+    String? imageId,
     int? stock,
   }) {
     return ProductModel(
@@ -58,6 +68,8 @@ class ProductModel {
       price: price ?? this.price,
       prixTTC: prixTTC ?? this.prixTTC,
       localImagePath: localImagePath ?? this.localImagePath,
+      imageUrl: imageUrl ?? this.imageUrl,
+      imageId: imageId ?? this.imageId,
       stock: stock ?? this.stock,
     );
   }

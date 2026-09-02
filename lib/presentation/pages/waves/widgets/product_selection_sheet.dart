@@ -4,6 +4,7 @@ import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/product_image.dart';
 
 class ProductSelectionSheet extends StatefulWidget {
   final List<String> initialProductIds;
@@ -391,17 +392,24 @@ class _ProductItem extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
+            ProductImage(
+              product: product,
               width: 48,
               height: 48,
-              decoration: BoxDecoration(
-                color: AppTheme.warmCream,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.shopping_bag_outlined,
-                color: AppTheme.deepBlue,
-                size: 24,
+              borderRadius: BorderRadius.circular(12),
+              fit: BoxFit.cover,
+              errorWidget: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.warmCream,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.shopping_bag_outlined,
+                  color: AppTheme.deepBlue,
+                  size: 24,
+                ),
               ),
             ),
             const SizedBox(width: 16),
