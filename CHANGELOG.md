@@ -36,6 +36,10 @@ All notable changes to this project will be documented in this file.
   - Extended `ImageServerService` with `uploadImageBytes` for web and platform-safe image handling.
   - Moved image serving endpoint (`GET /v1/images/{image}`) outside of Sanctum authentication in Laravel backend for public browser access.
 
+- **Product Edit/Create Feedback & Notifications (`CreateProductPage`)**
+  - Ensured success notifications are displayed on the parent screen after navigation pop (`Get.back()`), resolving missing snackbars on save.
+  - Added loading indicator (`CircularProgressIndicator`) and button disable state during save and image upload to prevent duplicate submissions.
+
 ---
 
 ## [0.6.0] - 2026-04-08
