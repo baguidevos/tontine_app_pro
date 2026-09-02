@@ -1,38 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Application de gestion de vos clients, qui vous permets de retrouver vos chiffres en toute sécurité">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- iOS meta tags & icons -->
+  <!-- SEO & Description -->
+  <title>PAYA — Gestion Commerciale & Commandes en Ligne</title>
+  <meta name="description" content="PAYA : Simplifiez la gestion de vos ventes, suivez vos vagues de commandes et encaissez vos paiements en toute sérénité.">
+  <meta name="keywords" content="PAYA, tontine, commerce, commande en ligne, gestion clients, ventes, WhatsApp">
+  <meta name="author" content="PAYA">
+
+  <!-- Theme Colors (Brand Deep Blue) -->
+  <meta name="theme-color" content="#0A2540">
+  <meta name="msapplication-TileColor" content="#0A2540">
+
+  <!-- Open Graph / WhatsApp / Facebook Link Previews -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PAYA">
+  <meta property="og:title" content="PAYA — Commandes en Ligne & Gestion Commerciale">
+  <meta property="og:description" content="Passez votre commande en direct et suivez vos livraisons en toute sécurité avec PAYA.">
+  <meta property="og:image" content="icons/Icon-512.png">
+
+  <!-- Twitter Previews -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="PAYA — Commandes en Ligne">
+  <meta name="twitter:description" content="Passez votre commande en direct et suivez vos livraisons en toute sécurité avec PAYA.">
+  <meta name="twitter:image" content="icons/Icon-512.png">
+
+  <!-- iOS PWA Meta Tags & Icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="tontine_app">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PAYA">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>tontine_app</title>
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="manifest" href="manifest.json">
+
+  <!-- Lightweight CSS Splash Loader while Flutter Web initializes -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #FAF9F6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+    }
+    #loading-splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #FAF9F6;
+      z-index: 9999;
+      transition: opacity 0.4s ease-out;
+    }
+    .splash-logo {
+      width: 84px;
+      height: 84px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(10, 37, 64, 0.15);
+      margin-bottom: 24px;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .splash-title {
+      font-size: 22px;
+      font-weight: 750;
+      color: #0A2540;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .splash-loader {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(10, 37, 64, 0.12);
+      border-top: 3px solid #0A2540;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+  </style>
 </head>
 <body>
+  <!-- Elegant Initial Splash Screen -->
+  <div id="loading-splash">
+    <img src="icons/Icon-192.png" alt="PAYA Logo" class="splash-logo" onerror="this.style.display='none'">
+    <div class="splash-title">PAYA</div>
+    <div class="splash-loader"></div>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

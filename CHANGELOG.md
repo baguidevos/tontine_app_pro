@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 
 - **Public Flutter Web Order Flow**
   - Created responsive client order page `/order` accessible via WhatsApp link (`https://tontine-pro-97133.web.app/#/order`).
+  - Enhanced `web/index.html` and `web/manifest.json` with brand identity (PAYA), SEO meta descriptions, Open Graph tags for WhatsApp link previews, and a lightweight initial CSS splash loader.
   - Automatic active wave resolution in `PublicOrderController` so orders are never orphan (`waveId: null`).
   - Anonymous Firebase Auth sign-in to permit guest reading and order submission.
   - Real-time total calculation and WhatsApp vendor confirmation redirect.
