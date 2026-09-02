@@ -7,8 +7,11 @@ import 'package:paya_app/core/config/api_config.dart';
 import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/core/utils/platform_file_image.dart';
+import 'package:paya_app/data/models/customer_model.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/data/models/wave_model.dart';
+import 'package:paya_app/data/repositories/customer_repository.dart';
+import 'package:paya_app/data/repositories/order_repository.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/product_details_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
@@ -631,28 +634,85 @@ class _CreateProductPageState extends State<CreateProductPage> {
     buffer.writeln('Vague : $waveName');
     buffer.writeln('');
 
-    int index = 1;
-    if (Get.isRegistered<ProductDetailsController>()) {
-      final detailsCtrl = Get.find<ProductDetailsController>();
-      for (final entry in detailsCtrl.customerPayments) {
-        final status = entry.orderItem.isReadyForDelivery
-            ? '(payé ou confirmé)'
-            : entry.orderItem.paidAmount > 0
-                ? '(partiel: ${entry.orderItem.paidAmount.toStringAsFixed(0)}f)'
-                : '(en attente)';
-        buffer.writeln(
-            '$index- ${entry.customer.name} : ${entry.orderItem.quantity} $status');
-        index++;
-      }
-    }
-    for (int i = index; i <= 10; i++) {
-      buffer.writeln('$i-');
-    }
-
-    // Lien de commande client direct
     final vendorId = Get.isRegistered<AuthService>()
         ? Get.find<AuthService>().currentVendorId
         : null;
+
+    // Charger les commandes pour ce produit
+    List<CustomerPaymentEntry> entries = [];
+    if (Get.isRegistered<ProductDetailsController>()) {
+      final detailsCtrl = Get.find<ProductDetailsController>();
+      entries = detailsCtrl.customerPayments.toList();
+      if (targetWaveId != null && targetWaveId.isNotEmpty) {
+        entries =
+            entries.where((e) => e.order.waveId == targetWaveId).toList();
+      }
+    } else if (vendorId != null && vendorId.isNotEmpty) {
+      try {
+        final orderRepo = OrderRepository();
+        final customerRepo = CustomerRepository();
+        final allOrders = await orderRepo.getOrdersByVendor(vendorId);
+        final allCustomers = await customerRepo.getCustomersByVendor(vendorId);
+
+        for (final o in allOrders) {
+          if (targetWaveId != null &&
+              targetWaveId.isNotEmpty &&
+              o.waveId != targetWaveId) {
+            continue;
+          }
+          for (final item in o.items) {
+            if (item.productId == currentProduct.id) {
+              final cust = allCustomers.firstWhere(
+                (c) => c.id == o.customerId,
+                orElse: () => CustomerModel(
+                  id: o.customerId,
+                  vendorId: vendorId,
+                  name: 'Client inconnu',
+                  phone: '',
+                  createdAt: DateTime.now(),
+                ),
+              );
+              entries.add(CustomerPaymentEntry(
+                customer: cust,
+                order: o,
+                orderItem: item,
+              ));
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('[Share] Erreur chargement commandes pour partage: $e');
+      }
+    }
+
+    int index = 1;
+    for (final entry in entries) {
+      final qty = entry.orderItem.quantity;
+      final unitStr = qty > 1 ? 'pcs' : 'pc';
+
+      final isFullyPaid = entry.orderItem.isReadyForDelivery ||
+          (entry.orderItem.paidAmount >= entry.orderItem.totalPrice &&
+              entry.orderItem.totalPrice > 0);
+      final isPartiallyPaid = !isFullyPaid && entry.orderItem.paidAmount > 0;
+
+      String statusSuffix = '';
+      if (isFullyPaid) {
+        statusSuffix = ' ✅';
+      } else if (isPartiallyPaid) {
+        statusSuffix = ' (Avance 👍)';
+      }
+
+      buffer.writeln(
+          '$index. ${entry.customer.name} - $qty $unitStr$statusSuffix');
+      index++;
+    }
+
+    // Emplacements vides jusqu'à 10
+    for (int i = index; i <= 10; i++) {
+      buffer.writeln('$i.');
+    }
+
+    // Lien de commande client direct
     if (vendorId != null && vendorId.isNotEmpty) {
       final orderUrl = ApiConfig.buildOrderShareUrl(
         productId: currentProduct.id,

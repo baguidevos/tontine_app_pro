@@ -237,23 +237,38 @@ class ProductDetailsController extends GetxController {
     message.writeln('');
 
     int index = 1;
-    for (final entry in customerPayments) {
-      final status = entry.orderItem.isReadyForDelivery
-          ? '(payé ou confirmé)'
-          : entry.orderItem.paidAmount > 0
-          ? '(partiel: ${entry.orderItem.paidAmount.toStringAsFixed(0)}f)'
-          : '(en attente)';
+    // Filtrer selon la vague effective si nécessaire
+    final entriesToUse =
+        (effectiveWaveId != null && selectedWaveId.value == null)
+            ? customerPayments
+                .where((e) => e.order.waveId == effectiveWaveId)
+                .toList()
+            : customerPayments;
 
-      final colorInfo = _getColorInfo(entry.orderItem.name);
+    for (final entry in entriesToUse) {
+      final qty = entry.orderItem.quantity;
+      final unitStr = qty > 1 ? 'pcs' : 'pc';
+
+      final isFullyPaid = entry.orderItem.isReadyForDelivery ||
+          (entry.orderItem.paidAmount >= entry.orderItem.totalPrice &&
+              entry.orderItem.totalPrice > 0);
+      final isPartiallyPaid = !isFullyPaid && entry.orderItem.paidAmount > 0;
+
+      String statusSuffix = '';
+      if (isFullyPaid) {
+        statusSuffix = ' ✅';
+      } else if (isPartiallyPaid) {
+        statusSuffix = ' (Avance 👍)';
+      }
+
       message.writeln(
-        '$index- ${entry.customer.name} : ${entry.orderItem.quantity} ($colorInfo) $status',
-      );
+          '$index. ${entry.customer.name} - $qty $unitStr$statusSuffix');
       index++;
     }
 
-    // Add empty slots up to 10
+    // Emplacements vides jusqu'à 10
     for (int i = index; i <= 10; i++) {
-      message.writeln('$i-');
+      message.writeln('$i.');
     }
 
     final vendorId = _authService.currentVendorId;
@@ -295,15 +310,6 @@ class ProductDetailsController extends GetxController {
     return '';
   }
 
-  /// Extracts color information from item name (assuming it's stored in the name field)
-  String _getColorInfo(String itemName) {
-    // Try to extract color from parentheses in the item name
-    final match = RegExp(r'\(([^)]+)\)').firstMatch(itemName);
-    if (match != null) {
-      return match.group(1) ?? 'couleur standard';
-    }
-    return 'couleur standard';
-  }
 
   void refreshData() {
     _loadData();

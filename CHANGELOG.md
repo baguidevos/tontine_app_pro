@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
   - Updated `ProductDetailsPage` and `CreateProductPage` to share the product photo directly from local device storage (`localImagePath`) via `Share.shareXFiles`.
   - Added WhatsApp sharing action directly on the Product Edit screen (AppBar icon + full-width button) with preview modal.
   - Automatically incorporates real-time edited values (name, price, wave selection) and generates the direct web ordering link.
+  - Formatted customer order lines as `$index. Nom - X pc(s)` with `✅` if fully paid, `(Avance 👍)` if partial advance paid, and clean/empty if unpaid.
   - Added fallback to stream/download online image (`imageUrl`) if local file is missing, or text-only fallback.
   - Added smart wave selection prompt if a product belongs to multiple active waves before sharing.
 
