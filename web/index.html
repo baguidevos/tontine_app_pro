@@ -107,6 +107,40 @@
     <div class="splash-loader"></div>
   </div>
 
+  <script>
+    function removeSplash() {
+      var splash = document.getElementById('loading-splash');
+      if (splash && splash.style.opacity !== '0') {
+        splash.style.opacity = '0';
+        splash.style.pointerEvents = 'none';
+        setTimeout(function () {
+          if (splash && splash.parentNode) {
+            splash.parentNode.removeChild(splash);
+          }
+        }, 400);
+      }
+    }
+
+    // 1. Détection de l'événement officiel Flutter
+    window.addEventListener('flutter-first-frame', removeSplash);
+
+    // 2. Détection dynamique dès que Flutter injecte sa vue dans le DOM
+    var observer = new MutationObserver(function (mutations, obs) {
+      if (document.querySelector('flutter-view') || 
+          document.querySelector('flt-glass-pane') ||
+          document.querySelector('flt-scene-host')) {
+        setTimeout(removeSplash, 150);
+        obs.disconnect();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // 3. Fallback de sécurité
+    window.addEventListener('load', function() {
+      setTimeout(removeSplash, 2500);
+    });
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
