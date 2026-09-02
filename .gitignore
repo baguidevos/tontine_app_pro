@@ -58,3 +58,4 @@ android/build/
 /firebase.json
 /.qwen/*
 .firebase/
+*.apk
