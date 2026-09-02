@@ -38,15 +38,18 @@ class _CreateProductPageState extends State<CreateProductPage> {
     // Vérifier si édition ou vague pré-sélectionnée
     if (Get.arguments is ProductModel) {
       _editingProduct = Get.arguments as ProductModel;
-      _selectedWaveId = _editingProduct?.waveId;
+      final wId = _editingProduct?.waveId;
+      _selectedWaveId = (wId != null && wId.isNotEmpty) ? wId : null;
     } else if (Get.arguments is Map) {
       final map = Get.arguments as Map;
       if (map['editingProduct'] is ProductModel) {
         _editingProduct = map['editingProduct'] as ProductModel;
-        _selectedWaveId = _editingProduct?.waveId;
+        final wId = _editingProduct?.waveId;
+        _selectedWaveId = (wId != null && wId.isNotEmpty) ? wId : null;
       }
       if (map['preselectedWaveId'] != null) {
-        _selectedWaveId = map['preselectedWaveId'].toString();
+        final pre = map['preselectedWaveId'].toString();
+        _selectedWaveId = pre.isNotEmpty ? pre : null;
       }
     }
 
@@ -328,8 +331,14 @@ class _CreateProductPageState extends State<CreateProductPage> {
                     .where((w) => w.status != WaveStatus.closed)
                     .toList();
 
+                // Sécuriser la sélection pour éviter l'assertion error DropdownButton
+                final bool isValid = _selectedWaveId != null &&
+                    _selectedWaveId!.isNotEmpty &&
+                    activeWaves.any((w) => w.id == _selectedWaveId);
+                final String? dropdownValue = isValid ? _selectedWaveId : null;
+
                 return DropdownButtonFormField<String?>(
-                  value: _selectedWaveId,
+                  value: dropdownValue,
                   decoration: InputDecoration(
                     labelText: 'Vague associée (optionnel)',
                     prefixIcon:

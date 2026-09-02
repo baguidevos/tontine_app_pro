@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-09-02
+
+### Added
+- **Multi-Wave Support for Products (Many-to-Many Relationship)**
+  - Added `waveIds: List<String>` to `ProductModel` to allow a single product to belong to multiple waves simultaneously.
+  - Implemented non-destructive wave association using Firestore `FieldValue.arrayUnion` and `FieldValue.arrayRemove` in `WaveRepository`.
+  - Updated `ProductRepository.getProductsByWave()` to read `wave.productIds` for full multi-wave product retrieval.
+
+- **WhatsApp Share with Local Storage Image Attachment**
+  - Updated `ProductDetailsPage` to share the product photo directly from local device storage (`localImagePath`) via `Share.shareXFiles`.
+  - On WhatsApp, the image is sent with the formatted message as its caption, including the direct order link.
+  - Added fallback to stream/download online image (`imageUrl`) if local file is missing, or text-only fallback.
+  - Added smart wave selection prompt if a product belongs to multiple active waves before sharing.
+
+- **Public Flutter Web Order Flow**
+  - Created responsive client order page `/order` accessible via WhatsApp link (`https://tontine-pro-97133.web.app/#/order`).
+  - Automatic active wave resolution in `PublicOrderController` so orders are never orphan (`waveId: null`).
+  - Anonymous Firebase Auth sign-in to permit guest reading and order submission.
+  - Real-time total calculation and WhatsApp vendor confirmation redirect.
+
+### Fixed
+- **DropdownButton Assertion Error in `CreateProductPage`**
+  - Normalized `_selectedWaveId` in `CreateProductPage` to prevent crashes when `waveId` is empty string or not present in active waves.
+  - Enabled optional wave selector with "Aucune vague" item matching `null`.
+
+- **Product Loading in `ProductSelectionSheet`**
+  - Isolated vendor product fetching from existing wave filters using `getProductsByVendor(vendorId)`.
+  - Added `CircularProgressIndicator` during asynchronous Firestore fetch, eliminating premature "Aucun produit" empty state.
+  - Chunked Firestore `whereIn` queries in `getProductsByIds` to 30 items per batch to adhere to Firestore limits.
+
+- **Image Server Cross-Platform Upload & Public Serving**
+  - Extended `ImageServerService` with `uploadImageBytes` for web and platform-safe image handling.
+  - Moved image serving endpoint (`GET /v1/images/{image}`) outside of Sanctum authentication in Laravel backend for public browser access.
+
+---
+
 ## [0.6.0] - 2026-04-08
 
 ### Added

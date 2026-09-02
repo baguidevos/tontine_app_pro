@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/core/utils/platform_file_image.dart';
 import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/product_details_controller.dart';
 import 'package:paya_app/presentation/widgets/product_image.dart';
@@ -480,16 +482,16 @@ class ProductDetailsPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            // WhatsApp share button
+            // WhatsApp share button avec image locale
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () async {
                   Get.back();
-                  await Share.share(message);
+                  await _shareWithImage(controller, message);
                 },
                 icon: const Icon(Icons.share),
-                label: const Text('Partager'),
+                label: const Text('Partager avec photo'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.successGreen,
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -513,5 +515,45 @@ class ProductDetailsPage extends StatelessWidget {
       ),
       backgroundColor: Colors.transparent,
     );
+  }
+
+  Future<void> _shareWithImage(
+    ProductDetailsController controller,
+    String message,
+  ) async {
+    final currentProduct = controller.product.value;
+    final localPath = currentProduct?.localImagePath;
+
+    // 1. Partager en priorité le fichier image du stockage local
+    if (hasValidPlatformFile(localPath)) {
+      try {
+        await Share.shareXFiles([XFile(localPath!)], text: message);
+        return;
+      } catch (e) {
+        debugPrint('[Share] Échec partage image locale: $e');
+      }
+    }
+
+    // 2. Si pas de fichier local valide mais une image distante existe
+    final onlineUrl = currentProduct?.imageUrl;
+    if (onlineUrl != null && onlineUrl.isNotEmpty) {
+      try {
+        final res = await http.get(Uri.parse(onlineUrl));
+        if (res.statusCode == 200 && res.bodyBytes.isNotEmpty) {
+          final xFile = XFile.fromData(
+            res.bodyBytes,
+            mimeType: 'image/jpeg',
+            name: '${currentProduct?.name ?? "produit"}.jpg',
+          );
+          await Share.shareXFiles([xFile], text: message);
+          return;
+        }
+      } catch (e) {
+        debugPrint('[Share] Échec récupération image distante pour partage: $e');
+      }
+    }
+
+    // 3. Fallback texte seul si aucune image n'a pu être jointe
+    await Share.share(message);
   }
 }
