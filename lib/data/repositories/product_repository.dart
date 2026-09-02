@@ -24,6 +24,18 @@ class ProductRepository {
   }
 
   Future<List<ProductModel>> getProductsByWave(String waveId) async {
+    try {
+      final waveDoc = await _firestore.collection('waves').doc(waveId).get();
+      if (waveDoc.exists && waveDoc.data() != null) {
+        final productIds =
+            List<String>.from(waveDoc.data()!['productIds'] ?? []);
+        if (productIds.isNotEmpty) {
+          return await getProductsByIds(productIds);
+        }
+      }
+    } catch (_) {}
+
+    // Fallback rétrocompatible
     final snapshot = await _firestore
         .collection('products')
         .where('waveId', isEqualTo: waveId)
@@ -48,14 +60,30 @@ class ProductRepository {
   Future<List<ProductModel>> getProductsByIds(List<String> productIds) async {
     if (productIds.isEmpty) return [];
 
-    final snapshot = await _firestore
-        .collection('products')
-        .where(FieldPath.documentId, whereIn: productIds)
-        .get();
+    // Nettoyer les doublons et IDs vides
+    final cleanIds = productIds.where((id) => id.isNotEmpty).toSet().toList();
+    if (cleanIds.isEmpty) return [];
 
-    return snapshot.docs
-        .map((doc) => ProductModel.fromMap(doc.data(), doc.id))
-        .toList();
+    final List<ProductModel> results = [];
+
+    // Firestore limite whereIn à 30 éléments maximum
+    const chunkSize = 30;
+    for (var i = 0; i < cleanIds.length; i += chunkSize) {
+      final end =
+          (i + chunkSize < cleanIds.length) ? i + chunkSize : cleanIds.length;
+      final chunk = cleanIds.sublist(i, end);
+
+      final snapshot = await _firestore
+          .collection('products')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+
+      results.addAll(
+        snapshot.docs.map((doc) => ProductModel.fromMap(doc.data(), doc.id)),
+      );
+    }
+
+    return results;
   }
 
   Stream<List<ProductModel>> watchProductsByWave(String waveId) {

@@ -170,28 +170,57 @@ class ProductDetailsController extends GetxController {
   }
 
   /// Generates formatted text for WhatsApp sharing
-  String generateWhatsAppMessage() {
+  String generateWhatsAppMessage({String? overrideWaveId}) {
     final currentProduct = product.value;
     if (currentProduct == null) return '';
 
     final prixTTC = currentProduct.prixTTC ?? currentProduct.price;
-    final waveName = selectedWaveId.value != null
-        ? getWaveName(selectedWaveId.value)
+
+    // Déterminer la vague effective
+    String? effectiveWaveId = overrideWaveId ?? selectedWaveId.value;
+
+    if (effectiveWaveId == null || effectiveWaveId.isEmpty) {
+      // 1. Chercher si une vague active contient ce produit (support multi-vagues)
+      for (final w in waves) {
+        if (w.status == WaveStatus.active &&
+            (w.productIds.contains(currentProduct.id) ||
+                currentProduct.waveIds.contains(w.id))) {
+          effectiveWaveId = w.id;
+          break;
+        }
+      }
+
+      // 2. Si non trouvée, fallback sur currentProduct.waveId
+      if (effectiveWaveId == null &&
+          currentProduct.waveId != null &&
+          currentProduct.waveId!.isNotEmpty) {
+        effectiveWaveId = currentProduct.waveId;
+      }
+
+      // 3. Fallback sur la première vague active du vendeur
+      if (effectiveWaveId == null) {
+        for (final w in waves) {
+          if (w.status == WaveStatus.active) {
+            effectiveWaveId = w.id;
+            break;
+          }
+        }
+      }
+    }
+
+    final waveName = effectiveWaveId != null
+        ? getWaveName(effectiveWaveId)
         : 'Toutes les vagues';
 
-    // Get close date from selected wave or first wave with a close date
+    // Get close date from effective wave
     DateTime? closeDate;
-    if (selectedWaveId.value != null) {
-      final selectedWave = waves.firstWhere(
-        (w) => w.id == selectedWaveId.value,
-        orElse: () => WaveModel(
-          id: selectedWaveId.value!,
-          name: waveName,
-          status: WaveStatus.draft,
-          createdAt: DateTime.now(),
-        ),
-      );
-      closeDate = selectedWave.closeDate;
+    if (effectiveWaveId != null) {
+      for (final w in waves) {
+        if (w.id == effectiveWaveId) {
+          closeDate = w.closeDate;
+          break;
+        }
+      }
     }
 
     final closeDateString = closeDate != null
@@ -232,7 +261,7 @@ class ProductDetailsController extends GetxController {
       final orderUrl = ApiConfig.buildOrderShareUrl(
         productId: currentProduct.id,
         vendorId: vendorId,
-        waveId: selectedWaveId.value ?? currentProduct.waveId,
+        waveId: effectiveWaveId,
       );
       message.writeln('');
       message.writeln('👉 Commandez directement ici :');

@@ -6,9 +6,11 @@ import 'package:paya_app/core/services/image_server_service.dart';
 import 'package:paya_app/core/services/subscription_service.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/data/repositories/product_repository.dart';
+import 'package:paya_app/data/repositories/wave_repository.dart';
 
 class ProductController extends GetxController {
   final ProductRepository productRepository = ProductRepository();
+  final WaveRepository waveRepository = WaveRepository();
   final AuthService _authService = Get.find<AuthService>();
   final SubscriptionService _subscriptionService =
       Get.find<SubscriptionService>();
@@ -66,18 +68,19 @@ class ProductController extends GetxController {
     }
   }
 
-  Future<void> createProduct({
+  Future<ProductModel?> createProduct({
     required String name,
     required double price,
     double? prixTTC,
     required int stock,
     required String waveId,
+    List<String> waveIds = const [],
     required String localImagePath,
     Uint8List? imageBytes,
     String? imageName,
   }) async {
     final vendorId = _authService.currentVendorId;
-    if (vendorId == null) return;
+    if (vendorId == null) return null;
 
     // Check subscription limits
     final currentCount = await productRepository.getProductCountByVendor(
@@ -89,7 +92,7 @@ class ProductController extends GetxController {
         'Vous avez atteint votre limite de produits. Passez au Premium pour plus.',
       );
       Get.toNamed('/subscription');
-      return;
+      return null;
     }
 
     try {
@@ -135,9 +138,14 @@ class ProductController extends GetxController {
         }
       }
 
+      final targetWaveIds = waveIds.isNotEmpty
+          ? waveIds
+          : (waveId.isNotEmpty ? [waveId] : <String>[]);
+
       final product = ProductModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         waveId: waveId,
+        waveIds: targetWaveIds,
         name: name,
         price: price,
         prixTTC: prixTTC,
@@ -149,6 +157,15 @@ class ProductController extends GetxController {
 
       await productRepository.createProduct(product, vendorId);
 
+      // Synchroniser avec toutes les vagues assignées
+      final allWavesToSync = {
+        ...targetWaveIds,
+        if (waveId.isNotEmpty) waveId,
+      };
+      for (final wId in allWavesToSync) {
+        await waveRepository.addProductToWave(wId, product.id);
+      }
+
       Get.snackbar(
         'Succès',
         imageUrl != null
@@ -156,8 +173,10 @@ class ProductController extends GetxController {
             : 'Produit créé avec succès (enregistré localement)',
       );
       loadProducts();
+      return product;
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de la création: $e');
+      return null;
     } finally {
       isLoading.value = false;
     }
@@ -286,6 +305,16 @@ class ProductController extends GetxController {
       }
 
       await productRepository.updateProduct(toUpdate);
+
+      // Synchroniser avec les vagues associées
+      final allWavesToSync = {
+        ...toUpdate.waveIds,
+        if (toUpdate.waveId != null && toUpdate.waveId!.isNotEmpty)
+          toUpdate.waveId!,
+      };
+      for (final wId in allWavesToSync) {
+        await waveRepository.addProductToWave(wId, toUpdate.id);
+      }
 
       if (uploadResult != null) {
         if (uploadResult.success) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
@@ -29,6 +30,8 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
   late WaveController _waveController;
   final RxSet<String> _selectedIds = <String>{}.obs;
   final RxString _searchQuery = ''.obs;
+  final RxList<ProductModel> _vendorProducts = <ProductModel>[].obs;
+  final RxBool _isLoadingProducts = true.obs;
 
   @override
   void initState() {
@@ -47,9 +50,26 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
     _waveController = Get.find<WaveController>();
     _selectedIds.addAll(widget.initialProductIds);
 
-    // Load products if not already loaded
-    if (_productController.products.isEmpty) {
-      _productController.loadProducts();
+    // Charger tous les produits du vendeur (non filtrés par une vague)
+    _loadVendorProducts();
+  }
+
+  Future<void> _loadVendorProducts() async {
+    _isLoadingProducts.value = true;
+    try {
+      String? vendorId;
+      if (Get.isRegistered<AuthService>()) {
+        vendorId = Get.find<AuthService>().currentVendorId;
+      }
+      if (vendorId != null) {
+        final all =
+            await _productController.productRepository.getProductsByVendor(vendorId);
+        _vendorProducts.value = all;
+      }
+    } catch (e) {
+      debugPrint('[ProductSelectionSheet] Erreur chargement produits: $e');
+    } finally {
+      _isLoadingProducts.value = false;
     }
   }
 
@@ -62,9 +82,9 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
   List<ProductModel> get _filteredProducts {
     final query = _searchQuery.value.toLowerCase();
     if (query.isEmpty) {
-      return _productController.products;
+      return _vendorProducts;
     }
-    return _productController.products
+    return _vendorProducts
         .where((p) => p.name.toLowerCase().contains(query))
         .toList();
   }
@@ -197,11 +217,12 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
                                 _selectedIds.toList(),
                               );
 
-                              // If waveId is provided, persist the products to Firestore
+                              // If waveId is provided, persist the products to Firestore and sync product.waveId
                               if (widget.waveId != null) {
                                 await _waveController.setWaveProducts(
                                   widget.waveId!,
                                   _selectedIds.toList(),
+                                  previousProductIds: widget.initialProductIds,
                                 );
                               }
 
@@ -241,6 +262,24 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
 
   Widget _buildExistingProductsTab() {
     return Obx(() {
+      if (_isLoadingProducts.value) {
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.deepBlue),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Chargement des produits...',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+        );
+      }
+
       final products = _filteredProducts;
 
       if (products.isEmpty) {
@@ -333,11 +372,18 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    Get.back();
-                    Future.delayed(const Duration(milliseconds: 300), () {
-                      Get.toNamed('/products/create');
-                    });
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    await Future.delayed(const Duration(milliseconds: 200));
+                    await Get.toNamed(
+                      '/products/create',
+                      arguments: {
+                        'preselectedWaveId': widget.waveId,
+                      },
+                    );
+                    if (widget.onProductsUpdated != null) {
+                      widget.onProductsUpdated!();
+                    }
                   },
                   icon: const Icon(Icons.add),
                   label: const Text('Créer un produit'),

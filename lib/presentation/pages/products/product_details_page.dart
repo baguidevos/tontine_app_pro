@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/product_details_controller.dart';
 import 'package:paya_app/presentation/widgets/product_image.dart';
 import 'package:share_plus/share_plus.dart';
@@ -326,7 +327,89 @@ class ProductDetailsPage extends StatelessWidget {
   }
 
   Future<void> _shareToWhatsApp(ProductDetailsController controller) async {
-    final message = controller.generateWhatsAppMessage();
+    String? chosenWaveId = controller.selectedWaveId.value;
+    final currentProduct = controller.product.value;
+
+    if (chosenWaveId == null) {
+      final activeWavesForProduct = controller.waves.where((w) {
+        return w.status == WaveStatus.active &&
+            (w.productIds.contains(currentProduct?.id) ||
+                (currentProduct?.waveIds.contains(w.id) ?? false));
+      }).toList();
+
+      if (activeWavesForProduct.length > 1) {
+        final selected = await Get.bottomSheet<String>(
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Choisir la vague à partager',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.deepBlue,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Ce produit est associé à plusieurs vagues actives. Choisissez celle pour laquelle vous lancez les commandes :',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 16),
+                ...activeWavesForProduct.map((w) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: ListTile(
+                      leading:
+                          const Icon(Icons.waves, color: AppTheme.deepBlue),
+                      title: Text(
+                        w.name,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: w.closeDate != null
+                          ? Text(
+                              'Clôture le ${w.closeDate!.day}/${w.closeDate!.month}/${w.closeDate!.year}',
+                            )
+                          : null,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      tileColor: AppTheme.warmCream.withOpacity(0.5),
+                      trailing:
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                      onTap: () => Get.back(result: w.id),
+                    ),
+                  );
+                }),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Annuler'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (selected == null) {
+          return; // Annulé par l'utilisateur
+        }
+        chosenWaveId = selected;
+      }
+    }
+
+    final message =
+        controller.generateWhatsAppMessage(overrideWaveId: chosenWaveId);
 
     if (message.isEmpty) {
       Get.snackbar(

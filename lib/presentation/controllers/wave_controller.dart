@@ -234,15 +234,23 @@ class WaveController extends GetxController {
     }
   }
 
-  Future<void> setWaveProducts(String waveId, List<String> productIds) async {
+  Future<void> setWaveProducts(
+    String waveId,
+    List<String> productIds, {
+    List<String>? previousProductIds,
+  }) async {
     try {
-      await waveRepository.setWaveProducts(waveId, productIds);
+      await waveRepository.setWaveProducts(
+        waveId,
+        productIds,
+        previousProductIds: previousProductIds,
+      );
       Get.snackbar(
         'Succès',
-        'Produits mis à jour',
+        'Produits associés à la vague avec succès',
         backgroundColor: AppTheme.successGreen,
         colorText: Colors.white,
-        duration: const Duration(seconds: 1),
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
       Get.snackbar(
@@ -250,7 +258,7 @@ class WaveController extends GetxController {
         'Échec de la mise à jour: $e',
         backgroundColor: AppTheme.softRed,
         colorText: Colors.white,
-        duration: const Duration(seconds: 1),
+        duration: const Duration(seconds: 2),
       );
     }
   }

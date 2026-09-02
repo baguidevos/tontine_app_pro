@@ -162,9 +162,48 @@ class PublicOrderController extends GetxController {
         }
       }
 
-      // Si une vague est spécifiée, la charger
-      final targetWaveId = waveId.isNotEmpty ? waveId : loadedProduct.waveId;
+      // 2. Déterminer la vague
+      String? targetWaveId = waveId.isNotEmpty ? waveId : loadedProduct.waveId;
+
+      // Si aucune vague n'est spécifiée, chercher automatiquement une vague active du vendeur
+      if ((targetWaveId == null || targetWaveId.isEmpty) &&
+          vendorId.isNotEmpty) {
+        try {
+          final wavesSnapshot = await _firestore
+              .collection('waves')
+              .where('vendorId', isEqualTo: vendorId)
+              .get();
+
+          final allWaves = wavesSnapshot.docs
+              .map((doc) => WaveModel.fromMap(doc.data(), doc.id))
+              .toList();
+
+          // 1. Chercher une vague active contenant ce produit
+          for (final w in allWaves) {
+            if (w.status == WaveStatus.active &&
+                (w.productIds.contains(productId) ||
+                    loadedProduct.waveIds.contains(w.id))) {
+              targetWaveId = w.id;
+              break;
+            }
+          }
+
+          // 2. Si non trouvée, chercher la première vague active du vendeur
+          if (targetWaveId == null || targetWaveId.isEmpty) {
+            for (final w in allWaves) {
+              if (w.status == WaveStatus.active) {
+                targetWaveId = w.id;
+                break;
+              }
+            }
+          }
+        } catch (e) {
+          debugPrint('[PublicOrderController] Erreur recherche vagues: $e');
+        }
+      }
+
       if (targetWaveId != null && targetWaveId.isNotEmpty) {
+        waveId = targetWaveId;
         final waveDoc =
             await _firestore.collection('waves').doc(targetWaveId).get();
         if (waveDoc.exists && waveDoc.data() != null) {
@@ -175,7 +214,7 @@ class PublicOrderController extends GetxController {
         }
       }
 
-      // 2. Charger les informations du vendeur
+      // 3. Charger les informations du vendeur
       if (vendorId.isNotEmpty) {
         final vendorDoc =
             await _firestore.collection('vendors').doc(vendorId).get();
@@ -268,7 +307,15 @@ class PublicOrderController extends GetxController {
 
       // 3. Créer la commande (OrderModel)
       final orderId = DateTime.now().millisecondsSinceEpoch.toString();
-      final finalWaveId = waveId.isNotEmpty ? waveId : currentProduct.waveId;
+      final finalWaveId = waveId.isNotEmpty
+          ? waveId
+          : (wave.value?.id ??
+              (currentProduct.waveId != null &&
+                      currentProduct.waveId!.isNotEmpty
+                  ? currentProduct.waveId
+                  : (currentProduct.waveIds.isNotEmpty
+                      ? currentProduct.waveIds.first
+                      : null)));
 
       final order = OrderModel(
         id: orderId,

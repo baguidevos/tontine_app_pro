@@ -1,6 +1,7 @@
 class ProductModel {
   final String id;
   final String? waveId;
+  final List<String> waveIds;
   final String name;
   final double price;
   final double? prixTTC; // Nouveau champ optionnel
@@ -12,6 +13,7 @@ class ProductModel {
   ProductModel({
     required this.id,
     this.waveId,
+    this.waveIds = const [],
     required this.name,
     required this.price,
     this.prixTTC,
@@ -25,6 +27,7 @@ class ProductModel {
     return {
       'id': id,
       'waveId': waveId,
+      'waveIds': waveIds,
       'name': name,
       'price': price,
       'prixTTC': prixTTC,
@@ -36,9 +39,16 @@ class ProductModel {
   }
 
   factory ProductModel.fromMap(Map<String, dynamic> map, String id) {
+    final rawWaveIds = map['waveIds'] as List<dynamic>?;
+    final parsedWaveIds = rawWaveIds?.map((e) => e.toString()).toList() ??
+        (map['waveId'] != null && map['waveId'].toString().isNotEmpty
+            ? [map['waveId'].toString()]
+            : <String>[]);
+
     return ProductModel(
       id: id,
       waveId: map['waveId'],
+      waveIds: parsedWaveIds,
       name: map['name'] ?? '',
       price: (map['price'] ?? 0.0).toDouble(),
       prixTTC: map['prixTTC']
@@ -53,6 +63,7 @@ class ProductModel {
   ProductModel copyWith({
     String? id,
     String? waveId,
+    List<String>? waveIds,
     String? name,
     double? price,
     double? prixTTC,
@@ -64,6 +75,7 @@ class ProductModel {
     return ProductModel(
       id: id ?? this.id,
       waveId: waveId ?? this.waveId,
+      waveIds: waveIds ?? this.waveIds,
       name: name ?? this.name,
       price: price ?? this.price,
       prixTTC: prixTTC ?? this.prixTTC,

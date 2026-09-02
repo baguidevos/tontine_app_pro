@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/product_model.dart';
+import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/widgets/product_image.dart';
@@ -27,15 +28,26 @@ class _CreateProductPageState extends State<CreateProductPage> {
   Uint8List? _newImageBytes;
   String? _newImageName;
   ProductModel? _editingProduct;
+  String? _selectedWaveId;
 
   final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    // Check if we are editing
+    // Vérifier si édition ou vague pré-sélectionnée
     if (Get.arguments is ProductModel) {
       _editingProduct = Get.arguments as ProductModel;
+      _selectedWaveId = _editingProduct?.waveId;
+    } else if (Get.arguments is Map) {
+      final map = Get.arguments as Map;
+      if (map['editingProduct'] is ProductModel) {
+        _editingProduct = map['editingProduct'] as ProductModel;
+        _selectedWaveId = _editingProduct?.waveId;
+      }
+      if (map['preselectedWaveId'] != null) {
+        _selectedWaveId = map['preselectedWaveId'].toString();
+      }
     }
 
     _nameController = TextEditingController(text: _editingProduct?.name ?? '');
@@ -91,14 +103,24 @@ class _CreateProductPageState extends State<CreateProductPage> {
           : double.parse(_prixTTCController.text);
       final stock = 0;
 
+      final waveIdToSave = _selectedWaveId ?? "";
+      final waveIdsToSave =
+          (waveIdToSave.isNotEmpty) ? [waveIdToSave] : <String>[];
+
       if (_editingProduct != null) {
         // Update
+        final existingWaveIds = List<String>.from(_editingProduct!.waveIds);
+        if (waveIdToSave.isNotEmpty && !existingWaveIds.contains(waveIdToSave)) {
+          existingWaveIds.add(waveIdToSave);
+        }
+
         final updatedProduct = _editingProduct!.copyWith(
           name: name,
           price: price,
           prixTTC: prixTTC,
           stock: stock,
-          waveId: '',
+          waveId: waveIdToSave,
+          waveIds: existingWaveIds.isNotEmpty ? existingWaveIds : waveIdsToSave,
         );
         await productController.updateProduct(
           updatedProduct,
@@ -113,7 +135,8 @@ class _CreateProductPageState extends State<CreateProductPage> {
           price: price,
           prixTTC: prixTTC,
           stock: stock,
-          waveId: "",
+          waveId: waveIdToSave,
+          waveIds: waveIdsToSave,
           localImagePath: _localImagePath ?? '',
           imageBytes: _newImageBytes,
           imageName: _newImageName,
@@ -295,40 +318,47 @@ class _CreateProductPageState extends State<CreateProductPage> {
               ),
               const SizedBox(height: 16),
 
-              // Wave Selection
-              // Obx(() {
-              //   final waves = waveController.waves;
-              //   // Filter out closed/draft waves if you want to restrict product addition?
-              //   // For now list all active waves logic
-              //   final activeWaves = waves
-              //       .where((w) => w.status != WaveStatus.closed)
-              //       .toList();
+              // Wave Selection (Optionnelle)
+              Obx(() {
+                final waveController = Get.isRegistered<WaveController>()
+                    ? Get.find<WaveController>()
+                    : Get.put(WaveController());
+                final waves = waveController.waves;
+                final activeWaves = waves
+                    .where((w) => w.status != WaveStatus.closed)
+                    .toList();
 
-              //   return DropdownButtonFormField<String>(
-              //     value: _selectedWaveId,
-              //     decoration: InputDecoration(
-              //       labelText: 'Vague associée',
-              //       border: OutlineInputBorder(
-              //         borderRadius: BorderRadius.circular(16),
-              //       ),
-              //       filled: true,
-              //       fillColor: Colors.white,
-              //     ),
-              //     items: activeWaves.map((wave) {
-              //       return DropdownMenuItem(
-              //         value: wave.id,
-              //         child: Text(wave.name),
-              //       );
-              //     }).toList(),
-              //     onChanged: (value) {
-              //       setState(() {
-              //         _selectedWaveId = value;
-              //       });
-              //     },
-              //     validator: (value) =>
-              //         value == null ? 'Veuillez sélectionner une vague' : null,
-              //   );
-              // }),
+                return DropdownButtonFormField<String?>(
+                  value: _selectedWaveId,
+                  decoration: InputDecoration(
+                    labelText: 'Vague associée (optionnel)',
+                    prefixIcon:
+                        const Icon(Icons.waves, color: AppTheme.deepBlue),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('Aucune vague'),
+                    ),
+                    ...activeWaves.map((wave) {
+                      return DropdownMenuItem<String?>(
+                        value: wave.id,
+                        child: Text(wave.name),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedWaveId = value;
+                    });
+                  },
+                );
+              }),
               const SizedBox(height: 32),
 
               // Submit Button
@@ -336,10 +366,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    _saveProduct();
-                    Get.back();
-                  },
+                  onPressed: _saveProduct,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.deepBlue,
                     foregroundColor: Colors.white,
