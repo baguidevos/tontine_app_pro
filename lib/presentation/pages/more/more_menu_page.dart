@@ -251,7 +251,7 @@ class MoreMenuPage extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Paya Pro • Version 0.9.0',
+                    'Paya Pro • Version 0.9.1',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

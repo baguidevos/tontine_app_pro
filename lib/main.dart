@@ -33,6 +33,7 @@ import 'presentation/bindings/order_binding.dart';
 import 'presentation/bindings/inventory_binding.dart';
 import 'presentation/bindings/customer_binding.dart';
 import 'presentation/bindings/public_order_binding.dart';
+import 'presentation/bindings/profil_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -154,6 +155,7 @@ class PayaApp extends StatelessWidget {
         GetPage(
           name: '/profile',
           page: () => const ProfilePage(),
+          binding: ProfileBinding(),
         ),
       ],
     );

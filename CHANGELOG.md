@@ -2,7 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2026-09-27
+
+### Fixed
+- **`ProfileController` not found** : Correction de l'exception `"ProfileController" not found` lors de la navigation vers la page Profil via le menu "Plus". La route `/profile` dans `main.dart` ne disposait d'aucun binding ; `ProfileBinding` (already defined in `profil_controller.dart`) a été rattaché à la `GetPage`.
+- **RenderFlex overflow (suivi commande)** : Correction du dépassement de 61 px en bas du bottom sheet "Changer d'étape" dans `OrderTrackingTimeline`. Le composant `SafeArea + Column` a été remplacé par un `DraggableScrollableSheet` avec `isScrollControlled: true`, permettant le défilement et un redimensionnement dynamique de la feuille (40 % – 90 % de hauteur).
+
+### Changed
+- Version bumped `0.9.0+17` → `0.9.1+18`.
+
+---
+
 ## [0.9.0] - 2026-09-27
+
 
 ### Added
 - **Module de Suivi de Commande & Cycle de Vie Complet (*Order Tracking Lifecycle*)** :

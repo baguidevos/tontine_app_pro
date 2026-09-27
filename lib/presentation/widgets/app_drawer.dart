@@ -383,7 +383,7 @@ class AppDrawer extends StatelessWidget {
                   const Icon(Icons.verified_rounded, size: 16, color: AppTheme.payaGreen),
                   const SizedBox(width: 6),
                   Text(
-                    'Paya v0.9.0 Pro',
+                    'Paya v0.9.1 Pro',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
