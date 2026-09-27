@@ -4,6 +4,7 @@ import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/wave_model.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/widgets/confirmation_dialog.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 import 'widgets/create_wave_dialog.dart';
 
 class WavesPage extends StatelessWidget {
@@ -15,6 +16,32 @@ class WavesPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.payaCream,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.slate200, width: 1),
+            ),
+            child: const Icon(Icons.menu_rounded, size: 20, color: AppTheme.payaBlue),
+          ),
+          onPressed: () {
+            MainLayout.scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Campagnes de vente',
+          style: TextStyle(
+            color: AppTheme.darkerBlue,
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'waves_page_fab',
         onPressed: () => Get.dialog(const CreateWaveDialog()),
@@ -22,7 +49,7 @@ class WavesPage extends StatelessWidget {
         elevation: 3,
         icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
         label: const Text(
-          'Nouvelle Vague',
+          'Nouvelle Campagne',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
         ),
       ),
@@ -46,14 +73,14 @@ class WavesPage extends StatelessWidget {
                       border: Border.all(color: AppTheme.slate200),
                     ),
                     child: const Icon(
-                      Icons.waves_rounded,
+                      Icons.campaign_rounded,
                       size: 48,
-                      color: AppTheme.slate400,
+                      color: AppTheme.payaOrange,
                     ),
                   ),
                   const SizedBox(height: 20),
                   const Text(
-                    'Aucune vague créée',
+                    'Aucune campagne créée',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -62,7 +89,7 @@ class WavesPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Organisez vos ventes et vos tontines en créant une vague de commande.',
+                    'Organisez vos ventes et vos tontines en créant une campagne de commande.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 13,
@@ -74,7 +101,7 @@ class WavesPage extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () => Get.dialog(const CreateWaveDialog()),
                     icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('Créer votre première vague'),
+                    label: const Text('Créer votre première campagne'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
                     ),
@@ -128,7 +155,7 @@ class WavesPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Icon(
-                                Icons.waves_rounded,
+                                Icons.campaign_rounded,
                                 color: AppTheme.payaOrange,
                                 size: 24,
                               ),

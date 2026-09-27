@@ -9,6 +9,7 @@ import 'core/services/subscription_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/image_server_service.dart';
 import 'core/utils/http_overrides.dart';
+import 'core/services/whatsapp_service.dart';
 import 'presentation/widgets/main_layout.dart';
 import 'presentation/pages/subscription_page.dart';
 import 'presentation/pages/auth/splash_page.dart';
@@ -22,6 +23,9 @@ import 'presentation/pages/waves/wave_details_page.dart';
 import 'presentation/pages/orders/order_details_page.dart';
 import 'presentation/pages/products/product_details_page.dart';
 import 'presentation/pages/public/public_order_page.dart';
+import 'presentation/pages/whatsapp/whatsapp_templates_page.dart';
+import 'presentation/pages/inventory/inventory_page.dart';
+import 'presentation/pages/profile/profile_page.dart';
 
 // Bindings
 import 'presentation/bindings/main_layout_binding.dart';
@@ -57,6 +61,7 @@ void main() async {
 
   Get.put(ConnectivityService());
   Get.put(ImageServerService());
+  Get.put(WhatsAppService());
 
   runApp(const PayaApp());
 }
@@ -136,6 +141,19 @@ class PayaApp extends StatelessWidget {
         GetPage(
           name: '/products/details',
           page: () => const ProductDetailsPage(),
+        ),
+        GetPage(
+          name: '/whatsapp/templates',
+          page: () => const WhatsAppTemplatesPage(),
+        ),
+        GetPage(
+          name: '/inventory',
+          page: () => const InventoryPage(),
+          binding: InventoryBinding(),
+        ),
+        GetPage(
+          name: '/profile',
+          page: () => const ProfilePage(),
         ),
       ],
     );

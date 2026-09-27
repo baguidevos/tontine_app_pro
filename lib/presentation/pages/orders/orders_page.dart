@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
+import 'package:paya_app/data/models/order_delivery_status.dart';
 import 'package:paya_app/presentation/controllers/customer_controller.dart';
 import 'package:paya_app/presentation/controllers/order_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
@@ -411,7 +412,14 @@ class OrdersList extends StatelessWidget {
                               ],
                             ),
                           ),
-                          _buildStatusBadge(order.status),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              _buildDeliveryBadge(order.trackingStatus),
+                              const SizedBox(height: 4),
+                              _buildStatusBadge(order.status),
+                            ],
+                          ),
                         ],
                       ),
                       const Padding(
@@ -449,7 +457,7 @@ class OrdersList extends StatelessWidget {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.waves_rounded, size: 12, color: AppTheme.payaOrange),
+                                      const Icon(Icons.campaign_rounded, size: 13, color: AppTheme.payaOrange),
                                       const SizedBox(width: 4),
                                       Text(
                                         waveName,
@@ -523,6 +531,32 @@ class OrdersList extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w700,
         ),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryBadge(OrderDeliveryStatus status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: status.color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: status.color.withValues(alpha: 0.25), width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(status.icon, size: 11, color: status.color),
+          const SizedBox(width: 4),
+          Text(
+            status.shortLabel,
+            style: TextStyle(
+              color: status.color,
+              fontWeight: FontWeight.w700,
+              fontSize: 10,
+            ),
+          ),
+        ],
       ),
     );
   }

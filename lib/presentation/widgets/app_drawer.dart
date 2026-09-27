@@ -50,7 +50,7 @@ class AppDrawer extends StatelessWidget {
                   ),
 
                   // Waves Section
-                  _buildSectionTitle('Vagues récentes'),
+                  _buildSectionTitle('Campagnes récentes'),
                   _buildWavesSection(context),
 
                   const Padding(
@@ -215,11 +215,11 @@ class AppDrawer extends StatelessWidget {
           },
         ),
         _buildActionTile(
-          icon: Icons.waves_rounded,
+          icon: Icons.campaign_rounded,
           iconColor: AppTheme.payaOrange,
           bgColor: AppTheme.payaOrange.withValues(alpha: 0.1),
-          title: 'Nouvelle vague',
-          subtitle: 'Lancer un cycle de tontine',
+          title: 'Nouvelle campagne',
+          subtitle: 'Lancer un cycle de vente ou tontine',
           onTap: () {
             Get.back();
             Get.dialog(const CreateWaveDialog());
@@ -265,8 +265,8 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           _buildNavTile(
-            icon: Icons.inventory_2_rounded,
-            title: 'Inventaire & Produits',
+            icon: Icons.campaign_rounded,
+            title: 'Campagnes de vente',
             isSelected: currentIndex == 2,
             onTap: () {
               Get.back();
@@ -274,12 +274,21 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           _buildNavTile(
-            icon: Icons.person_rounded,
-            title: 'Mon Profil & Boutique',
+            icon: Icons.shopping_bag_rounded,
+            title: 'Catalogue Produits',
             isSelected: currentIndex == 3,
             onTap: () {
               Get.back();
               mainLayoutController.changeTab(3);
+            },
+          ),
+          _buildNavTile(
+            icon: Icons.grid_view_rounded,
+            title: 'Plus d\'options',
+            isSelected: currentIndex == 4,
+            onTap: () {
+              Get.back();
+              mainLayoutController.changeTab(4);
             },
           ),
         ],
@@ -306,7 +315,7 @@ class AppDrawer extends StatelessWidget {
       return Column(
         children: [
           if (activeWaves.isEmpty)
-            _buildEmptyTile('Aucune vague active pour l\'instant')
+            _buildEmptyTile('Aucune campagne active pour l\'instant')
           else
             ...activeWaves.take(3).map((wave) {
               return _buildWaveTile(wave);
@@ -316,8 +325,8 @@ class AppDrawer extends StatelessWidget {
               icon: Icons.arrow_forward_rounded,
               iconColor: AppTheme.payaBlue,
               bgColor: AppTheme.payaBlue.withValues(alpha: 0.08),
-              title: 'Voir toutes les vagues',
-              subtitle: '${activeWaves.length} vagues enregistrées',
+              title: 'Voir toutes les campagnes',
+              subtitle: '${activeWaves.length} campagnes enregistrées',
               onTap: () {
                 Get.back();
                 Get.find<MainLayoutController>().changeTab(2);
@@ -374,7 +383,7 @@ class AppDrawer extends StatelessWidget {
                   const Icon(Icons.verified_rounded, size: 16, color: AppTheme.payaGreen),
                   const SizedBox(width: 6),
                   Text(
-                    'Paya v0.7.0 Pro',
+                    'Paya v0.9.0 Pro',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -552,7 +561,7 @@ class AppDrawer extends StatelessWidget {
             color: statusColor.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(Icons.waves_rounded, size: 20, color: statusColor),
+          child: Icon(Icons.campaign_rounded, size: 20, color: statusColor),
         ),
         title: Text(
           wave.name,

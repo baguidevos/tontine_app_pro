@@ -5,6 +5,7 @@ import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/product_model.dart';
 import 'package:paya_app/presentation/controllers/product_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
+import 'package:paya_app/presentation/widgets/main_layout.dart';
 import 'widgets/wave_selection_dialog.dart';
 import 'widgets/product_card_modern.dart';
 
@@ -115,14 +116,30 @@ class _ProductsPageState extends State<ProductsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Catalogue Produits',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.darkerBlue,
+              IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.slate200, width: 1),
+                  ),
+                  child: const Icon(Icons.menu_rounded, size: 20, color: AppTheme.payaBlue),
+                ),
+                onPressed: () {
+                  MainLayout.scaffoldKey.currentState?.openDrawer();
+                },
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Catalogue Produits',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.darkerBlue,
+                  ),
                 ),
               ),
               Obx(() => Container(

@@ -1,15 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'order_delivery_status.dart';
 
 class OrderModel {
   final String id;
   final String vendorId;
   final String customerId;
-  final String?
-  waveId; // Lien vers la vague (optionnel pour rétrocompatibilité)
+  final String? waveId;
   final List<OrderItemModel> items;
   final double totalAmount;
   final double totalPaid;
-  final String status;
+  final String status; // 'pending', 'completed', 'cancelled'
+  final String deliveryStatus; // 'received', 'confirmed', 'paid', 'processing', 'delivered', 'undelivered'
+  final String? deliveryNotes;
+  final DateTime? deliveryStatusUpdatedAt;
   final DateTime createdAt;
 
   OrderModel({
@@ -21,8 +24,19 @@ class OrderModel {
     required this.totalAmount,
     required this.totalPaid,
     required this.status,
+    this.deliveryStatus = 'received',
+    this.deliveryNotes,
+    this.deliveryStatusUpdatedAt,
     required this.createdAt,
   });
+
+  OrderDeliveryStatus get trackingStatus =>
+      OrderDeliveryStatus.fromString(deliveryStatus);
+
+  bool get isFullyPaid => totalPaid >= totalAmount;
+
+  double get remainingBalance =>
+      (totalAmount - totalPaid) > 0 ? (totalAmount - totalPaid) : 0.0;
 
   Map<String, dynamic> toMap() {
     return {
@@ -34,11 +48,19 @@ class OrderModel {
       'totalAmount': totalAmount,
       'totalPaid': totalPaid,
       'status': status,
+      'deliveryStatus': deliveryStatus,
+      'deliveryNotes': deliveryNotes,
+      'deliveryStatusUpdatedAt': deliveryStatusUpdatedAt != null
+          ? Timestamp.fromDate(deliveryStatusUpdatedAt!)
+          : null,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
 
   factory OrderModel.fromMap(Map<String, dynamic> map, String id) {
+    final status = map['status'] ?? 'pending';
+    final fallbackDelivery = status == 'completed' ? 'delivered' : 'received';
+
     return OrderModel(
       id: id,
       vendorId: map['vendorId'] ?? '',
@@ -49,7 +71,10 @@ class OrderModel {
       ),
       totalAmount: (map['totalAmount'] ?? 0.0).toDouble(),
       totalPaid: (map['totalPaid'] ?? 0.0).toDouble(),
-      status: map['status'] ?? 'pending',
+      status: status,
+      deliveryStatus: map['deliveryStatus'] ?? fallbackDelivery,
+      deliveryNotes: map['deliveryNotes'],
+      deliveryStatusUpdatedAt: (map['deliveryStatusUpdatedAt'] as Timestamp?)?.toDate(),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -63,6 +88,9 @@ class OrderModel {
     double? totalAmount,
     double? totalPaid,
     String? status,
+    String? deliveryStatus,
+    String? deliveryNotes,
+    DateTime? deliveryStatusUpdatedAt,
     DateTime? createdAt,
   }) {
     return OrderModel(
@@ -74,6 +102,10 @@ class OrderModel {
       totalAmount: totalAmount ?? this.totalAmount,
       totalPaid: totalPaid ?? this.totalPaid,
       status: status ?? this.status,
+      deliveryStatus: deliveryStatus ?? this.deliveryStatus,
+      deliveryNotes: deliveryNotes ?? this.deliveryNotes,
+      deliveryStatusUpdatedAt:
+          deliveryStatusUpdatedAt ?? this.deliveryStatusUpdatedAt,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -98,7 +130,7 @@ class OrderItemModel {
 
   double get totalPrice => unitPrice * quantity;
   double get balance => totalPrice - paidAmount;
-  bool get isReadyForDelivery => balance <= 0;
+  bool get isReadyForDelivery => paidAmount >= totalPrice && totalPrice > 0;
 
   Map<String, dynamic> toMap() {
     return {
@@ -117,7 +149,7 @@ class OrderItemModel {
       productId: map['productId'] ?? '',
       name: map['name'] ?? '',
       unitPrice: (map['unitPrice'] ?? 0.0).toDouble(),
-      quantity: map['quantity'] ?? 0,
+      quantity: map['quantity'] ?? 1,
       paidAmount: (map['paidAmount'] ?? 0.0).toDouble(),
     );
   }

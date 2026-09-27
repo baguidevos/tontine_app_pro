@@ -8,6 +8,7 @@ import 'package:paya_app/presentation/controllers/payment_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/widgets/confirmation_dialog.dart';
 import 'widgets/payment_entry_dialog.dart';
+import 'widgets/order_tracking_timeline.dart';
 
 class OrderDetailsPage extends StatefulWidget {
   const OrderDetailsPage({super.key});
@@ -114,6 +115,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         }
 
         final customerName = _getCustomerName(currentOrder.customerId);
+        final customer = _customerController.customers.firstWhereOrNull(
+          (c) => c.id == currentOrder.customerId,
+        );
         final items = currentOrder.items;
 
         final String orderIdDisplay = currentOrder.id.length > 6
@@ -187,10 +191,10 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.waves_rounded, size: 14, color: AppTheme.payaOrange),
+                              const Icon(Icons.campaign_rounded, size: 14, color: AppTheme.payaOrange),
                               const SizedBox(width: 6),
                               Text(
-                                'Vague: ${wave.name}',
+                                'Campagne: ${wave.name}',
                                 style: const TextStyle(
                                   color: AppTheme.payaOrange,
                                   fontWeight: FontWeight.w700,
@@ -266,7 +270,16 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 18),
+
+              // Suivi de Commande & Actions WhatsApp
+              OrderTrackingTimeline(
+                order: currentOrder,
+                customer: customer,
+                onOrderUpdated: () => _loadOrder(),
+              ),
+
+              const SizedBox(height: 20),
 
               // Articles Title
               Row(

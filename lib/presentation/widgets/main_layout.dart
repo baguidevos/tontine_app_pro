@@ -5,9 +5,10 @@ import 'package:paya_app/core/services/connectivity_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/presentation/widgets/app_drawer.dart';
 import '../pages/dashboard_page.dart';
-import '../pages/inventory/inventory_page.dart';
 import '../pages/orders/orders_page.dart';
-import '../pages/profile/profile_page.dart';
+import '../pages/waves/waves_page.dart';
+import '../pages/products/products_page.dart';
+import '../pages/more/more_menu_page.dart';
 import '../controllers/main_layout_controller.dart';
 
 class MainLayout extends StatelessWidget {
@@ -25,8 +26,9 @@ class MainLayout extends StatelessWidget {
     final List<Widget> pages = [
       const DashboardPage(),
       const OrdersPage(),
-      const InventoryPage(),
-      const ProfilePage(),
+      const WavesPage(),
+      const ProductsPage(),
+      const MoreMenuPage(),
     ];
 
     return Scaffold(
@@ -124,7 +126,7 @@ class MainLayout extends StatelessWidget {
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -148,21 +150,30 @@ class MainLayout extends StatelessWidget {
                   ),
                   _buildNavItem(
                     context: context,
-                    icon: Icons.inventory_2_outlined,
-                    activeIcon: Icons.inventory_2_rounded,
-                    label: 'Inventaire',
+                    icon: Icons.campaign_outlined,
+                    activeIcon: Icons.campaign_rounded,
+                    label: 'Campagnes',
                     index: 2,
                     currentIndex: mainLayoutController.currentIndex.value,
                     onTap: () => mainLayoutController.changeTab(2),
                   ),
                   _buildNavItem(
                     context: context,
-                    icon: Icons.person_outline_rounded,
-                    activeIcon: Icons.person_rounded,
-                    label: 'Profil',
+                    icon: Icons.shopping_bag_outlined,
+                    activeIcon: Icons.shopping_bag_rounded,
+                    label: 'Produits',
                     index: 3,
                     currentIndex: mainLayoutController.currentIndex.value,
                     onTap: () => mainLayoutController.changeTab(3),
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.grid_view_outlined,
+                    activeIcon: Icons.grid_view_rounded,
+                    label: 'Plus',
+                    index: 4,
+                    currentIndex: mainLayoutController.currentIndex.value,
+                    onTap: () => mainLayoutController.changeTab(4),
                   ),
                 ],
               ),
@@ -195,12 +206,12 @@ class MainLayout extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeInOut,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
             decoration: BoxDecoration(
               color: isSelected
                   ? AppTheme.payaBlue.withValues(alpha: 0.08)
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -212,15 +223,16 @@ class MainLayout extends StatelessWidget {
                     isSelected ? activeIcon : icon,
                     key: ValueKey<bool>(isSelected),
                     color: isSelected ? AppTheme.payaBlue : AppTheme.slate400,
-                    size: 24,
+                    size: 22,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   label,
                   maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10.5,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected ? AppTheme.payaBlue : AppTheme.slate500,
                   ),
