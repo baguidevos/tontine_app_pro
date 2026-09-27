@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-09-27
+
+### Added
+- **Typographie Moderne & Intégration Google Fonts (Plus Jakarta Sans)**
+  - Adoption de la police moderne Google Fonts **Plus Jakarta Sans** comme police globale par défaut de l'application.
+  - Configuration complète de `TextTheme` dans `AppTheme` avec hiérarchie typographique équilibrée (titres, corps, libellés et boutons).
+  - Ajout du package `google_fonts: ^6.2.1` aux dépendances.
+
+- **Refonte Visuelle Complète & Système de Design Moderne**
+  - **Navigation & Shell** : Barre de navigation flottante et fluide avec indicateurs pilules animés (`MainLayout`), tiroir latéral épuré avec profil commerçant et dialogue moderne de confirmation (`AppDrawer`).
+  - **Authentification** : Cartes de connexion et inscription épurées avec angles arrondis, boutons principaux à fort impact et animations douces.
+  - **Tableau de Bord (`DashboardPage`)** : Bannière premium dynamique avec statut d'abonnement, grille d'actions rapides, cartes statistiques d'activité avec badges colorés et flux des commandes récentes.
+  - **Gestion des Commandes (`OrdersPage`, `OrderDetailsPage`, `CreateOrderPage`)** :
+    - Sélecteur à onglets segmentés (*En cours, Soldées, Annulées*).
+    - Cartes de commande style reçu avec avatar initiales, chips de vague et statuts colorés.
+    - Fiche détail facture avec barre de progression de paiement, décomposition (Total, Encaissé, Reste) et modales d'encaissement et de quantité modernisées.
+  - **Catalogue Produits (`ProductsPage`, `ProductDetailsPage`, `CreateProductPage`)** :
+    - Cartes produits modernes avec indicateurs d'état de stock, affichage du prix en badge et menu contextuel.
+    - Filtres horizontaux par vagues.
+    - Fiche produit détaillée avec suivi des paiements clients et modal de partage WhatsApp réactif.
+    - Formulaire de création de produit avec zone de téléversement photo soignée et validation fluide.
+  - **Vagues de Livraison (`WavesPage`, `WaveDetailsPage`, `CreateWaveDialog`, `ProductSelectionSheet`)** :
+    - Cartes vagues avec pilules de statut (*Active, Clôturée, Brouillon*).
+    - Fiche détaillée de vague avec métriques de performance, total collecté vs reste à percevoir, et gestionnaire de produits associés.
+    - Modale de création/édition de vague et feuille de sélection de produits avec recherche instantanée et onglet de création directe.
+  - **Clients & Créances (`CustomersPage`, `CreateCustomerPage`)** :
+    - Barre de recherche en temps réel par nom, numéro ou adresse.
+    - Métriques d'en-tête (Total clients, clients avec créance, montant total des dettes).
+    - Cartes clients avec badge de créance, actions rapides (appel, modification, suppression sécurisée).
+    - Formulaire de création/mise à jour avec sélecteur de genre par chips ergonomiques.
+  - **Profil & Abonnements (`ProfilePage`, `SubscriptionPage`)** :
+    - Carte d'identité de la boutique avec badge vérifié et niveau d'abonnement.
+    - Suivi visuel des quotas (vagues et produits).
+    - Fiches tarifaires claires (Gratuit, Mensuel, Semestriel, Annuel) avec mise en avant des économies et modal de confirmation d'activation.
+  - **Page de Commande Publique Web (`PublicOrderPage`)** :
+    - Design immersif optimisé pour navigateurs mobiles et desktop.
+    - Sélecteur de quantité réactif, formulaire de coordonnées clair et écran de confirmation avec bouton direct WhatsApp.
+  - **Dialogues et Alertes Partagés** :
+    - `ConfirmationDialog`, `SubscriptionLimitDialog`, `ConnectivityOverlay` modernisés avec typographie soignée et icônes d'état dédiées.
+
+### Changed
+- **Pérennité & Conformité Flutter Moderne** :
+  - Remplacement de toutes les utilisations dépréciées de `.withOpacity(...)` par la nouvelle API Flutter `.withValues(alpha: ...)`.
+  - Harmonisation des couleurs et suppression de tous les avertissements de compilation (`dart analyze lib/` à 0 erreur et 0 avertissement).
+  - Remplacement des `print` résiduels par `debugPrint` pour des logs de production propres.
+
+---
+
 ## [0.7.0] - 2026-09-02
 
 ### Added

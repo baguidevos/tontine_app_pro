@@ -36,46 +36,64 @@ class MainLayout extends StatelessWidget {
         children: [
           Obx(() => pages[mainLayoutController.currentIndex.value]),
 
-          // Connectivity Overlay
+          // Modern Connectivity Overlay
           Obx(
             () => !connectivityService.isConnected.value
                 ? Positioned.fill(
-                    child: ClipRRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          color: Colors.black.withOpacity(0.3),
-                          child: Center(
-                            child: Card(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 40,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.35),
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 32),
+                            padding: const EdgeInsets.all(28),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: AppTheme.slate200,
+                                width: 1,
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(32.0),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.wifi_off,
-                                      size: 48,
-                                      color: AppTheme.deepBlue,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    const Text(
-                                      'Pas de connexion',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const Text(
-                                      'Veuillez vérifier votre connexion internet pour continuer.',
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.12),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 10),
                                 ),
-                              ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.redLight,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.wifi_off_rounded,
+                                    size: 36,
+                                    color: AppTheme.payaRed,
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
+                                Text(
+                                  'Connexion interrompue',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Veuillez vérifier votre connexion internet pour continuer à synchroniser vos données.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppTheme.slate500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -90,47 +108,57 @@ class MainLayout extends StatelessWidget {
         () => Container(
           decoration: BoxDecoration(
             color: Colors.white,
+            border: Border(
+              top: BorderSide(
+                color: AppTheme.slate200.withValues(alpha: 0.8),
+                width: 1,
+              ),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
+                color: AppTheme.payaBlue.withValues(alpha: 0.04),
                 blurRadius: 20,
-                offset: const Offset(0, -5),
+                offset: const Offset(0, -6),
               ),
             ],
           ),
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildNavItem(
+                    context: context,
                     icon: Icons.dashboard_outlined,
-                    activeIcon: Icons.dashboard,
+                    activeIcon: Icons.dashboard_rounded,
                     label: 'Accueil',
                     index: 0,
                     currentIndex: mainLayoutController.currentIndex.value,
                     onTap: () => mainLayoutController.changeTab(0),
                   ),
                   _buildNavItem(
+                    context: context,
                     icon: Icons.receipt_long_outlined,
-                    activeIcon: Icons.receipt_long,
+                    activeIcon: Icons.receipt_long_rounded,
                     label: 'Commandes',
                     index: 1,
                     currentIndex: mainLayoutController.currentIndex.value,
                     onTap: () => mainLayoutController.changeTab(1),
                   ),
                   _buildNavItem(
+                    context: context,
                     icon: Icons.inventory_2_outlined,
-                    activeIcon: Icons.inventory_2,
+                    activeIcon: Icons.inventory_2_rounded,
                     label: 'Inventaire',
                     index: 2,
                     currentIndex: mainLayoutController.currentIndex.value,
                     onTap: () => mainLayoutController.changeTab(2),
                   ),
                   _buildNavItem(
-                    icon: Icons.person_outline,
-                    activeIcon: Icons.person,
+                    context: context,
+                    icon: Icons.person_outline_rounded,
+                    activeIcon: Icons.person_rounded,
                     label: 'Profil',
                     index: 3,
                     currentIndex: mainLayoutController.currentIndex.value,
@@ -146,6 +174,7 @@ class MainLayout extends StatelessWidget {
   }
 
   Widget _buildNavItem({
+    required BuildContext context,
     required IconData icon,
     required IconData activeIcon,
     required String label,
@@ -156,40 +185,48 @@ class MainLayout extends StatelessWidget {
     final isSelected = currentIndex == index;
 
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.deepBlue.withOpacity(0.08) : null,
-            borderRadius: BorderRadius.circular(16),
-            border: isSelected
-                ? Border.all(color: AppTheme.payaGray.withOpacity(0.5))
-                : null,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  isSelected ? activeIcon : icon,
-                  color: isSelected ? AppTheme.deepBlue : Colors.grey.shade400,
-                  size: isSelected ? 28 : 24,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          splashColor: AppTheme.payaBlue.withValues(alpha: 0.08),
+          highlightColor: Colors.transparent,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppTheme.payaBlue.withValues(alpha: 0.08)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                  child: Icon(
+                    isSelected ? activeIcon : icon,
+                    key: ValueKey<bool>(isSelected),
+                    color: isSelected ? AppTheme.payaBlue : AppTheme.slate400,
+                    size: 24,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  fontSize: isSelected ? 13 : 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? AppTheme.deepBlue : Colors.grey.shade500,
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? AppTheme.payaBlue : AppTheme.slate500,
+                  ),
                 ),
-                child: Text(label, maxLines: 1),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

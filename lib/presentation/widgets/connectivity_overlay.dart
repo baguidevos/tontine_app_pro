@@ -19,46 +19,55 @@ class ConnectivityOverlay extends StatelessWidget {
           if (!connectivityService.isConnected.value)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black.withValues(alpha: 0.65),
+                padding: const EdgeInsets.all(24),
                 child: Center(
                   child: Container(
-                    margin: const EdgeInsets.all(32),
-                    padding: const EdgeInsets.all(32),
+                    constraints: const BoxConstraints(maxWidth: 360),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 30,
-                          offset: const Offset(0, 10),
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          Icons.wifi_off_rounded,
-                          size: 80,
-                          color: AppTheme.deepBlue.withOpacity(0.7),
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'Pas de connexion',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.deepBlue,
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppTheme.softRed.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.wifi_off_rounded,
+                            size: 44,
+                            color: AppTheme.softRed,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Veuillez vérifier votre connexion Internet',
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Connexion perdue',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.slate900,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Veuillez vérifier votre connexion Internet pour continuer à synchroniser vos données.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 16,
-                            color: AppTheme.deepBlue.withOpacity(0.7),
+                            fontSize: 13,
+                            color: AppTheme.slate600,
+                            height: 1.4,
                           ),
                         ),
                       ],

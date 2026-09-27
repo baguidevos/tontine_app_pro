@@ -17,6 +17,7 @@ class AppDrawer extends StatelessWidget {
 
     return Drawer(
       backgroundColor: Colors.white,
+      elevation: 16,
       child: Column(
         children: [
           // Header
@@ -25,6 +26,8 @@ class AppDrawer extends StatelessWidget {
           // Navigation & Actions
           Expanded(
             child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -32,19 +35,28 @@ class AppDrawer extends StatelessWidget {
                   _buildSectionTitle('Actions rapides'),
                   _buildQuickActions(context, mainLayoutController),
 
-                  const Divider(height: 24),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(color: AppTheme.slate200, height: 1),
+                  ),
 
                   // Navigation Section
                   _buildSectionTitle('Navigation'),
                   _buildNavigationList(mainLayoutController),
 
-                  const Divider(height: 24),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(color: AppTheme.slate200, height: 1),
+                  ),
 
                   // Waves Section
-                  _buildSectionTitle('Vagues'),
+                  _buildSectionTitle('Vagues récentes'),
                   _buildWavesSection(context),
 
-                  const Divider(height: 24),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Divider(color: AppTheme.slate200, height: 1),
+                  ),
 
                   // Management Section
                   _buildSectionTitle('Gestion'),
@@ -65,14 +77,16 @@ class AppDrawer extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(Get.context!).padding.top + 24,
+        top: MediaQuery.of(Get.context!).padding.top + 20,
         bottom: 24,
-        left: 24,
-        right: 24,
+        left: 20,
+        right: 20,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppTheme.deepBlue, AppTheme.softBlue],
+          colors: [AppTheme.payaBlue, AppTheme.payaLightBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
       child: Column(
@@ -80,32 +94,76 @@ class AppDrawer extends StatelessWidget {
         children: [
           Row(
             children: [
-              Center(
-                child: Image.asset(
-                  'assets/logo.png',
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.contain,
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(6),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    'assets/logo.png',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.storefront_rounded,
+                      color: AppTheme.payaBlue,
+                      size: 28,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              const Text(
-                'Paya',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'PAYA',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        'Commerce & Tontine',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'La Gestion simplifiée',
+          Text(
+            'Gestion simplifiée de vos ventes',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.white70,
-              fontWeight: FontWeight.w900,
+              fontSize: 13,
+              color: Colors.white.withValues(alpha: 0.85),
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -115,14 +173,14 @@ class AppDrawer extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(left: 8, right: 8, top: 12, bottom: 6),
       child: Text(
         title.toUpperCase(),
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-          color: AppTheme.payaOrange,
-          letterSpacing: 1.2,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: AppTheme.slate400,
+          letterSpacing: 1.1,
         ),
       ),
     );
@@ -135,36 +193,44 @@ class AppDrawer extends StatelessWidget {
     return Column(
       children: [
         _buildActionTile(
-          icon: Icons.receipt_long,
+          icon: Icons.add_shopping_cart_rounded,
+          iconColor: AppTheme.payaBlue,
+          bgColor: AppTheme.payaBlue.withValues(alpha: 0.1),
           title: 'Nouvelle commande',
-          subtitle: 'Créer une commande',
+          subtitle: 'Enregistrer une vente',
           onTap: () {
             Get.back();
             Get.toNamed('/orders/create');
           },
         ),
         _buildActionTile(
-          icon: Icons.person_add,
+          icon: Icons.person_add_alt_1_rounded,
+          iconColor: AppTheme.payaGreen,
+          bgColor: AppTheme.payaGreen.withValues(alpha: 0.1),
           title: 'Nouveau client',
-          subtitle: 'Ajouter un client',
+          subtitle: 'Ajouter au répertoire',
           onTap: () {
             Get.back();
             Get.toNamed('/customers/create');
           },
         ),
         _buildActionTile(
-          icon: Icons.waves,
+          icon: Icons.waves_rounded,
+          iconColor: AppTheme.payaOrange,
+          bgColor: AppTheme.payaOrange.withValues(alpha: 0.1),
           title: 'Nouvelle vague',
-          subtitle: 'Créer une vague',
+          subtitle: 'Lancer un cycle de tontine',
           onTap: () {
             Get.back();
             Get.dialog(const CreateWaveDialog());
           },
         ),
         _buildActionTile(
-          icon: Icons.shopping_bag,
+          icon: Icons.inventory_2_rounded,
+          iconColor: AppTheme.payaLightBlue,
+          bgColor: AppTheme.payaLightBlue.withValues(alpha: 0.1),
           title: 'Nouveau produit',
-          subtitle: 'Ajouter un produit',
+          subtitle: 'Ajouter au catalogue',
           onTap: () {
             Get.back();
             Get.toNamed('/products/create');
@@ -181,7 +247,7 @@ class AppDrawer extends StatelessWidget {
       return Column(
         children: [
           _buildNavTile(
-            icon: Icons.dashboard,
+            icon: Icons.dashboard_rounded,
             title: 'Tableau de bord',
             isSelected: currentIndex == 0,
             onTap: () {
@@ -190,7 +256,7 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           _buildNavTile(
-            icon: Icons.receipt_long,
+            icon: Icons.receipt_long_rounded,
             title: 'Commandes',
             isSelected: currentIndex == 1,
             onTap: () {
@@ -199,8 +265,8 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           _buildNavTile(
-            icon: Icons.inventory_2,
-            title: 'Inventaire',
+            icon: Icons.inventory_2_rounded,
+            title: 'Inventaire & Produits',
             isSelected: currentIndex == 2,
             onTap: () {
               Get.back();
@@ -208,8 +274,8 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           _buildNavTile(
-            icon: Icons.person,
-            title: 'Profil',
+            icon: Icons.person_rounded,
+            title: 'Mon Profil & Boutique',
             isSelected: currentIndex == 3,
             onTap: () {
               Get.back();
@@ -240,21 +306,21 @@ class AppDrawer extends StatelessWidget {
       return Column(
         children: [
           if (activeWaves.isEmpty)
-            _buildEmptyTile('Aucune vague active')
+            _buildEmptyTile('Aucune vague active pour l\'instant')
           else
             ...activeWaves.take(3).map((wave) {
               return _buildWaveTile(wave);
             }),
           if (activeWaves.length > 3)
             _buildActionTile(
-              icon: Icons.arrow_forward,
+              icon: Icons.arrow_forward_rounded,
+              iconColor: AppTheme.payaBlue,
+              bgColor: AppTheme.payaBlue.withValues(alpha: 0.08),
               title: 'Voir toutes les vagues',
-              subtitle: '${activeWaves.length} vagues au total',
+              subtitle: '${activeWaves.length} vagues enregistrées',
               onTap: () {
                 Get.back();
-                Get.find<MainLayoutController>().changeTab(
-                  2,
-                ); // Go to inventory
+                Get.find<MainLayoutController>().changeTab(2);
               },
             ),
         ],
@@ -266,30 +332,25 @@ class AppDrawer extends StatelessWidget {
     return Column(
       children: [
         _buildActionTile(
-          icon: Icons.people,
-          title: 'Clients',
-          subtitle: 'Gérer les clients',
+          icon: Icons.people_alt_rounded,
+          iconColor: AppTheme.payaBlue,
+          bgColor: AppTheme.payaBlue.withValues(alpha: 0.08),
+          title: 'Clients & Adhérents',
+          subtitle: 'Liste et suivi des clients',
           onTap: () {
             Get.back();
             Get.toNamed('/customers');
           },
         ),
         _buildActionTile(
-          icon: Icons.shopping_cart,
-          title: 'Produits',
-          subtitle: 'Gérer les produits',
+          icon: Icons.stars_rounded,
+          iconColor: AppTheme.payaOrange,
+          bgColor: AppTheme.payaOrange.withValues(alpha: 0.1),
+          title: 'Abonnement & Formules',
+          subtitle: 'Gérer votre formule Paya',
           onTap: () {
             Get.back();
-            Get.find<MainLayoutController>().changeTab(2);
-          },
-        ),
-        _buildActionTile(
-          icon: Icons.analytics,
-          title: 'Statistiques',
-          subtitle: 'Voir les statistiques',
-          onTap: () {
-            Get.back();
-            Get.find<MainLayoutController>().changeTab(0);
+            Get.toNamed('/subscription');
           },
         ),
       ],
@@ -300,48 +361,72 @@ class AppDrawer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+        color: AppTheme.slate50,
+        border: Border(top: BorderSide(color: AppTheme.slate200, width: 1)),
       ),
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.info_outline, size: 16, color: Colors.grey),
-              const SizedBox(width: 8),
-              Text(
-                'Version 0.7.0',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              Row(
+                children: [
+                  const Icon(Icons.verified_rounded, size: 16, color: AppTheme.payaGreen),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Paya v0.7.0 Pro',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.slate600,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppTheme.greenLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Actif',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.payaGreen,
+                  ),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
                 Get.defaultDialog(
                   title: 'Déconnexion',
-                  middleText: 'Êtes-vous sûr de vouloir vous déconnecter ?',
+                  middleText: 'Êtes-vous sûr de vouloir vous déconnecter de votre compte ?',
                   textCancel: 'Annuler',
                   textConfirm: 'Déconnexion',
                   confirmTextColor: Colors.white,
                   onConfirm: () async {
-                    Get.back(); // Close dialog
+                    Get.back();
                     await authController.logout();
                   },
-                  buttonColor: AppTheme.softRed,
-                  cancelTextColor: AppTheme.deepBlue,
+                  buttonColor: AppTheme.payaRed,
+                  cancelTextColor: AppTheme.slate700,
                 );
               },
-              icon: const Icon(Icons.logout, size: 18),
+              icon: const Icon(Icons.logout_rounded, size: 18),
               label: const Text('Déconnexion'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppTheme.softRed,
-                side: const BorderSide(color: AppTheme.softRed),
+                foregroundColor: AppTheme.payaRed,
+                side: BorderSide(color: AppTheme.payaRed.withValues(alpha: 0.4)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -353,35 +438,46 @@ class AppDrawer extends StatelessWidget {
 
   Widget _buildActionTile({
     required IconData icon,
+    required Color iconColor,
+    required Color bgColor,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: AppTheme.deepBlue.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
-        child: Icon(icon, size: 20, color: AppTheme.deepBlue),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: AppTheme.slate800,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: const TextStyle(fontSize: 12, color: AppTheme.slate500),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          size: 20,
+          color: AppTheme.slate400,
+        ),
+        onTap: onTap,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 14,
-        color: Colors.grey,
-      ),
-      onTap: onTap,
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
     );
   }
 
@@ -391,90 +487,108 @@ class AppDrawer extends StatelessWidget {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return ListTile(
-      leading: Icon(
-        icon,
-        color: isSelected ? AppTheme.deepBlue : Colors.grey.shade600,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 2),
+      decoration: BoxDecoration(
+        color: isSelected ? AppTheme.payaBlue.withValues(alpha: 0.08) : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
       ),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? AppTheme.deepBlue : Colors.grey.shade700,
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isSelected ? AppTheme.payaBlue : AppTheme.slate500,
+          size: 22,
         ),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+            color: isSelected ? AppTheme.payaBlue : AppTheme.slate800,
+            fontSize: 14,
+          ),
+        ),
+        trailing: isSelected
+            ? Container(
+                width: 7,
+                height: 7,
+                decoration: const BoxDecoration(
+                  color: AppTheme.payaBlue,
+                  shape: BoxShape.circle,
+                ),
+              )
+            : null,
+        onTap: onTap,
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      trailing: isSelected
-          ? Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppTheme.deepBlue,
-                shape: BoxShape.circle,
-              ),
-            )
-          : null,
-      onTap: onTap,
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      tileColor: isSelected ? AppTheme.deepBlue.withOpacity(0.05) : null,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 
-  Widget _buildWaveTile(dynamic wave) {
+  Widget _buildWaveTile(WaveModel wave) {
     Color statusColor;
+    String statusLabel;
     switch (wave.status) {
       case WaveStatus.active:
-        statusColor = AppTheme.successGreen;
+        statusColor = AppTheme.payaGreen;
+        statusLabel = 'En cours';
         break;
       case WaveStatus.closed:
-        statusColor = AppTheme.softRed;
+        statusColor = AppTheme.payaRed;
+        statusLabel = 'Clôturée';
         break;
       case WaveStatus.draft:
-      default:
         statusColor = AppTheme.payaOrange;
+        statusLabel = 'Brouillon';
     }
 
-    return ListTile(
-      leading: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: statusColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: statusColor.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(Icons.waves_rounded, size: 20, color: statusColor),
         ),
-        child: Icon(Icons.waves, size: 20, color: statusColor),
+        title: Text(
+          wave.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        ),
+        subtitle: Text(
+          '${wave.productIds.length} produits • $statusLabel',
+          style: const TextStyle(fontSize: 11, color: AppTheme.slate500),
+        ),
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          size: 18,
+          color: AppTheme.slate400,
+        ),
+        onTap: () {
+          Get.back();
+          Get.toNamed('/waves/details', arguments: wave);
+        },
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      title: Text(
-        wave.name,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
-      subtitle: Text(
-        'Produits: ${wave.productIds.length}',
-        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 14,
-        color: Colors.grey,
-      ),
-      onTap: () {
-        Get.back();
-        Get.toNamed('/waves/details', arguments: wave);
-      },
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
     );
   }
 
   Widget _buildEmptyTile(String message) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Center(
         child: Text(
           message,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade500,
+          style: const TextStyle(
+            fontSize: 12,
+            color: AppTheme.slate400,
             fontStyle: FontStyle.italic,
           ),
         ),

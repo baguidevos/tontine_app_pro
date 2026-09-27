@@ -18,41 +18,67 @@ class SubscriptionLimitDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: Padding(
-        padding: const EdgeInsets.all(32),
+      backgroundColor: Colors.white,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+      elevation: 12,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(maxWidth: 400),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.lock_outline,
-              size: 64,
-              color: AppTheme.deepBlue.withOpacity(0.7),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Limite Atteinte',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.deepBlue,
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8E1),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFFFECB3)),
+              ),
+              child: const Icon(
+                Icons.workspace_premium_rounded,
+                size: 40,
+                color: Color(0xFFFFA000),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            const Text(
+              'Limite de formule atteinte',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.slate900,
+                letterSpacing: -0.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: AppTheme.darkerBlue),
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppTheme.slate600,
+                height: 1.4,
+              ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: () => Get.back(),
-                    child: const Text('Annuler'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.slate700,
+                      side: const BorderSide(color: AppTheme.slate300),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: const Text('Plus tard', style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
@@ -62,11 +88,16 @@ class SubscriptionLimitDialog extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.deepBlue,
                       foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text('Voir Plans'),
+                    child: const Text(
+                      'Voir les plans',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
               ],

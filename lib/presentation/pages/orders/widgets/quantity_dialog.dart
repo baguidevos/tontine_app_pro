@@ -35,16 +35,6 @@ class _QuantityDialogState extends State<QuantityDialog> {
 
   void _updateQuantity(int newQuantity) {
     if (newQuantity < 1) return;
-    // if (newQuantity > widget.product.stock) {
-    //   Get.snackbar(
-    //     'Stock Limité',
-    //     'Seulement ${widget.product.stock} articles disponibles',
-    //     snackPosition: SnackPosition.BOTTOM,
-    //     backgroundColor: Colors.orange.withOpacity(0.1),
-    //     colorText: Colors.orange,
-    //   );
-    //   return;
-    // }
     setState(() {
       _quantity = newQuantity;
       _controller.text = _quantity.toString();
@@ -53,13 +43,15 @@ class _QuantityDialogState extends State<QuantityDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final double totalPrice = _quantity * widget.product.price;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
-      elevation: 8,
+      elevation: 10,
       child: Container(
         padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: const BoxConstraints(maxWidth: 380),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -69,33 +61,34 @@ class _QuantityDialogState extends State<QuantityDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.warmCream,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.payaBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
-                    Icons.shopping_bag_outlined,
-                    color: AppTheme.deepBlue,
+                    Icons.add_shopping_cart_rounded,
+                    color: AppTheme.payaBlue,
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Ajouter au panier',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.slate500,
                         ),
                       ),
                       Text(
                         widget.product.name,
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.deepBlue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.darkerBlue,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -105,66 +98,64 @@ class _QuantityDialogState extends State<QuantityDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Stock Info
+            // Price & Stock Tag
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: widget.product.stock > 0
-                    ? AppTheme.successGreen.withOpacity(0.1)
-                    : Colors.red.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border:Border.all(color: AppTheme.payaGray)
+                color: AppTheme.slate50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.slate200),
               ),
-              child: Text(
-                'Prix Unitaire: ${widget.product.price.toStringAsFixed(0)} FCFA',
-                style: TextStyle(
-                  color: widget.product.stock > 0
-                      ? AppTheme.successGreen
-                      : AppTheme.sageGreen,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Prix unitaire',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.slate600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '${widget.product.price.toStringAsFixed(0)} FCFA',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.payaBlue,
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // Quantity Controls
+            // Modern Quantity Selector (+ / -)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildIconButton(
-                  icon: Icons.remove,
+                _buildQuantityButton(
+                  icon: Icons.remove_rounded,
                   onTap: () => _updateQuantity(_quantity - 1),
                   enabled: _quantity > 1,
                 ),
                 Container(
-                  width: 80,
+                  width: 70,
                   margin: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TextField(
-                    controller: _controller,
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '$_quantity',
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.deepBlue,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.darkerBlue,
                     ),
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    onChanged: (value) {
-                      final val = int.tryParse(value);
-                      if (val != null) {
-                        _updateQuantity(val);
-                      }
-                    },
                   ),
                 ),
-                _buildIconButton(
-                  icon: Icons.add,
+                _buildQuantityButton(
+                  icon: Icons.add_rounded,
                   onTap: () => _updateQuantity(_quantity + 1),
                   enabled: true,
                 ),
@@ -173,26 +164,31 @@ class _QuantityDialogState extends State<QuantityDialog> {
 
             const SizedBox(height: 24),
 
-            // Total Price
+            // Total Price Pill
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: AppTheme.warmCream.withOpacity(0.5),
+                color: AppTheme.payaBlue.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.payaBlue.withValues(alpha: 0.12)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Total:',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    'Sous-total :',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: AppTheme.slate700,
+                    ),
                   ),
                   Text(
-                    '${(_quantity * widget.product.price).toStringAsFixed(0)} FCFA',
+                    '${totalPrice.toStringAsFixed(0)} FCFA',
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: AppTheme.deepBlue,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      color: AppTheme.darkerBlue,
                     ),
                   ),
                 ],
@@ -205,43 +201,19 @@ class _QuantityDialogState extends State<QuantityDialog> {
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: () => Get.back(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      'Annuler',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('Annuler'),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       widget.onConfirm(_quantity);
                       Get.back();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.deepBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'Ajouter',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: const Text('Confirmer'),
                   ),
                 ),
               ],
@@ -252,26 +224,30 @@ class _QuantityDialogState extends State<QuantityDialog> {
     );
   }
 
-  Widget _buildIconButton({
+  Widget _buildQuantityButton({
     required IconData icon,
     required VoidCallback onTap,
     required bool enabled,
   }) {
     return Material(
-      color: enabled
-          ? AppTheme.deepBlue.withOpacity(0.1)
-          : Colors.grey.shade100,
-      borderRadius: BorderRadius.circular(12),
+      color: Colors.transparent,
       child: InkWell(
         onTap: enabled ? onTap : null,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
-          width: 48,
-          height: 48,
-          alignment: Alignment.center,
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: enabled ? AppTheme.payaBlue.withValues(alpha: 0.08) : AppTheme.slate100,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: enabled ? AppTheme.payaBlue.withValues(alpha: 0.2) : AppTheme.slate200,
+            ),
+          ),
           child: Icon(
             icon,
-            color: enabled ? AppTheme.deepBlue : Colors.grey.shade400,
+            color: enabled ? AppTheme.payaBlue : AppTheme.slate400,
+            size: 22,
           ),
         ),
       ),

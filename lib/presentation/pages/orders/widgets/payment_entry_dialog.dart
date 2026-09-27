@@ -24,7 +24,6 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
   @override
   void initState() {
     super.initState();
-    // Default to the full remaining balance
     _controller = TextEditingController(
       text: widget.item.balance.toStringAsFixed(0),
     );
@@ -49,7 +48,6 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
       return;
     }
 
-    // Allow a small tolerance for floating point comparisons
     if (amount > widget.item.balance + 1) {
       setState(() => _errorText = 'Le montant dépasse le reste à payer');
       return;
@@ -63,10 +61,10 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       backgroundColor: Colors.white,
-      elevation: 8,
+      elevation: 10,
       child: Container(
         padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: const BoxConstraints(maxWidth: 380),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,33 +75,34 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.warmCream,
-                    borderRadius: BorderRadius.circular(12),
+                    color: AppTheme.payaBlue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Icon(
-                    Icons.payments_outlined,
-                    color: AppTheme.deepBlue,
+                    Icons.payments_rounded,
+                    color: AppTheme.payaBlue,
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Nouveau Paiement',
+                      const Text(
+                        'Encaisser un versement',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.slate500,
                         ),
                       ),
                       Text(
                         widget.item.name,
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.deepBlue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.darkerBlue,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -113,15 +112,15 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
-            // Balance Info
+            // Balance Pill Card
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppTheme.deepBlue.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.deepBlue.withOpacity(0.1)),
+                color: AppTheme.slate50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.slate200),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,22 +128,23 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
                   const Text(
                     'Reste à payer',
                     style: TextStyle(
-                      color: AppTheme.deepBlue,
-                      fontWeight: FontWeight.w500,
+                      color: AppTheme.slate600,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
                     ),
                   ),
                   Text(
                     '${widget.item.balance.toStringAsFixed(0)} FCFA',
                     style: const TextStyle(
-                      color: AppTheme.deepBlue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      color: AppTheme.payaBlue,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Amount Input
             TextField(
@@ -153,36 +153,16 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
                 decimal: true,
               ),
               style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.deepBlue,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.darkerBlue,
               ),
               decoration: InputDecoration(
-                labelText: 'Montant à payer',
-                // prefixText: 'FCFA ',
+                labelText: 'Montant du versement',
                 suffixText: 'FCFA',
                 errorText: _errorText,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(
-                    color: AppTheme.deepBlue,
-                    width: 2,
-                  ),
-                ),
                 filled: true,
-                fillColor: Colors.white,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
-                ),
+                fillColor: AppTheme.slate50,
               ),
               onChanged: (_) {
                 if (_errorText != null) {
@@ -192,46 +172,22 @@ class _PaymentEntryDialogState extends State<PaymentEntryDialog> {
               onSubmitted: (_) => _validateAndSubmit(),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
             // Actions
             Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: () => Get.back(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      'Annuler',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('Annuler'),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _validateAndSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.deepBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: const Text(
-                      'Confirmer',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: const Text('Valider'),
                   ),
                 ),
               ],

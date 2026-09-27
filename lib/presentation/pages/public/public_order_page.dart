@@ -15,7 +15,7 @@ class PublicOrderPage extends StatelessWidget {
     final controller = Get.put(PublicOrderController());
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F9),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -24,24 +24,25 @@ class PublicOrderPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(7),
               decoration: BoxDecoration(
                 color: AppTheme.deepBlue,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(
                 Icons.storefront_rounded,
                 color: Colors.white,
-                size: 20,
+                size: 18,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             const Text(
               'Paya Commande',
               style: TextStyle(
                 color: AppTheme.deepBlue,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                fontSize: 17,
+                letterSpacing: -0.2,
               ),
             ),
           ],
@@ -54,12 +55,13 @@ class PublicOrderPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CircularProgressIndicator(
+                  strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(AppTheme.deepBlue),
                 ),
                 SizedBox(height: 16),
                 Text(
                   'Chargement du produit...',
-                  style: TextStyle(color: AppTheme.payaGray, fontSize: 14),
+                  style: TextStyle(color: AppTheme.slate500, fontSize: 13),
                 ),
               ],
             ),
@@ -82,16 +84,17 @@ class PublicOrderPage extends StatelessWidget {
   Widget _buildErrorState(PublicOrderController controller) {
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 480),
+        constraints: const BoxConstraints(maxWidth: 460),
         margin: const EdgeInsets.all(24),
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppTheme.slate200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 20,
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
@@ -102,45 +105,42 @@ class PublicOrderPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.shade50,
+                color: AppTheme.softRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.error_outline_rounded,
-                size: 48,
-                color: Colors.red.shade600,
+                size: 44,
+                color: AppTheme.softRed,
               ),
             ),
             const SizedBox(height: 20),
             const Text(
-              'Oups ! Impossible d\'accéder à la commande',
+              'Commande indisponible',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.deepBlue,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.slate900,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Text(
               controller.errorMessage.value ?? '',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 14, color: AppTheme.payaGray),
+              style: const TextStyle(fontSize: 13, color: AppTheme.slate500),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => controller.loadData(),
-              icon: const Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh_rounded, size: 18),
               label: const Text('Réessayer'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.deepBlue,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
             ),
@@ -171,15 +171,16 @@ class PublicOrderPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Fiche Produit
+              // Product Hero Card
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppTheme.slate200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 15,
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -187,11 +188,9 @@ class PublicOrderPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Image Hero
+                    // Product image
                     ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
-                      ),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(21)),
                       child: AspectRatio(
                         aspectRatio: 16 / 10,
                         child: ProductImage(
@@ -200,26 +199,21 @@ class PublicOrderPage extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Badges (Vendeur & Vague)
+                          // Badges (Vendor & Wave)
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              if (vendor != null &&
-                                  vendor.businessName.isNotEmpty)
+                              if (vendor != null && vendor.businessName.isNotEmpty)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.deepBlue.withOpacity(0.08),
+                                    color: AppTheme.deepBlue.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
@@ -227,7 +221,7 @@ class PublicOrderPage extends StatelessWidget {
                                     children: [
                                       const Icon(
                                         Icons.verified_user_rounded,
-                                        size: 14,
+                                        size: 13,
                                         color: AppTheme.deepBlue,
                                       ),
                                       const SizedBox(width: 4),
@@ -235,7 +229,7 @@ class PublicOrderPage extends StatelessWidget {
                                         vendor.businessName,
                                         style: const TextStyle(
                                           fontSize: 12,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                           color: AppTheme.deepBlue,
                                         ),
                                       ),
@@ -244,31 +238,26 @@ class PublicOrderPage extends StatelessWidget {
                                 ),
                               if (wave != null)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.payaOrange.withValues(
-                                      alpha: 0.15,
-                                    ),
+                                    color: AppTheme.payaOrange.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(
-                                        Icons.waves,
-                                        size: 14,
+                                        Icons.waves_rounded,
+                                        size: 13,
                                         color: AppTheme.payaOrange,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Vague: ${wave.name}',
+                                        'Vague : ${wave.name}',
                                         style: const TextStyle(
                                           fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xFF8C6D00),
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFFC67C00),
                                         ),
                                       ),
                                     ],
@@ -278,19 +267,19 @@ class PublicOrderPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
 
-                          // Nom du produit
+                          // Product Name
                           Text(
                             product.name,
                             style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.deepBlue,
-                              height: 1.2,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.slate900,
+                              height: 1.25,
                             ),
                           ),
                           const SizedBox(height: 8),
 
-                          // Prix unitaire
+                          // Unit Price
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
@@ -298,7 +287,7 @@ class PublicOrderPage extends StatelessWidget {
                               Text(
                                 currencyFormatter.format(controller.unitPrice),
                                 style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.deepBlue,
                                 ),
@@ -307,8 +296,9 @@ class PublicOrderPage extends StatelessWidget {
                               const Text(
                                 '/ unité',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppTheme.payaGray,
+                                  fontSize: 13,
+                                  color: AppTheme.slate500,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -320,18 +310,19 @@ class PublicOrderPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
-              // 2. Sélecteur de Quantité & Formulaire
+              // Quantity & Order Form
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppTheme.slate200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 15,
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
                   ],
@@ -342,59 +333,57 @@ class PublicOrderPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        '1. Choisissez la quantité',
+                        '1. Quantité souhaitée',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.deepBlue,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.slate900,
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
-                      // Boutons Quantité
+                      // Quantity Stepper
                       Row(
                         children: [
                           _buildQtyButton(
-                            icon: Icons.remove,
+                            icon: Icons.remove_rounded,
                             onTap: controller.decrementQuantity,
                           ),
                           Container(
-                            width: 60,
+                            width: 54,
                             alignment: Alignment.center,
                             child: Obx(
                               () => Text(
                                 '${controller.quantity.value}',
                                 style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
                                   color: AppTheme.deepBlue,
                                 ),
                               ),
                             ),
                           ),
                           _buildQtyButton(
-                            icon: Icons.add,
+                            icon: Icons.add_rounded,
                             onTap: controller.incrementQuantity,
                           ),
                           const Spacer(),
-                          // Sous-total
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               const Text(
                                 'Total à régler',
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.payaGray,
+                                  fontSize: 11,
+                                  color: AppTheme.slate500,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                               Obx(
                                 () => Text(
-                                  currencyFormatter.format(
-                                    controller.totalAmount,
-                                  ),
+                                  currencyFormatter.format(controller.totalAmount),
                                   style: const TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w900,
                                     color: AppTheme.payaOrange,
                                   ),
@@ -406,47 +395,28 @@ class PublicOrderPage extends StatelessWidget {
                       ),
 
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: Divider(),
+                        padding: EdgeInsets.symmetric(vertical: 18),
+                        child: Divider(height: 1, color: AppTheme.slate200),
                       ),
 
                       const Text(
                         '2. Vos coordonnées',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.deepBlue,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.slate900,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Champ Nom
+                      // Full Name
                       TextFormField(
                         controller: controller.nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Nom et Prénom(s) *',
-                          hintText: 'Ex: Jean Dupont',
-                          prefixIcon: const Icon(
-                            Icons.person_outline,
-                            color: AppTheme.deepBlue,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF9FAFB),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppTheme.deepBlue,
-                              width: 2,
-                            ),
-                          ),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        decoration: _inputDecoration(
+                          label: 'Nom et Prénom(s) *',
+                          hint: 'Ex: Jean Dupont',
+                          icon: Icons.person_outline_rounded,
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -456,36 +426,17 @@ class PublicOrderPage extends StatelessWidget {
                         },
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Champ Téléphone
+                      // Phone (WhatsApp)
                       TextFormField(
                         controller: controller.phoneController,
                         keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Numéro de téléphone WhatsApp *',
-                          hintText: 'Ex: 90 00 00 00',
-                          prefixIcon: const Icon(
-                            Icons.phone_outlined,
-                            color: AppTheme.deepBlue,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF9FAFB),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppTheme.deepBlue,
-                              width: 2,
-                            ),
-                          ),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        decoration: _inputDecoration(
+                          label: 'Numéro WhatsApp *',
+                          hint: 'Ex: 70 00 00 00',
+                          icon: Icons.phone_outlined,
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -498,46 +449,27 @@ class PublicOrderPage extends StatelessWidget {
                         },
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Champ Note / Préférences
+                      // Notes / Preferences
                       TextFormField(
                         controller: controller.noteController,
                         maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Note ou préférences (optionnel)',
-                          hintText: 'Ex: Couleur bleue, taille M, lieu de livraison...',
-                          prefixIcon: const Icon(
-                            Icons.edit_note_outlined,
-                            color: AppTheme.deepBlue,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF9FAFB),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(
-                              color: AppTheme.deepBlue,
-                              width: 2,
-                            ),
-                          ),
+                        style: const TextStyle(fontSize: 14),
+                        decoration: _inputDecoration(
+                          label: 'Note ou préférences (Optionnel)',
+                          hint: 'Ex: Couleur, taille, lieu de livraison...',
+                          icon: Icons.edit_note_rounded,
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 22),
 
-                      // Bouton de validation
+                      // Submit CTA
                       Obx(
                         () => SizedBox(
                           width: double.infinity,
-                          height: 54,
+                          height: 52,
                           child: ElevatedButton(
                             onPressed: controller.isSubmitting.value
                                 ? null
@@ -545,36 +477,30 @@ class PublicOrderPage extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.deepBlue,
                               foregroundColor: Colors.white,
-                              elevation: 2,
+                              elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
                             child: controller.isSubmitting.value
                                 ? const SizedBox(
-                                    width: 24,
-                                    height: 24,
+                                    width: 22,
+                                    height: 22,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(
-                                            Colors.white,
-                                          ),
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                     ),
                                   )
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(
-                                        Icons.check_circle_outline,
-                                        size: 22,
-                                      ),
-                                      const SizedBox(width: 10),
+                                      const Icon(Icons.check_circle_rounded, size: 20),
+                                      const SizedBox(width: 8),
                                       Text(
                                         'Valider ma commande • ${currencyFormatter.format(controller.totalAmount)}',
                                         style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ],
@@ -583,23 +509,22 @@ class PublicOrderPage extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
-                      // Note rassurante pour le client
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
+                        children: const [
                           Icon(
                             Icons.handshake_outlined,
-                            size: 16,
-                            color: Colors.grey.shade600,
+                            size: 15,
+                            color: AppTheme.slate500,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Text(
-                            'Paiement direct avec le vendeur à la livraison',
+                            'Paiement direct avec le commerçant à la livraison',
                             style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
+                              fontSize: 11,
+                              color: AppTheme.slate500,
                             ),
                           ),
                         ],
@@ -621,16 +546,16 @@ class PublicOrderPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: const Color(0xFFF0F4F8),
+      color: AppTheme.slate100,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          width: 44,
-          height: 44,
+          width: 40,
+          height: 40,
           alignment: Alignment.center,
-          child: Icon(icon, color: AppTheme.deepBlue, size: 20),
+          child: Icon(icon, color: AppTheme.deepBlue, size: 18),
         ),
       ),
     );
@@ -657,10 +582,11 @@ class PublicOrderPage extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: AppTheme.slate200),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 20,
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 18,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -668,46 +594,45 @@ class PublicOrderPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icone Succès
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AppTheme.successGreen.withOpacity(0.12),
+                  color: AppTheme.payaGreen.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.check_circle_rounded,
-                  size: 64,
-                  color: AppTheme.successGreen,
+                  size: 54,
+                  color: AppTheme.payaGreen,
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
               const Text(
                 'Commande Enregistrée ! 🎉',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.deepBlue,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.slate900,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
 
               Text(
-                'Merci ${controller.nameController.text.trim()}, votre commande a été transmise au vendeur.',
+                'Merci ${controller.nameController.text.trim()}, votre commande a été transmise au commerçant.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: AppTheme.payaGray),
+                style: const TextStyle(fontSize: 13, color: AppTheme.slate500),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              // Récapitulatif
+              // Summary
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
+                  color: AppTheme.slate50,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: AppTheme.slate200),
                 ),
                 child: Column(
                   children: [
@@ -728,23 +653,23 @@ class PublicOrderPage extends StatelessWidget {
                     if (order != null) ...[
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Divider(),
+                        child: Divider(height: 1, color: AppTheme.slate200),
                       ),
                       _buildSummaryRow(
                         'N° Commande',
                         '#${order.id.substring(order.id.length > 6 ? order.id.length - 6 : 0)}',
-                        valueColor: AppTheme.payaGray,
+                        valueColor: AppTheme.slate500,
                       ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              // Bouton Notifier sur WhatsApp
+              // Notify via WhatsApp CTA
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 50,
                 child: ElevatedButton.icon(
                   onPressed: () async {
                     final url = controller.whatsappUrl;
@@ -756,39 +681,38 @@ class PublicOrderPage extends StatelessWidget {
                           mode: LaunchMode.externalApplication,
                         );
                       } else {
-                        // Fallback : copier dans le presse-papier
                         await Clipboard.setData(
                           ClipboardData(
-                            text: controller
-                                .buildWhatsAppConfirmationMessage(),
+                            text: controller.buildWhatsAppConfirmationMessage(),
                           ),
                         );
                         Get.snackbar(
                           'Copié !',
                           'Message copié dans le presse-papier',
-                          backgroundColor: AppTheme.successGreen,
+                          backgroundColor: AppTheme.payaGreen,
                           colorText: Colors.white,
                         );
                       }
                     }
                   },
-                  icon: const Icon(Icons.chat_bubble_outline, size: 20),
+                  icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
                   label: const Text(
                     'Confirmer au vendeur sur WhatsApp',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.successGreen,
+                    backgroundColor: AppTheme.payaGreen,
                     foregroundColor: Colors.white,
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
-              // Bouton Copier le récapitulatif
+              // Copy summary CTA
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -805,14 +729,14 @@ class PublicOrderPage extends StatelessWidget {
                       colorText: Colors.white,
                     );
                   },
-                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  icon: const Icon(Icons.copy_rounded, size: 16),
                   label: const Text('Copier le récapitulatif'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.deepBlue,
                     side: const BorderSide(color: AppTheme.deepBlue),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
@@ -835,20 +759,49 @@ class PublicOrderPage extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 14, color: AppTheme.payaGray),
+          style: const TextStyle(fontSize: 13, color: AppTheme.slate500),
         ),
         Flexible(
           child: Text(
             value,
             textAlign: TextAlign.end,
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: valueColor ?? AppTheme.deepBlue,
+              fontSize: 13,
+              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              color: valueColor ?? AppTheme.slate900,
             ),
           ),
         ),
       ],
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String label,
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontSize: 13, color: AppTheme.slate600),
+      hintText: hint,
+      hintStyle: const TextStyle(fontSize: 13, color: AppTheme.slate400),
+      prefixIcon: Icon(icon, color: AppTheme.deepBlue, size: 20),
+      filled: true,
+      fillColor: AppTheme.slate50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppTheme.slate200),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppTheme.slate200),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppTheme.deepBlue, width: 1.8),
+      ),
     );
   }
 }

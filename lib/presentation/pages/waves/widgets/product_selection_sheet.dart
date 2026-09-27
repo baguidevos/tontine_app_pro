@@ -38,7 +38,6 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
 
-    // Initialize controllers if not already registered
     if (!Get.isRegistered<ProductController>()) {
       Get.put(ProductController());
     }
@@ -50,7 +49,6 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
     _waveController = Get.find<WaveController>();
     _selectedIds.addAll(widget.initialProductIds);
 
-    // Charger tous les produits du vendeur (non filtrés par une vague)
     _loadVendorProducts();
   }
 
@@ -80,7 +78,7 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
   }
 
   List<ProductModel> get _filteredProducts {
-    final query = _searchQuery.value.toLowerCase();
+    final query = _searchQuery.value.toLowerCase().trim();
     if (query.isEmpty) {
       return _vendorProducts;
     }
@@ -93,86 +91,139 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
   Widget build(BuildContext context) {
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85,
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2),
+          // Drag handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.slate300,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
 
           // Header
           Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+            child: Row(
               children: [
-                const Text(
-                  'Sélectionner des produits',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.deepBlue,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Sélectionner des produits',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.slate900,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Associez des produits du catalogue à cette vague',
+                        style: TextStyle(fontSize: 12, color: AppTheme.slate500),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Choisissez les produits à lier à cette vague',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                  textAlign: TextAlign.center,
-                ),
+                Obx(() => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.deepBlue.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${_selectedIds.length} sélectionné(s)',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.deepBlue,
+                    ),
+                  ),
+                )),
               ],
             ),
           ),
 
           // Search bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: TextField(
               onChanged: (value) => _searchQuery.value = value,
               decoration: InputDecoration(
                 hintText: 'Rechercher un produit...',
-                prefixIcon: const Icon(Icons.search, color: AppTheme.deepBlue),
+                hintStyle: const TextStyle(fontSize: 13, color: AppTheme.slate400),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.slate400, size: 20),
+                suffixIcon: Obx(() => _searchQuery.value.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18, color: AppTheme.slate400),
+                        onPressed: () => _searchQuery.value = '',
+                      )
+                    : const SizedBox.shrink()),
                 filled: true,
-                fillColor: AppTheme.warmCream.withOpacity(0.5),
+                fillColor: AppTheme.slate50,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppTheme.slate200),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppTheme.slate200),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppTheme.deepBlue, width: 1.5),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+                  horizontal: 14,
+                  vertical: 12,
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
 
           // Tabs
-          TabBar(
-            controller: _tabController,
-            labelColor: AppTheme.deepBlue,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: AppTheme.deepBlue,
-            indicatorWeight: 3,
-            labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            tabs: const [
-              Tab(text: 'Produits existants'),
-              Tab(text: 'Nouveau produit'),
-            ],
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: AppTheme.slate100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              labelColor: Colors.white,
+              unselectedLabelColor: AppTheme.slate600,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicator: BoxDecoration(
+                color: AppTheme.deepBlue,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+              dividerColor: Colors.transparent,
+              padding: const EdgeInsets.all(3),
+              tabs: const [
+                Tab(text: 'Produits existants'),
+                Tab(text: 'Nouveau produit'),
+              ],
+            ),
           ),
+
+          const SizedBox(height: 10),
 
           // Content
           Expanded(
@@ -182,72 +233,63 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
             ),
           ),
 
-          // Action button
+          const Divider(height: 1, color: AppTheme.slate200),
+
+          // Footer actions
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Expanded(
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTheme.slate700,
+                      side: const BorderSide(color: AppTheme.slate300),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: Text(
-                      'Annuler',
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text('Fermer', style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   flex: 2,
                   child: Obx(() {
-                    final hasSelection = _selectedIds.isNotEmpty;
                     return ElevatedButton(
-                      onPressed: hasSelection
-                          ? () async {
-                              _waveController.setSelectedProducts(
-                                _selectedIds.toList(),
-                              );
+                      onPressed: () async {
+                        _waveController.setSelectedProducts(
+                          _selectedIds.toList(),
+                        );
 
-                              // If waveId is provided, persist the products to Firestore and sync product.waveId
-                              if (widget.waveId != null) {
-                                await _waveController.setWaveProducts(
-                                  widget.waveId!,
-                                  _selectedIds.toList(),
-                                  previousProductIds: widget.initialProductIds,
-                                );
-                              }
+                        if (widget.waveId != null) {
+                          await _waveController.setWaveProducts(
+                            widget.waveId!,
+                            _selectedIds.toList(),
+                            previousProductIds: widget.initialProductIds,
+                          );
+                        }
 
-                              // Close the bottom sheet
-                              Navigator.of(context).pop();
+                        Get.back();
 
-                              // Notify parent to reload products
-                              if (widget.onProductsUpdated != null) {
-                                widget.onProductsUpdated!();
-                              }
-                            }
-                          : null,
+                        if (widget.onProductsUpdated != null) {
+                          widget.onProductsUpdated!();
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.deepBlue,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        disabledBackgroundColor: Colors.grey.shade300,
                       ),
                       child: Text(
-                        'Valider (${_selectedIds.length})',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        'Enregistrer (${_selectedIds.length})',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     );
                   }),
@@ -268,12 +310,13 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(
+                strokeWidth: 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(AppTheme.deepBlue),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 12),
               Text(
                 'Chargement des produits...',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 13, color: AppTheme.slate500),
               ),
             ],
           ),
@@ -284,30 +327,41 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
 
       if (products.isEmpty) {
         return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.inventory_2_outlined,
-                size: 64,
-                color: Colors.grey.shade400,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                _searchQuery.value.isEmpty
-                    ? 'Aucun produit'
-                    : 'Aucun produit trouvé',
-                style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-              ),
-              if (_searchQuery.value.isEmpty) ...[
-                const SizedBox(height: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.slate100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.inventory_2_outlined,
+                    size: 40,
+                    color: AppTheme.slate400,
+                  ),
+                ),
+                const SizedBox(height: 14),
                 Text(
-                  'Créez votre premier produit dans l\'onglet "Nouveau produit"',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                  _searchQuery.value.isEmpty
+                      ? 'Aucun produit dans votre catalogue'
+                      : 'Aucun produit ne correspond à votre recherche',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.slate700),
                   textAlign: TextAlign.center,
                 ),
+                if (_searchQuery.value.isEmpty) ...[
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Vous pouvez créer votre premier produit dans l\'onglet "Nouveau produit"',
+                    style: TextStyle(fontSize: 12, color: AppTheme.slate500),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         );
       }
@@ -339,38 +393,46 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
 
   Widget _buildNewProductTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.warmCream,
-              borderRadius: BorderRadius.circular(16),
+              color: AppTheme.slate50,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.slate200),
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.add_circle_outline,
-                  size: 64,
-                  color: AppTheme.deepBlue.withOpacity(0.5),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.deepBlue.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add_shopping_cart_rounded,
+                    size: 36,
+                    color: AppTheme.deepBlue,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 const Text(
                   'Créer un nouveau produit',
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.deepBlue,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.slate900,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Ajoutez un produit qui sera automatiquement lié à cette vague',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                const SizedBox(height: 6),
+                const Text(
+                  'Le produit sera ajouté à votre catalogue et automatiquement associé à cette vague.',
+                  style: TextStyle(fontSize: 12, color: AppTheme.slate500),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 ElevatedButton.icon(
                   onPressed: () async {
                     Navigator.of(context).pop();
@@ -385,17 +447,18 @@ class _ProductSelectionSheetState extends State<ProductSelectionSheet>
                       widget.onProductsUpdated!();
                     }
                   },
-                  icon: const Icon(Icons.add),
-                  label: const Text('Créer un produit'),
+                  icon: const Icon(Icons.add_rounded, size: 20),
+                  label: const Text('Remplir la fiche produit'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.deepBlue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 16,
+                      horizontal: 24,
+                      vertical: 14,
                     ),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),
@@ -421,95 +484,95 @@ class _ProductItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onToggleSelect,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.deepBlue.withOpacity(0.05)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppTheme.deepBlue : Colors.grey.shade300,
-            width: isSelected ? 2 : 1,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onToggleSelect,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppTheme.deepBlue.withValues(alpha: 0.04)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? AppTheme.deepBlue : AppTheme.slate200,
+              width: isSelected ? 1.5 : 1,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            ProductImage(
-              product: product,
-              width: 48,
-              height: 48,
-              borderRadius: BorderRadius.circular(12),
-              fit: BoxFit.cover,
-              errorWidget: Container(
-                width: 48,
-                height: 48,
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: ProductImage(
+                  product: product,
+                  width: 46,
+                  height: 46,
+                  fit: BoxFit.cover,
+                  errorWidget: Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: AppTheme.slate100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.shopping_bag_outlined,
+                      color: AppTheme.deepBlue,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: isSelected ? AppTheme.deepBlue : AppTheme.slate900,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${product.price.toStringAsFixed(0)} FCFA • Stock: ${product.stock}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppTheme.slate500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
-                  color: AppTheme.warmCream,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.shopping_bag_outlined,
-                  color: AppTheme.deepBlue,
-                  size: 24,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                  shape: BoxShape.circle,
+                  color: isSelected ? AppTheme.deepBlue : Colors.transparent,
+                  border: Border.all(
+                    color: isSelected ? AppTheme.deepBlue : AppTheme.slate300,
+                    width: 1.5,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${product.price.toStringAsFixed(0)} FCFA • ${product.stock} en stock',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: isSelected
-                  ? Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: AppTheme.deepBlue,
-                        border: Border.all(color: AppTheme.deepBlue, width: 2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Icon(
+                ),
+                child: isSelected
+                    ? const Icon(
                         Icons.check,
+                        size: 16,
                         color: Colors.white,
-                        size: 18,
-                      ),
-                    )
-                  : Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(
-                          color: Colors.grey.shade400,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-            ),
-          ],
+                      )
+                    : null,
+              ),
+            ],
+          ),
         ),
       ),
     );

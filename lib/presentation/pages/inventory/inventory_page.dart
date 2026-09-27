@@ -14,10 +14,18 @@ class InventoryPage extends StatelessWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: AppTheme.warmCream,
+        backgroundColor: AppTheme.payaCream,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.menu),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.slate200, width: 1),
+              ),
+              child: const Icon(Icons.menu_rounded, size: 20, color: AppTheme.payaBlue),
+            ),
             onPressed: () {
               MainLayout.scaffoldKey.currentState?.openDrawer();
             },
@@ -25,39 +33,30 @@ class InventoryPage extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title: const Text(
-            'Inventaire',
+            'Gestion & Inventaire',
             style: TextStyle(
-              color: AppTheme.deepBlue,
-              fontWeight: FontWeight.bold,
+              color: AppTheme.darkerBlue,
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: AppTheme.deepBlue),
-              onPressed: () {
-                // TODO: Implement search
-              },
-              tooltip: 'Rechercher',
-            ),
-            IconButton(
-              icon: const Icon(Icons.filter_list, color: AppTheme.deepBlue),
-              onPressed: () {
-                // TODO: Implement filters
-              },
-              tooltip: 'Filtres',
-            ),
-          ],
           bottom: _buildCustomTabBar(),
         ),
         body: Column(
           children: [
-            // Quick Actions
+            const SizedBox(height: 12),
             _buildQuickActionsSection(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
 
             // Tab Bar View
-            Expanded(
-              child: TabBarView(children: [WavesPage(), ProductsPage()]),
+            const Expanded(
+              child: TabBarView(
+                physics: BouncingScrollPhysics(),
+                children: [
+                  WavesPage(),
+                  ProductsPage(),
+                ],
+              ),
             ),
           ],
         ),
@@ -67,60 +66,58 @@ class InventoryPage extends StatelessWidget {
 
   PreferredSizeWidget _buildCustomTabBar() {
     return PreferredSize(
-      preferredSize: const Size.fromHeight(60),
+      preferredSize: const Size.fromHeight(56),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.slate200, width: 1),
+        ),
         child: TabBar(
           labelColor: Colors.white,
-          unselectedLabelColor: AppTheme.deepBlue,
-          indicatorColor: Colors.transparent,
-          indicator: BoxDecoration(
-            color: AppTheme.deepBlue,
-            borderRadius: BorderRadius.circular(20),
-          ),
+          unselectedLabelColor: AppTheme.slate600,
           indicatorSize: TabBarIndicatorSize.tab,
           dividerColor: Colors.transparent,
-          labelStyle: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+          indicator: BoxDecoration(
+            color: AppTheme.payaBlue,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.payaBlue.withValues(alpha: 0.25),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          tabs: [
+          labelStyle: const TextStyle(
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+          ),
+          unselectedLabelStyle: const TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+          ),
+          tabs: const [
             Tab(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.waves, size: 16),
-                    SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        'Vagues',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.waves_rounded, size: 16),
+                  SizedBox(width: 8),
+                  Text('Vagues'),
+                ],
               ),
             ),
             Tab(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.inventory_2, size: 16),
-                    SizedBox(width: 4),
-                    Flexible(
-                      child: Text(
-                        'Produits',
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  ],
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inventory_2_rounded, size: 16),
+                  SizedBox(width: 8),
+                  Text('Produits'),
+                ],
               ),
             ),
           ],
@@ -130,51 +127,28 @@ class InventoryPage extends StatelessWidget {
   }
 
   Widget _buildQuickActionsSection() {
-    return Padding(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Text(
-            'Actions Rapides',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppTheme.deepBlue,
-            ),
+          _buildQuickActionChip(
+            icon: Icons.add_circle_outline_rounded,
+            label: 'Nouvelle Vague',
+            onTap: () => Get.dialog(const CreateWaveDialog()),
           ),
-          const SizedBox(height: 12),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildQuickActionChip(
-                  icon: Icons.add_circle_outline,
-                  label: 'Nouvelle Vague',
-                  onTap: () => Get.dialog(const CreateWaveDialog()),
-                ),
-                const SizedBox(width: 12),
-                _buildQuickActionChip(
-                  icon: Icons.shopping_cart_outlined,
-                  label: 'Nouvelle Commande',
-                  onTap: () => Get.toNamed('/orders/create'),
-                ),
-                const SizedBox(width: 12),
-                _buildQuickActionChip(
-                  icon: Icons.person_add_outlined,
-                  label: 'Nouveau Client',
-                  onTap: () => Get.toNamed('/customers/create'),
-                ),
-                const SizedBox(width: 12),
-                _buildQuickActionChip(
-                  icon: Icons.analytics_outlined,
-                  label: 'Statistiques',
-                  onTap: () {
-                    // TODO: Navigate to stats
-                  },
-                ),
-              ],
-            ),
+          const SizedBox(width: 8),
+          _buildQuickActionChip(
+            icon: Icons.add_box_outlined,
+            label: 'Nouveau Produit',
+            onTap: () => Get.toNamed('/products/create'),
+          ),
+          const SizedBox(width: 8),
+          _buildQuickActionChip(
+            icon: Icons.person_add_alt_1_rounded,
+            label: 'Nouveau Client',
+            onTap: () => Get.toNamed('/customers/create'),
           ),
         ],
       ),
@@ -186,44 +160,33 @@ class InventoryPage extends StatelessWidget {
     required String label,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppTheme.deepBlue.withOpacity(0.1)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppTheme.deepBlue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppTheme.slate200, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: AppTheme.payaBlue),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.slate700,
+                ),
               ),
-              child: Icon(icon, size: 20, color: AppTheme.deepBlue),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.deepBlue,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

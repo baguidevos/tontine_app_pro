@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 class NotificationService extends GetxService {
@@ -8,7 +9,7 @@ class NotificationService extends GetxService {
     String planType,
   ) async {
     // Eventually implement FCM or Email API here
-    print(
+    debugPrint(
       'NOTIFICATION: New subscription request from Vendor $vendorId for plan $planType',
     );
   }

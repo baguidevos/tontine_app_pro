@@ -11,100 +11,106 @@ class LoginPage extends StatelessWidget {
     final authController = Get.put(AuthController());
 
     return Scaffold(
-      backgroundColor: AppTheme.warmCream,
+      backgroundColor: AppTheme.payaCream,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32.0),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo/Title Section
+                // Logo & Header Section
                 Container(
-                  width: 90,
-                  height: 90,
+                  width: 84,
+                  height: 84,
                   decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppTheme.slate200, width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.deepBlue.withOpacity(0.12),
-                        blurRadius: 16,
+                        color: AppTheme.payaBlue.withValues(alpha: 0.1),
+                        blurRadius: 18,
                         offset: const Offset(0, 6),
                       ),
                     ],
                   ),
+                  padding: const EdgeInsets.all(12),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(14),
                     child: Image.asset(
                       'assets/logo.png',
-                      width: 90,
-                      height: 90,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.store_rounded,
-                        size: 80,
-                        color: AppTheme.deepBlue,
+                        size: 42,
+                        color: AppTheme.payaBlue,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
                 const Text(
                   'PAYA',
                   style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.deepBlue,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.darkerBlue,
                     letterSpacing: 1.5,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 const Text(
-                  'Gérez vos ventes et commandes en toute simplicité',
-                  style: TextStyle(fontSize: 15, color: AppTheme.darkerBlue),
+                  'Gérez vos ventes et vos tontines en toute sérénité',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.slate500,
+                    fontWeight: FontWeight.w500,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
 
-                // Login Form
+                // Modern Login Form Card
                 Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(24),
+                  decoration: AppTheme.modernCardDecoration(
+                    borderRadius: 24,
+                    hasShadow: true,
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Connexion',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.darkerBlue,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Accédez à votre espace marchand',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.slate500,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
 
                       // Email Field
                       TextField(
                         onChanged: (value) =>
                             authController.loginEmail.value = value,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
-                        ),
                         keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Adresse email',
+                          hintText: 'ex: vendeur@paya.com',
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -112,16 +118,13 @@ class LoginPage extends StatelessWidget {
                       TextField(
                         onChanged: (value) =>
                             authController.loginPassword.value = value,
+                        obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Mot de passe',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
+                          hintText: '••••••••',
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
                         ),
-                        obscureText: true,
                       ),
                       const SizedBox(height: 24),
 
@@ -129,28 +132,34 @@ class LoginPage extends StatelessWidget {
                       Obx(
                         () => SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: 52,
                           child: ElevatedButton(
                             onPressed: authController.isLoading.value
                                 ? null
                                 : () => authController.login(),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.deepBlue,
+                              backgroundColor: AppTheme.payaBlue,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              elevation: 0,
+                              elevation: 2,
+                              shadowColor: AppTheme.payaBlue.withValues(alpha: 0.35),
                             ),
                             child: authController.isLoading.value
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
                                   )
                                 : const Text(
                                     'Se connecter',
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                           ),
@@ -168,15 +177,22 @@ class LoginPage extends StatelessWidget {
                   children: [
                     const Text(
                       'Pas encore de compte ?',
-                      style: TextStyle(color: AppTheme.darkerBlue),
+                      style: TextStyle(
+                        color: AppTheme.slate600,
+                        fontSize: 14,
+                      ),
                     ),
                     TextButton(
                       onPressed: () => Get.toNamed('/register'),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
                       child: const Text(
-                        'S\'inscrire',
+                        'Créer un compte',
                         style: TextStyle(
-                          color: AppTheme.deepBlue,
-                          fontWeight: FontWeight.bold,
+                          color: AppTheme.payaBlue,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
                         ),
                       ),
                     ),

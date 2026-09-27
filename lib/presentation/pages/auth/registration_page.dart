@@ -11,19 +11,28 @@ class RegistrationPage extends StatelessWidget {
     final authController = Get.find<AuthController>();
 
     return Scaffold(
-      backgroundColor: AppTheme.warmCream,
+      backgroundColor: AppTheme.payaCream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.deepBlue),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.slate200, width: 1),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, size: 20, color: AppTheme.payaBlue),
+          ),
           onPressed: () => Get.back(),
         ),
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(32.0),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -31,31 +40,29 @@ class RegistrationPage extends StatelessWidget {
                 const Text(
                   'Créer un compte',
                   style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.deepBlue,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.darkerBlue,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 const Text(
-                  'Commencez à gérer vos tontines',
-                  style: TextStyle(fontSize: 16, color: AppTheme.darkerBlue),
+                  'Rejoignez Paya et commencez à gérer vos tontines',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppTheme.slate500,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
 
-                // Registration Form
+                // Registration Form Card
                 Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
+                  padding: const EdgeInsets.all(24),
+                  decoration: AppTheme.modernCardDecoration(
+                    borderRadius: 24,
+                    hasShadow: true,
                   ),
                   child: Column(
                     children: [
@@ -64,13 +71,10 @@ class RegistrationPage extends StatelessWidget {
                         onChanged: (value) =>
                             authController.registerBusinessName.value = value,
                         decoration: InputDecoration(
-                          labelText: 'Nom de l\'entreprise',
-                          prefixIcon: const Icon(Icons.business_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
+                          labelText: 'Nom de la boutique / entreprise',
+                          hintText: 'ex: Tontine Confort Pro',
+                          prefixIcon: const Icon(Icons.storefront_rounded, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -79,16 +83,13 @@ class RegistrationPage extends StatelessWidget {
                       TextField(
                         onChanged: (value) =>
                             authController.registerPhone.value = value,
-                        decoration: InputDecoration(
-                          labelText: 'Téléphone',
-                          prefixIcon: const Icon(Icons.phone_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
-                        ),
                         keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: 'Numéro de téléphone',
+                          hintText: 'ex: +225 0700000000',
+                          prefixIcon: const Icon(Icons.phone_rounded, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -96,16 +97,13 @@ class RegistrationPage extends StatelessWidget {
                       TextField(
                         onChanged: (value) =>
                             authController.registerEmail.value = value,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
-                        ),
                         keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: 'Adresse email',
+                          hintText: 'ex: contact@maboutique.com',
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
+                        ),
                       ),
                       const SizedBox(height: 16),
 
@@ -113,16 +111,13 @@ class RegistrationPage extends StatelessWidget {
                       TextField(
                         onChanged: (value) =>
                             authController.registerPassword.value = value,
-                        decoration: InputDecoration(
-                          labelText: 'Mot de passe',
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          filled: true,
-                          fillColor: AppTheme.warmCream.withOpacity(0.3),
-                        ),
                         obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Mot de passe sécurisé',
+                          hintText: '••••••••',
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppTheme.payaBlue, size: 20),
+                          fillColor: AppTheme.slate50,
+                        ),
                       ),
                       const SizedBox(height: 24),
 
@@ -130,28 +125,34 @@ class RegistrationPage extends StatelessWidget {
                       Obx(
                         () => SizedBox(
                           width: double.infinity,
-                          height: 56,
+                          height: 52,
                           child: ElevatedButton(
                             onPressed: authController.isLoading.value
                                 ? null
                                 : () => authController.register(),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.deepBlue,
+                              backgroundColor: AppTheme.payaBlue,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              elevation: 0,
+                              elevation: 2,
+                              shadowColor: AppTheme.payaBlue.withValues(alpha: 0.35),
                             ),
                             child: authController.isLoading.value
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
+                                ? const SizedBox(
+                                    width: 22,
+                                    height: 22,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
                                   )
                                 : const Text(
                                     'S\'inscrire',
                                     style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                           ),
@@ -168,16 +169,23 @@ class RegistrationPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      'Déjà un compte ?',
-                      style: TextStyle(color: AppTheme.darkerBlue),
+                      'Déjà inscrit ?',
+                      style: TextStyle(
+                        color: AppTheme.slate600,
+                        fontSize: 14,
+                      ),
                     ),
                     TextButton(
                       onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
                       child: const Text(
                         'Se connecter',
                         style: TextStyle(
-                          color: AppTheme.deepBlue,
-                          fontWeight: FontWeight.bold,
+                          color: AppTheme.payaBlue,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
                         ),
                       ),
                     ),

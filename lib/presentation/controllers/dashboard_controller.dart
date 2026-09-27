@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'order_controller.dart';
 import 'wave_controller.dart';
@@ -68,7 +69,7 @@ class DashboardController extends GetxController {
     sortedOrders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     recentOrders.value = sortedOrders.take(5).toList();
 
-    print(
+    debugPrint(
       'DEBUG: Dashboard stats updated - Revenue: $revenue, Debt: $debt, Waves: ${activeWavesCount.value}, Recent: ${recentOrders.length}',
     );
   }

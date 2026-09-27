@@ -206,100 +206,124 @@ class _CreateProductPageState extends State<CreateProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = _editingProduct != null;
     return Scaffold(
-      backgroundColor: AppTheme.warmCream,
+      backgroundColor: AppTheme.payaCream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.deepBlue),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.slate200, width: 1),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, size: 20, color: AppTheme.payaBlue),
+          ),
           onPressed: () => Get.back(),
         ),
         title: Text(
-          _editingProduct != null ? 'Modifier le Produit' : 'Nouveau Produit',
+          isEditing ? 'Modifier le Produit' : 'Nouveau Produit',
           style: const TextStyle(
-            color: AppTheme.deepBlue,
-            fontWeight: FontWeight.bold,
+            color: AppTheme.darkerBlue,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
           ),
         ),
         actions: [
-          if (_editingProduct != null)
+          if (isEditing)
             IconButton(
-              icon: const Icon(Icons.share_rounded, color: AppTheme.deepBlue),
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.slate200, width: 1),
+                ),
+                child: const Icon(Icons.share_rounded, size: 20, color: AppTheme.payaGreen),
+              ),
               tooltip: 'Partager sur WhatsApp',
               onPressed: _shareToWhatsApp,
             ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image Picker
-              Center(
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          physics: const BouncingScrollPhysics(),
+          children: [
+            // Section 1: Média (Image)
+            _buildSection(
+              title: 'Photo du produit',
+              icon: Icons.image_rounded,
+              child: Center(
                 child: GestureDetector(
-                  onTap: () => _showImageSourceModal(),                  child: Builder(
+                  onTap: () => _showImageSourceModal(),
+                  child: Builder(
                     builder: (context) {
                       final hasImage = _newImageBytes != null ||
-                          (_localImagePath != null &&
-                              _localImagePath!.isNotEmpty) ||
-                          (_editingProduct?.imageUrl != null &&
-                              _editingProduct!.imageUrl!.isNotEmpty);
+                          (_localImagePath != null && _localImagePath!.isNotEmpty) ||
+                          (_editingProduct?.imageUrl != null && _editingProduct!.imageUrl!.isNotEmpty);
 
                       return Container(
-                        width: 200,
-                        height: 200,
+                        width: 170,
+                        height: 170,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: AppTheme.slate50,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: AppTheme.deepBlue.withOpacity(0.2),
+                            color: hasImage ? AppTheme.payaBlue : AppTheme.slate300,
+                            width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: AppTheme.payaBlue.withValues(alpha: 0.04),
                               blurRadius: 10,
-                              offset: const Offset(0, 5),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
                         child: hasImage
                             ? Stack(
+                                fit: StackFit.expand,
                                 children: [
-                                  Positioned.fill(
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(24),
-                                      child: _newImageBytes != null
-                                          ? Image.memory(
-                                              _newImageBytes!,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : ProductImage(
-                                              product: _editingProduct,
-                                              localImagePath: _localImagePath,
-                                              width: 200,
-                                              height: 200,
-                                              fit: BoxFit.cover,
-                                              borderRadius:
-                                                  BorderRadius.circular(24),
-                                            ),
-                                    ),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(22),
+                                    child: _newImageBytes != null
+                                        ? Image.memory(
+                                            _newImageBytes!,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : ProductImage(
+                                            product: _editingProduct,
+                                            localImagePath: _localImagePath,
+                                            fit: BoxFit.cover,
+                                            borderRadius: BorderRadius.circular(22),
+                                          ),
                                   ),
                                   Positioned(
-                                    bottom: 10,
-                                    right: 10,
+                                    bottom: 8,
+                                    right: 8,
                                     child: Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.deepBlue.withOpacity(0.85),
+                                        color: AppTheme.payaBlue,
                                         shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.25),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
                                       ),
                                       child: const Icon(
-                                        Icons.camera_alt,
-                                        size: 18,
+                                        Icons.edit_rounded,
+                                        size: 16,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -309,16 +333,31 @@ class _CreateProductPageState extends State<CreateProductPage> {
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 48,
-                                    color: AppTheme.deepBlue.withOpacity(0.5),
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.04),
+                                          blurRadius: 8,
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.add_a_photo_rounded,
+                                      size: 30,
+                                      color: AppTheme.payaBlue,
+                                    ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
+                                  const SizedBox(height: 12),
+                                  const Text(
                                     'Ajouter une photo',
                                     style: TextStyle(
-                                      color: AppTheme.deepBlue.withOpacity(0.5),
+                                      color: AppTheme.payaBlue,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ],
@@ -328,94 +367,67 @@ class _CreateProductPageState extends State<CreateProductPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+            ),
+            const SizedBox(height: 14),
 
-              // Fields
-              TextFormField(
+            // Section 2: Informations générales
+            _buildSection(
+              title: 'Informations Générales',
+              icon: Icons.info_outline_rounded,
+              child: TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nom du produit',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Champ requis' : null,
+                decoration: _buildInputDecoration('Nom du produit', Icons.inventory_2_outlined),
+                validator: (value) => value == null || value.isEmpty ? 'Veuillez saisir un nom' : null,
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 14),
 
-              Row(
+            // Section 3: Tarification & Stock
+            _buildSection(
+              title: 'Tarification & Disponibilité',
+              icon: Icons.payments_outlined,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _priceController,
-                      decoration: InputDecoration(
-                        labelText: 'Prix (FCFA)',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) => value == null || value.isEmpty
-                          ? 'Champ requis'
-                          : null,
-                    ),
+                  TextFormField(
+                    controller: _priceController,
+                    decoration: _buildInputDecoration('Prix de vente (FCFA)', Icons.sell_outlined),
+                    keyboardType: TextInputType.number,
+                    validator: (value) => value == null || value.isEmpty ? 'Veuillez saisir un prix' : null,
                   ),
-                  const SizedBox(width: 16),
-                  // Expanded(
-                  //   child: TextFormField(
-                  //     controller: _prixTTCController,
-                  //     decoration: InputDecoration(
-                  //       labelText: 'Prix TTC (FCFA)',
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(16),
-                  //       ),
-                  //       filled: true,
-                  //       fillColor: Colors.white,
-                  //     ),
-                  //     keyboardType: TextInputType.number,
-                  //   ),
-                  // ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _stockController,
+                    decoration: _buildInputDecoration('Quantité en stock', Icons.storage_rounded),
+                    keyboardType: TextInputType.number,
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 14),
 
-              // Wave Selection (Optionnelle)
-              Obx(() {
+            // Section 4: Vague
+            _buildSection(
+              title: 'Association de Vague',
+              icon: Icons.waves_rounded,
+              child: Obx(() {
                 final waveController = Get.isRegistered<WaveController>()
                     ? Get.find<WaveController>()
                     : Get.put(WaveController());
                 final waves = waveController.waves;
-                final activeWaves = waves
-                    .where((w) => w.status != WaveStatus.closed)
-                    .toList();
+                final activeWaves = waves.where((w) => w.status != WaveStatus.closed).toList();
 
-                // Sécuriser la sélection pour éviter l'assertion error DropdownButton
                 final bool isValid = _selectedWaveId != null &&
                     _selectedWaveId!.isNotEmpty &&
                     activeWaves.any((w) => w.id == _selectedWaveId);
                 final String? dropdownValue = isValid ? _selectedWaveId : null;
 
                 return DropdownButtonFormField<String?>(
-                  value: dropdownValue,
-                  decoration: InputDecoration(
-                    labelText: 'Vague associée (optionnel)',
-                    prefixIcon:
-                        const Icon(Icons.waves, color: AppTheme.deepBlue),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
+                  initialValue: dropdownValue,
+                  decoration: _buildInputDecoration('Vague associée (optionnel)', Icons.waves_rounded),
                   items: [
                     const DropdownMenuItem<String?>(
                       value: null,
-                      child: Text('Aucune vague'),
+                      child: Text('Aucune vague (Vente directe)'),
                     ),
                     ...activeWaves.map((wave) {
                       return DropdownMenuItem<String?>(
@@ -431,78 +443,115 @@ class _CreateProductPageState extends State<CreateProductPage> {
                   },
                 );
               }),
-              const SizedBox(height: 32),
+            ),
+            const SizedBox(height: 28),
 
-              // Submit Button
+            // Submit Button
+            SizedBox(
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _saveProduct,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.payaBlue,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shadowColor: AppTheme.payaBlue.withValues(alpha: 0.35),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        isEditing ? 'Mettre à jour le produit' : 'Créer le produit',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+
+            if (isEditing) ...[
+              const SizedBox(height: 12),
               SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isSaving ? null : _saveProduct,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.deepBlue,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        AppTheme.deepBlue.withOpacity(0.6),
+                height: 52,
+                child: OutlinedButton.icon(
+                  onPressed: _shareToWhatsApp,
+                  icon: const Icon(Icons.share_rounded, color: Color(0xFF25D366)),
+                  label: const Text(
+                    'Partager sur WhatsApp',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF25D366),
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF25D366), width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    elevation: 5,
-                    shadowColor: AppTheme.deepBlue.withOpacity(0.4),
+                    backgroundColor: Colors.white,
                   ),
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : Text(
-                          _editingProduct != null
-                              ? 'Mettre à jour'
-                              : 'Créer le produit',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                 ),
               ),
-
-              if (_editingProduct != null) ...[
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: OutlinedButton.icon(
-                    onPressed: _shareToWhatsApp,
-                    icon: const Icon(Icons.share_rounded,
-                        color: AppTheme.successGreen),
-                    label: const Text(
-                      'Partager sur WhatsApp',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.successGreen,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                          color: AppTheme.successGreen, width: 1.8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
             ],
-          ),
+            const SizedBox(height: 40),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSection({required String title, required IconData icon, required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: AppTheme.modernCardDecoration(borderRadius: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppTheme.payaBlue.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: AppTheme.payaBlue, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.darkerBlue,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          child,
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: AppTheme.payaBlue, size: 20),
+      fillColor: AppTheme.slate50,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 
@@ -582,7 +631,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      tileColor: AppTheme.warmCream.withOpacity(0.5),
+                      tileColor: AppTheme.slate50,
                       trailing:
                           const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                       onTap: () => Get.back(result: w.id),
