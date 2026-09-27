@@ -352,7 +352,9 @@ class PublicOrderController extends GetxController {
   String buildWhatsAppConfirmationMessage() {
     final currentProduct = product.value;
     final order = createdOrder.value;
-    final orderNum = order != null ? order.id.substring(order.id.length > 6 ? order.id.length - 6 : 0) : '';
+    final orderNum = order != null
+        ? order.id.substring(order.id.length > 6 ? order.id.length - 6 : 0)
+        : '';
 
     final buffer = StringBuffer();
     buffer.writeln('Bonjour ! Je viens de valider ma commande sur Paya :');
@@ -370,6 +372,12 @@ class PublicOrderController extends GetxController {
       buffer.writeln('🔖 *N° Commande :* #$orderNum');
     }
     buffer.writeln('');
+    // Deep link vendeur — ouvre l'app directement sur la commande
+    if (order != null) {
+      buffer.writeln('🔗 *Voir la commande dans Paya :*');
+      buffer.writeln('paya://orders/${order.id}');
+      buffer.writeln('');
+    }
     buffer.writeln('Merci de me confirmer la prise en compte !');
 
     return buffer.toString();

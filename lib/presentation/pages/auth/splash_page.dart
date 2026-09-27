@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/services/auth_service.dart';
+import 'package:paya_app/core/services/deep_link_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 
 class SplashPage extends StatefulWidget {
@@ -62,6 +64,21 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
       }
     } else {
       Get.offAllNamed('/login');
+    }
+
+    // Après navigation : vérifier s'il y a un deep link cold-start depuis Android
+    if (!kIsWeb) {
+      try {
+        const channel = MethodChannel('com.baguidevos.paya/deeplink');
+        final initialLink = await channel.invokeMethod<String>('getInitialLink');
+        if (initialLink != null && initialLink.isNotEmpty) {
+          // Petit délai pour que la page principale soit chargée
+          await Future.delayed(const Duration(milliseconds: 400));
+          DeepLinkService.handleIncomingLink(initialLink);
+        }
+      } catch (_) {
+        // Ignorer si le channel n'est pas disponible (ex: émulateur sans Intent)
+      }
     }
   }
 

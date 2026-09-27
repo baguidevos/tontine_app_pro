@@ -10,6 +10,7 @@ import 'core/services/auth_service.dart';
 import 'core/services/image_server_service.dart';
 import 'core/utils/http_overrides.dart';
 import 'core/services/whatsapp_service.dart';
+import 'core/services/deep_link_service.dart';
 import 'presentation/widgets/main_layout.dart';
 import 'presentation/pages/subscription_page.dart';
 import 'presentation/pages/auth/splash_page.dart';
@@ -63,6 +64,7 @@ void main() async {
   Get.put(ConnectivityService());
   Get.put(ImageServerService());
   Get.put(WhatsAppService());
+  Get.put(DeepLinkService());
 
   runApp(const PayaApp());
 }
@@ -79,6 +81,8 @@ class PayaApp extends StatelessWidget {
         return '/order';
       }
     }
+    // Deep link Android : paya://orders/ORDER_ID
+    // Géré dynamiquement via DeepLinkService après le splash
     return '/splash';
   }
 
