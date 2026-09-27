@@ -11,6 +11,7 @@ import 'core/services/image_server_service.dart';
 import 'core/utils/http_overrides.dart';
 import 'core/services/whatsapp_service.dart';
 import 'core/services/deep_link_service.dart';
+import 'core/services/update_service.dart';
 import 'presentation/widgets/main_layout.dart';
 import 'presentation/pages/subscription_page.dart';
 import 'presentation/pages/auth/splash_page.dart';
@@ -65,6 +66,7 @@ void main() async {
   Get.put(ImageServerService());
   Get.put(WhatsAppService());
   Get.put(DeepLinkService());
+  Get.put(UpdateService());
 
   runApp(const PayaApp());
 }

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Système de mise à jour automatique In-App (GitHub Releases Auto-Updater)** :
+  - [`UpdateService`](lib/core/services/update_service.dart) : Service de vérification automatique des nouvelles versions publiées sur GitHub Releases avec comparaison sémantique (SemVer).
+  - Boîte de dialogue moderne de mise à jour affichant le numéro de version, le nom de la release, les notes de version et un bouton de téléchargement direct de l'APK.
+  - [`MainLayoutController`](lib/presentation/controllers/main_layout_controller.dart) : Vérification silencieuse et non-bloquante au lancement de l'application (avec mémorisation de l'option "Plus tard").
+  - [`MoreMenuPage`](lib/presentation/pages/more/more_menu_page.dart) : Bouton "Mise à jour de l'application" pour permettre à l'utilisateur de vérifier manuellement les mises à jour à tout moment.
+  - Dépendance `package_info_plus` ajoutée pour détecter dynamiquement la version réelle installée sur le terminal.
+
 ---
 
 ## [0.10.0] - 2026-09-27

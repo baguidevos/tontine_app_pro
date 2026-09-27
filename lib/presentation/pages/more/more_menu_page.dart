@@ -6,6 +6,7 @@ import 'package:paya_app/core/services/whatsapp_service.dart';
 import 'package:paya_app/presentation/widgets/main_layout.dart';
 import 'package:paya_app/presentation/controllers/auth_controller.dart';
 import 'package:paya_app/presentation/widgets/logout_bottom_sheet.dart';
+import 'package:paya_app/core/services/update_service.dart';
 
 class MoreMenuPage extends StatelessWidget {
   const MoreMenuPage({super.key});
@@ -218,6 +219,16 @@ class MoreMenuPage extends StatelessWidget {
                   phone: '2250700000000', // Paya support hotline
                   message: 'Bonjour l\'équipe Paya, j\'ai besoin d\'aide avec mon compte.',
                 );
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildModernTile(
+              icon: Icons.system_update_rounded,
+              color: AppTheme.payaGreen,
+              title: 'Mise à jour de l\'application',
+              subtitle: 'Vérifier si une nouvelle version est disponible',
+              onTap: () {
+                UpdateService.to.checkForUpdate(showNotificationIfUpToDate: true);
               },
             ),
             const SizedBox(height: 10),
