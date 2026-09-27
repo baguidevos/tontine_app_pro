@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2026-09-27
+
+### Added
+- **Module de Suivi de Commande & Cycle de Vie Complet (*Order Tracking Lifecycle*)** :
+  - Définition du modèle d'état `OrderDeliveryStatus` avec 5 étapes métier :
+    - 📥 **Reçue (`received`)** : Nouvelle commande enregistrée.
+    - ✅ **Confirmée (`confirmed`)** : Confirmation de commande avec déclenchement de notification client.
+    - 💳 **Payée (`paid`)** : Enregistrement de l'encaissement et confirmation de paiement (architecture prête pour l'automatisation via Mobile Money).
+    - 🛍️ **En traitement / Produit disponible (`processing`)** : Déclenchée lors de l'arrivée du stock pour inviter le client au retrait ou à la livraison.
+    - 🚚 **Livraison finale** : Validation en **Livré (`delivered`)** avec message de fidélisation ou **Non livré (`undelivered`)** avec reprogrammation.
+  - Composant interactif `OrderTrackingTimeline` intégré à `OrderDetailsPage` comprenant stepper visuel, sélection du statut, notes de livraison et bouton d'envoi WhatsApp dédié.
+  - Badges d'état de livraison sur les cartes de commande dans `OrdersPage`.
+
+- **Détection Intelligente & Intégration WhatsApp (Standard & Business)** :
+  - Support natif simultané de WhatsApp Standard et WhatsApp Business via le protocole `whatsapp://send?phone=...&text=...`.
+  - Détection automatique et affichage du sélecteur d'applications natif Android/iOS.
+  - Déclaration des filtres d'intention `<queries>` dans `AndroidManifest.xml` (`com.whatsapp`, `com.whatsapp.w4b`, schéma `whatsapp`).
+  - Fallback vers l'API universelle `https://wa.me/` et copie dans le presse-papier si aucune application n'est disponible.
+
+- **Modèles de Messages WhatsApp 100% Personnalisables** :
+  - Gestionnaire de templates `WhatsAppService` avec 10 variables dynamiques :
+    - `{client_name}`, `{order_id}`, `{products}`, `{total_amount}`, `{amount_paid}`, `{remaining_balance}`, `{business_name}`, `{wave_name}`, `{delivery_address}`, `{date}`.
+  - Synchronisation Cloud Firestore sous `vendors/{vendorId}/settings/whatsapp_templates` et cache local.
+  - Page dédiée `WhatsAppTemplatesPage` (`/whatsapp/templates`) avec onglets par étape, insertion de tags par chips interactifs, prévisualisation en bulle WhatsApp en temps réel et réinitialisation vers les modèles par défaut.
+  - Feuille de prévisualisation et d'ajustement du message avant chaque envoi (`WhatsAppService.showPreviewAndSend`).
+
+- **Réorganisation Moderne de la Navigation & Hub "Plus d'options"** :
+  - Nouvelle structure à 5 onglets dans la barre de navigation inférieure (`MainLayout`) :
+    1. 🏠 **Accueil** (`DashboardPage`)
+    2. 📑 **Commandes** (`OrdersPage`)
+    3. 📢 **Campagnes** (`WavesPage`, remplaçant la terminologie "Vagues / Waves")
+    4. 🛍️ **Produits** (`ProductsPage`, accès direct au catalogue)
+    5. ➕ **Plus** (`MoreMenuPage`, nouveau hub central)
+  - Nouvelle page `MoreMenuPage` regroupant les accès secondaires :
+    - Carte récapitulative du commerçant avec badge de formule (PRO / ESSAI).
+    - **Gestion & Expédition** : Modèles WhatsApp (badge *Nouveau*), Répertoire Clients, Inventaire global.
+    - **Compte & Boutique** : Profil & Boutique, Forfaits & Abonnement.
+    - **Assistance & Session** : Support WhatsApp direct Paya, Déconnexion avec dialogue de confirmation.
+  - Mise à niveau du menu latéral (`AppDrawer`) aligné sur les 5 onglets et adoption de l'appellation "Campagnes".
+
+---
+
 ## [0.8.0] - 2026-09-27
 
 ### Added
