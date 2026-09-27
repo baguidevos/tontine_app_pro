@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+---
+
+## [0.10.0] - 2026-09-27
+
+### Added
+- **Deep link commande dans le message WhatsApp & ouverture directe dans l'application** :
+  - [`PublicOrderController`](lib/presentation/controllers/public_order_controller.dart) : Intégration automatique d'un lien HTTPS cliquable WhatsApp (`👉 Ouvrir la commande dans Paya : https://tontine-pro-97133.web.app/#/orders/details?id=...`) dès la création de la commande.
+  - [`ApiConfig`](lib/core/config/api_config.dart) : Ajout de la méthode utilitaire `buildOrderDeepLink(orderId)` pour centraliser la génération d'URLs de commande.
+  - [`AndroidManifest.xml`](android/app/src/main/AndroidManifest.xml) : Déclaration d'un `<intent-filter>` HTTPS pour intercepter les liens `tontine-pro-97133.web.app` sur Android.
+  - [`MainActivity.kt`](android/app/src/main/kotlin/com/zashcode/tontine_pro/MainActivity.kt) : Prise en charge conjointe des schémas `paya://` et des URLs `https://tontine-pro-97133.web.app` (cold start & foreground).
+  - [`DeepLinkService`](lib/core/services/deep_link_service.dart) : Refonte du parseur d'URI pour extraire l'ID de commande quel que soit le format (schéma `paya://orders/<id>`, paramètre de requête `?id=...`, hash routing Web).
+  - [`OrderDetailsPage`](lib/presentation/pages/orders/order_details_page.dart) : Support unifié des paramètres de navigation `id` et `orderId` pour charger automatiquement la commande depuis Firestore.
+  - [`main.dart`](lib/main.dart) : Correction de `_determineInitialRoute()` sur Flutter Web pour diriger vers `/orders/details` au lieu d'intercepter indûment vers `/order`.
+  - [`web/index.html`](web/index.html) : Script de détection mobile pour déclencher automatiquement `paya://orders/<id>` lors de l'ouverture du lien dans le navigateur.
+
+### Changed
+- **Montée de version** :
+  - `pubspec.yaml` : Version incrémentée de `0.9.1+18` → `0.10.0+19`.
+- **Numérotation téléphonique WhatsApp** :
+  - [`WhatsAppService`](lib/core/services/whatsapp_service.dart) : Mise à jour du préfixe pays par défaut à `+228` (Togo) pour les numéros à 8 chiffres dans `cleanPhoneNumber()`.
+  - [`PublicOrderController`](lib/presentation/controllers/public_order_controller.dart) : Utilisation de `WhatsAppService.cleanPhoneNumber()` sur le numéro du vendeur pour garantir un format international valide (`+228XXXXXXXX`).
+- **Invalidation du cache Web** :
+  - [`firebase.json`](firebase.json) & [`web/index.html`](web/index.html) : Configuration des en-têtes HTTP `no-cache` pour empêcher la mise en cache agressive des scripts JS / HTML par le Service Worker.
+
+### Fixed
+- **Déconnexion (`showLogoutSheet`)** :
+  - [`AppDrawer`](lib/presentation/widgets/app_drawer.dart) : Ajout du paramètre `BuildContext context` à la méthode `_buildFooter` pour permettre l'ouverture du dialogue modal de déconnexion.
+  - [`MoreMenuPage`](lib/presentation/pages/more/more_menu_page.dart) : Correction de l'appel `_showLogoutSheet` vers `showLogoutSheet` (fonction globale importée depuis `logout_bottom_sheet.dart`).
+
+---
+
 ## [0.9.1] - 2026-09-27
 
 ### Fixed

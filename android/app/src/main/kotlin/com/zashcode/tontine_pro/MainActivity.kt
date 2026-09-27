@@ -39,7 +39,9 @@ class MainActivity : FlutterActivity() {
 
     private fun handleIntent(intent: Intent?) {
         val uri = intent?.data ?: return
-        if (uri.scheme == "paya") {
+        val scheme = uri.scheme ?: ""
+        val host = uri.host ?: ""
+        if (scheme == "paya" || (scheme == "https" && host == "tontine-pro-97133.web.app")) {
             val link = uri.toString()
             val engine = flutterEngine
             if (engine != null) {

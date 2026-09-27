@@ -34,9 +34,12 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       if (args is OrderModel) {
         order.value = args;
         orderId = args.id;
-      } else if (Get.parameters['id'] != null) {
-        orderId = Get.parameters['id'];
-        _loadOrder();
+      } else {
+        final paramId = Get.parameters['id'] ?? Get.parameters['orderId'];
+        if (paramId != null && paramId.isNotEmpty) {
+          orderId = paramId;
+          _loadOrder();
+        }
       }
     } catch (e) {
       debugPrint('Error loading order args: $e');

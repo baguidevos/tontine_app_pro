@@ -75,9 +75,15 @@ class PayaApp extends StatelessWidget {
   String _determineInitialRoute() {
     if (kIsWeb) {
       final fullUrl = Uri.base.toString();
-      if (fullUrl.contains('order') ||
-          fullUrl.contains('p=') ||
-          fullUrl.contains('productId=')) {
+      // Si l'URL web cible directement les détails d'une commande
+      if (fullUrl.contains('/orders/details') || fullUrl.contains('orders/details')) {
+        return '/orders/details';
+      }
+      // Si l'URL web cible la prise de commande client publique
+      if (fullUrl.contains('p=') ||
+          fullUrl.contains('productId=') ||
+          fullUrl.contains('/order?') ||
+          fullUrl.endsWith('/order')) {
         return '/order';
       }
     }

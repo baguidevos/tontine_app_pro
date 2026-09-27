@@ -6,6 +6,7 @@ import 'package:paya_app/presentation/controllers/auth_controller.dart';
 import 'package:paya_app/presentation/controllers/main_layout_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/pages/waves/widgets/create_wave_dialog.dart';
+import 'package:paya_app/presentation/widgets/logout_bottom_sheet.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -67,7 +68,7 @@ class AppDrawer extends StatelessWidget {
           ),
 
           // Footer
-          _buildFooter(authController),
+          _buildFooter(context, authController),
         ],
       ),
     );
@@ -366,7 +367,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(AuthController authController) {
+  Widget _buildFooter(BuildContext context, AuthController authController) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -383,7 +384,7 @@ class AppDrawer extends StatelessWidget {
                   const Icon(Icons.verified_rounded, size: 16, color: AppTheme.payaGreen),
                   const SizedBox(width: 6),
                   Text(
-                    'Paya v0.9.1 Pro',
+                    'Paya v0.10.0 Pro',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -413,21 +414,7 @@ class AppDrawer extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {
-                Get.defaultDialog(
-                  title: 'Déconnexion',
-                  middleText: 'Êtes-vous sûr de vouloir vous déconnecter de votre compte ?',
-                  textCancel: 'Annuler',
-                  textConfirm: 'Déconnexion',
-                  confirmTextColor: Colors.white,
-                  onConfirm: () async {
-                    Get.back();
-                    await authController.logout();
-                  },
-                  buttonColor: AppTheme.payaRed,
-                  cancelTextColor: AppTheme.slate700,
-                );
-              },
+              onPressed: () => showLogoutSheet(context, authController),
               icon: const Icon(Icons.logout_rounded, size: 18),
               label: const Text('Déconnexion'),
               style: OutlinedButton.styleFrom(

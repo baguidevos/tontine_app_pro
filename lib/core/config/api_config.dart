@@ -50,4 +50,12 @@ class ApiConfig {
 
     return '$cleanBase/#/order?$queryString';
   }
+
+  /// Génère l'URL web & deep link d'une commande pour consultation par le vendeur
+  static String buildOrderDeepLink(String orderId) {
+    final cleanBase = webAppBaseUrl.endsWith('/')
+        ? webAppBaseUrl.substring(0, webAppBaseUrl.length - 1)
+        : webAppBaseUrl;
+    return '$cleanBase/#/orders/details?id=$orderId';
+  }
 }

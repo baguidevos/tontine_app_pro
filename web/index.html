@@ -6,6 +6,9 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 
   <!-- SEO & Description -->
   <title>PAYA — Gestion Commerciale & Commandes en Ligne</title>
@@ -139,6 +142,21 @@
     window.addEventListener('load', function() {
       setTimeout(removeSplash, 2500);
     });
+
+    // 4. Redirection automatique vers l'app native sur mobile si lien de commande
+    (function() {
+      var href = window.location.href;
+      var match = href.match(/(?:orders\/details\?id=|orderId=|orders\/)([0-9a-zA-Z_-]+)/);
+      if (match && match[1] && match[1] !== 'details' && match[1] !== 'create') {
+        var orderId = match[1];
+        var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          setTimeout(function() {
+            window.location.href = "paya://orders/" + orderId;
+          }, 100);
+        }
+      }
+    })();
   </script>
 
   <script src="flutter_bootstrap.js" async></script>

@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:paya_app/core/config/api_config.dart';
 
 /// Service gérant les deep links paya:// entrants.
 ///
@@ -51,15 +52,82 @@ class DeepLinkService extends GetxService {
 
   static void _routeDeepLink(String link) {
     try {
+      debugPrint('[DeepLinkService] Routing deep link: $link');
       final uri = Uri.parse(link);
-      if (uri.scheme != 'paya') return;
+      String? orderId;
 
-      final segments = uri.pathSegments;
-      // paya://orders/<orderId>
-      if (segments.isNotEmpty && segments[0] == 'orders' && segments.length >= 2) {
-        final orderId = segments[1];
-        // Naviguer vers la page de détail commande avec l'ID
-        Get.toNamed('/orders/details', parameters: {'orderId': orderId});
+      // 1. Schéma personnalisé paya://
+      if (uri.scheme == 'paya') {
+        // Format A: paya://orders/<id> -> host='orders', pathSegments=['<id>']
+        if (uri.host == 'orders' || uri.host == 'order') {
+          if (uri.pathSegments.isNotEmpty) {
+            orderId = uri.pathSegments.first;
+          }
+        }
+        // Format B: paya:///orders/<id> ou paya://app/orders/<id>
+        if (orderId == null && uri.pathSegments.isNotEmpty) {
+          final idx = uri.pathSegments.indexOf('orders');
+          if (idx != -1 && uri.pathSegments.length > idx + 1) {
+            orderId = uri.pathSegments[idx + 1];
+          }
+        }
+        orderId ??= uri.queryParameters['id'] ?? uri.queryParameters['orderId'];
+      }
+
+      // 2. Lien HTTPS (ex: https://tontine-pro-97133.web.app/#/orders/details?id=...)
+      if (uri.scheme == 'https' || uri.scheme == 'http') {
+        // Query param direct (?id=... ou ?orderId=...)
+        orderId = uri.queryParameters['id'] ?? uri.queryParameters['orderId'];
+
+        // Fragment Hash Routing (Flutter Web: #/orders/details?id=...)
+        if (orderId == null && uri.fragment.isNotEmpty) {
+          final frag = uri.fragment.startsWith('/') ? uri.fragment : '/${uri.fragment}';
+          final fragUri = Uri.tryParse(frag);
+          if (fragUri != null) {
+            orderId = fragUri.queryParameters['id'] ?? fragUri.queryParameters['orderId'];
+            if (orderId == null && fragUri.pathSegments.isNotEmpty) {
+              final idx = fragUri.pathSegments.indexOf('orders');
+              if (idx != -1 && fragUri.pathSegments.length > idx + 1) {
+                final next = fragUri.pathSegments[idx + 1];
+                if (next != 'details' && next != 'create') {
+                  orderId = next;
+                } else if (next == 'details' && fragUri.pathSegments.length > idx + 2) {
+                  orderId = fragUri.pathSegments[idx + 2];
+                }
+              }
+            }
+          }
+        }
+
+        // Path segment direct: /orders/<id>
+        if (orderId == null && uri.pathSegments.isNotEmpty) {
+          final idx = uri.pathSegments.indexOf('orders');
+          if (idx != -1 && uri.pathSegments.length > idx + 1) {
+            final next = uri.pathSegments[idx + 1];
+            if (next != 'details' && next != 'create') {
+              orderId = next;
+            }
+          }
+        }
+      }
+
+      // 3. Fallback regex
+      if (orderId == null || orderId.isEmpty) {
+        final match = RegExp(r'(?:orders/|orderId=|id=)([0-9a-zA-Z_-]+)').firstMatch(link);
+        if (match != null) {
+          final candidate = match.group(1);
+          if (candidate != null && candidate != 'details' && candidate != 'create') {
+            orderId = candidate;
+          }
+        }
+      }
+
+      if (orderId != null && orderId.isNotEmpty) {
+        debugPrint('[DeepLinkService] Order ID successfully resolved: $orderId');
+        Get.toNamed(
+          '/orders/details',
+          parameters: {'id': orderId, 'orderId': orderId},
+        );
         return;
       }
 
@@ -84,4 +152,7 @@ class DeepLinkService extends GetxService {
 
   /// Générer un deep link paya:// pour une commande donnée.
   static String orderLink(String orderId) => 'paya://orders/$orderId';
+
+  /// Générer un lien universel web HTTPS pour partage WhatsApp.
+  static String orderUniversalLink(String orderId) => ApiConfig.buildOrderDeepLink(orderId);
 }

@@ -7,6 +7,8 @@ import '../../data/models/order_model.dart';
 import '../../data/models/product_model.dart';
 import '../../data/models/vendor_model.dart';
 import '../../data/models/wave_model.dart';
+import '../../core/config/api_config.dart';
+import '../../core/services/whatsapp_service.dart';
 
 class PublicOrderController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -372,10 +374,11 @@ class PublicOrderController extends GetxController {
       buffer.writeln('🔖 *N° Commande :* #$orderNum');
     }
     buffer.writeln('');
-    // Deep link vendeur — ouvre l'app directement sur la commande
+    // Deep link vendeur — lien web HTTPS cliquable WhatsApp + fallback schéma paya://
     if (order != null) {
-      buffer.writeln('🔗 *Voir la commande dans Paya :*');
-      buffer.writeln('paya://orders/${order.id}');
+      final orderLink = ApiConfig.buildOrderDeepLink(order.id);
+      buffer.writeln('👉 *Ouvrir la commande dans Paya :*');
+      buffer.writeln(orderLink);
       buffer.writeln('');
     }
     buffer.writeln('Merci de me confirmer la prise en compte !');
@@ -390,8 +393,7 @@ class PublicOrderController extends GetxController {
     final encodedMessage = Uri.encodeComponent(message);
 
     if (vendorPhone.isNotEmpty) {
-      // Nettoyer le numéro (retirer espaces, +, tirets)
-      final cleanNumber = vendorPhone.replaceAll(RegExp(r'[^0-9]'), '');
+      final cleanNumber = WhatsAppService.cleanPhoneNumber(vendorPhone);
       return 'https://wa.me/$cleanNumber?text=$encodedMessage';
     }
 

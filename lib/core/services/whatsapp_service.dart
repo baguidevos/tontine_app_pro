@@ -215,7 +215,7 @@ class WhatsAppService extends GetxService {
     }
     // Si l'utilisateur a saisi un numéro local à 8 chiffres (ex: Burkina Faso 70000000), ajouter 226 par défaut
     if (clean.length == 8) {
-      clean = '226$clean';
+      clean = '228$clean';
     }
     return clean;
   }
