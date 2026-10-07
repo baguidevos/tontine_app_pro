@@ -468,99 +468,246 @@ class SubscriptionPage extends StatelessWidget {
     required String planType,
     required String duration,
     required String planName,
+    int? targetPlanId,
   }) {
+    // Résolution de l'identifiant du plan correspondant dans SasPay
+    int? planId = targetPlanId;
+    if (planId == null && service.availablePlans.isNotEmpty) {
+      if (duration == '1_month' || planName.contains('5 000')) {
+        planId = service.availablePlans.firstWhereOrNull((p) => p.slug.contains('pro-monthly') || p.slug.contains('month'))?.id;
+      } else if (duration == '1_year' || planName.contains('Annuel')) {
+        planId = service.availablePlans.firstWhereOrNull((p) => p.slug.contains('annual') || p.slug.contains('year'))?.id;
+      }
+      planId ??= service.availablePlans.first.id;
+    }
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (context) {
+        final paymentState = Rxn<Map<String, dynamic>>();
+        final isChecking = false.obs;
+
         return Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppTheme.slate300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppTheme.deepBlue.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.receipt_long_rounded,
-                  color: AppTheme.deepBlue,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Confirmer la demande',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.slate900,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Vous êtes sur le point de demander l\'activation du $planName.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: AppTheme.slate600),
-              ),
-              const SizedBox(height: 24),
-              Row(
+          padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 32),
+          child: Obx(() {
+            final activePayment = paymentState.value;
+
+            // Vue 2 : En attente de confirmation après redirection SasPay
+            if (activePayment != null) {
+              final paymentId = activePayment['payment_id'] as int;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.slate700,
-                        side: const BorderSide(color: AppTheme.slate300),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text('Annuler', style: TextStyle(fontWeight: FontWeight.w600)),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppTheme.slate300,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        await service.requestActivation(planType, duration);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.deepBlue,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Confirmer et envoyer',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6633D6).withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                     ),
+                    child: const Icon(
+                      Icons.hourglass_top_rounded,
+                      color: Color(0xFF6633D6),
+                      size: 36,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Paiement en cours',
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.slate900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Finalisez la transaction sur la page sécurisée SasPay (Mobile Money ou Carte).',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: AppTheme.slate600, height: 1.4),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: isChecking.value
+                          ? null
+                          : () async {
+                              isChecking.value = true;
+                              try {
+                                final isSuccess = await service.verifyPayment(paymentId);
+                                if (isSuccess) {
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                } else {
+                                  Get.snackbar(
+                                    'Paiement en attente',
+                                    'Le paiement n\'a pas encore été validé. Réessayez dans un instant après avoir confirmé sur votre mobile.',
+                                    snackPosition: SnackPosition.BOTTOM,
+                                  );
+                                }
+                              } finally {
+                                isChecking.value = false;
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6633D6),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: isChecking.value
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                            )
+                          : const Text(
+                              'Vérifier mon paiement',
+                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Fermer', style: TextStyle(color: AppTheme.slate600)),
                   ),
                 ],
-              ),
-            ],
-          ),
+              );
+            }
+
+            // Vue 1 : Récapitulatif et lancement SasPay
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppTheme.slate300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6633D6).withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.security_rounded,
+                    color: Color(0xFF6633D6),
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Paiement sécurisé SasPay',
+                  style: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.slate900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Souscription au $planName',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.slate700),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.slate50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: AppTheme.slate200),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.phone_android_rounded, size: 18, color: AppTheme.slate600),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'MTN • Moov • Orange • Wave • Carte Bancaire',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.slate700),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.slate700,
+                          side: const BorderSide(color: AppTheme.slate300),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text('Annuler', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: service.isProcessingPayment.value
+                            ? null
+                            : () async {
+                                final selectedId = planId ?? (service.availablePlans.isNotEmpty ? service.availablePlans.first.id : 1);
+                                final result = await service.subscribeWithSasPay(planId: selectedId);
+                                if (result != null) {
+                                  paymentState.value = result;
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6633D6),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: service.isProcessingPayment.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Text(
+                                'Payer avec SasPay',
+                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }),
         );
       },
     );

@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'core/theme/app_theme.dart';
 import 'core/services/connectivity_service.dart';
 import 'core/services/subscription_service.dart';
+import 'core/services/saspay_payment_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/image_server_service.dart';
 import 'core/utils/http_overrides.dart';
@@ -63,6 +64,7 @@ void main() async {
   }
 
   Get.put(ConnectivityService());
+  Get.put(SasPayPaymentService());
   Get.put(ImageServerService());
   Get.put(WhatsAppService());
   Get.put(DeepLinkService());

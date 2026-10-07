@@ -58,4 +58,13 @@ class ApiConfig {
         : webAppBaseUrl;
     return '$cleanBase/#/orders/details?id=$orderId';
   }
+
+  /// URL de base du backend Laravel pour les abonnements et paiements SasPay
+  static String get backendApiUrl {
+    const customUrl = String.fromEnvironment('BACKEND_API_URL');
+    if (customUrl.isNotEmpty) return customUrl;
+
+    // Détection automatique environnement local selon la plateforme
+    return 'http://127.0.0.1:8000/api';
+  }
 }
