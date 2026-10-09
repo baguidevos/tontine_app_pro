@@ -55,6 +55,24 @@ class UpdateService extends GetxService {
   final isChecking = false.obs;
   final latestUpdate = Rxn<AppUpdateInfo>();
   final showInAppBanner = false.obs; // Affichage d'un bandeau discret dans l'accueil
+  final appVersion = ''.obs;
+  final appBuildNumber = ''.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      appVersion.value = packageInfo.version;
+      appBuildNumber.value = packageInfo.buildNumber;
+    } catch (e) {
+      debugPrint('UpdateService: Erreur lors de la lecture de PackageInfo: $e');
+    }
+  }
 
   // Évite de redemander sans cesse pendant la même session si l'utilisateur a cliqué "Plus tard"
   String? _dismissedVersion;
@@ -74,6 +92,8 @@ class UpdateService extends GetxService {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
       final currentBuild = packageInfo.buildNumber;
+      appVersion.value = currentVersion;
+      appBuildNumber.value = currentBuild;
 
       // 2. Tenter d'abord la source Firestore (Remote Config) pour éviter les quotas GitHub
       AppUpdateInfo? firestoreInfo = await _checkFromFirestore(

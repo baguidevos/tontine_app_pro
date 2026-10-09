@@ -4,8 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:paya_app/core/services/connectivity_service.dart';
 import 'package:paya_app/core/services/saspay_payment_service.dart';
+import 'package:paya_app/core/services/auth_service.dart';
 
 class SubscriptionService extends GetxService {
+  static SubscriptionService get to => Get.find<SubscriptionService>();
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -21,6 +24,36 @@ class SubscriptionService extends GetxService {
   var isRefreshing = false.obs;
   var isOfflineMode = false.obs;
   var activeSubscriptionInfo = Rxn<Map<String, dynamic>>();
+
+  /// Indique si l'utilisateur est sur une formule payante / Pro
+  bool get isPro {
+    if (currentPlan.value != 'free') return true;
+    if (Get.isRegistered<AuthService>()) {
+      final vendor = Get.find<AuthService>().currentVendor.value;
+      if (vendor != null && vendor.isPremium) return true;
+    }
+    return false;
+  }
+
+  /// Nom court de la formule (ex: 'Pro' ou 'Gratuit')
+  String get formulaShortName => isPro ? 'Pro' : 'Gratuit';
+
+  /// Nom complet de la formule (ex: 'Formule Pro', 'Premium Mensuel', 'Formule Gratuite')
+  String get formulaDisplayName {
+    if (!isPro) return 'Formule Gratuite';
+    final info = activeSubscriptionInfo.value;
+    if (info != null) {
+      if (info['plan_name'] != null && info['plan_name'].toString().isNotEmpty) {
+        return info['plan_name'].toString();
+      }
+      final planId = info['plan_id'];
+      if (planId != null) {
+        final plan = availablePlans.firstWhereOrNull((p) => p.id == planId);
+        if (plan != null) return plan.name;
+      }
+    }
+    return 'Formule Pro';
+  }
 
   /// Catalogue de secours hors-ligne garantissant la disponibilité continue de l'UI
   static final List<SubscriptionPlanModel> _defaultFallbackPlans = [

@@ -6,7 +6,9 @@ import 'package:paya_app/core/services/whatsapp_service.dart';
 import 'package:paya_app/presentation/widgets/main_layout.dart';
 import 'package:paya_app/presentation/controllers/auth_controller.dart';
 import 'package:paya_app/presentation/widgets/logout_bottom_sheet.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:paya_app/core/services/update_service.dart';
+import 'package:paya_app/core/services/subscription_service.dart';
 
 class MoreMenuPage extends StatelessWidget {
   const MoreMenuPage({super.key});
@@ -58,7 +60,12 @@ class MoreMenuPage extends StatelessWidget {
               final businessName = vendor?.businessName ?? 'Ma Boutique';
               final phone = vendor?.phone ?? '';
               final initial = businessName.isNotEmpty ? businessName[0].toUpperCase() : 'P';
-              final isPro = vendor?.isPremium ?? false;
+              final subService =
+                  Get.isRegistered<SubscriptionService>() ? SubscriptionService.to : null;
+              final isPro = (subService?.isPro ?? false) || (vendor?.isPremium ?? false);
+              final formulaBadge = subService != null
+                  ? (subService.isPro ? 'PRO' : 'GRATUIT')
+                  : (isPro ? 'PRO' : 'GRATUIT');
 
               return Container(
                 width: double.infinity,
@@ -121,7 +128,7 @@ class MoreMenuPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  isPro ? 'PRO' : 'ESSAI',
+                                  formulaBadge,
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
@@ -196,13 +203,23 @@ class MoreMenuPage extends StatelessWidget {
               onTap: () => Get.toNamed('/profile'),
             ),
             const SizedBox(height: 10),
-            _buildModernTile(
-              icon: Icons.workspace_premium_outlined,
-              color: const Color(0xFF8B5CF6),
-              title: 'Abonnement & Forfaits',
-              subtitle: 'Gérer votre souscription et fonctionnalités Pro',
-              onTap: () => Get.toNamed('/subscription'),
-            ),
+            Obx(() {
+              final subService =
+                  Get.isRegistered<SubscriptionService>() ? SubscriptionService.to : null;
+              final vendor = authService.currentVendor.value;
+              final isPro = (subService?.isPro ?? false) || (vendor?.isPremium ?? false);
+              final formulaLabel = subService?.formulaDisplayName ?? (isPro ? 'Formule Pro' : 'Formule Gratuite');
+
+              return _buildModernTile(
+                icon: Icons.workspace_premium_outlined,
+                color: const Color(0xFF8B5CF6),
+                title: 'Abonnement & Forfaits',
+                subtitle: '$formulaLabel • Gérer votre souscription',
+                badgeText: isPro ? 'ACTIF' : null,
+                badgeColor: isPro ? AppTheme.payaGreen : null,
+                onTap: () => Get.toNamed('/subscription'),
+              );
+            }),
 
             const SizedBox(height: 24),
 
@@ -247,14 +264,44 @@ class MoreMenuPage extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  Text(
-                    'Paya Pro • Version 0.10.0',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.slate400,
-                    ),
-                  ),
+                  Obx(() {
+                    final updateService =
+                        Get.isRegistered<UpdateService>() ? UpdateService.to : null;
+                    final dynamicVersion = updateService?.appVersion.value;
+                    final subService =
+                        Get.isRegistered<SubscriptionService>() ? SubscriptionService.to : null;
+                    final vendor = authService.currentVendor.value;
+                    final isPro = (subService?.isPro ?? false) || (vendor?.isPremium ?? false);
+                    final formula = subService?.formulaShortName ?? (isPro ? 'Pro' : 'Gratuit');
+
+                    if (dynamicVersion != null && dynamicVersion.isNotEmpty) {
+                      return Text(
+                        'Paya $formula • Version $dynamicVersion',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.slate400,
+                        ),
+                      );
+                    }
+                    return FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        final version = snapshot.data?.version;
+                        final label = version != null
+                            ? 'Paya $formula • Version $version'
+                            : 'Paya $formula';
+                        return Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.slate400,
+                          ),
+                        );
+                      },
+                    );
+                  }),
                   const SizedBox(height: 4),
                   Text(
                     'Simplifiez votre commerce social & vos tontines',

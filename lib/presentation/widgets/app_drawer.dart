@@ -6,6 +6,10 @@ import 'package:paya_app/presentation/controllers/auth_controller.dart';
 import 'package:paya_app/presentation/controllers/main_layout_controller.dart';
 import 'package:paya_app/presentation/controllers/wave_controller.dart';
 import 'package:paya_app/presentation/pages/waves/widgets/create_wave_dialog.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:paya_app/core/services/update_service.dart';
+import 'package:paya_app/core/services/subscription_service.dart';
+import 'package:paya_app/core/services/auth_service.dart';
 import 'package:paya_app/presentation/widgets/logout_bottom_sheet.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -383,31 +387,72 @@ class AppDrawer extends StatelessWidget {
                 children: [
                   const Icon(Icons.verified_rounded, size: 16, color: AppTheme.payaGreen),
                   const SizedBox(width: 6),
-                  Text(
-                    'Paya v0.10.0 Pro',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.slate600,
-                    ),
-                  ),
+                  Obx(() {
+                    final updateService =
+                        Get.isRegistered<UpdateService>() ? UpdateService.to : null;
+                    final dynamicVersion = updateService?.appVersion.value;
+                    final subService =
+                        Get.isRegistered<SubscriptionService>() ? SubscriptionService.to : null;
+                    final vendor = Get.isRegistered<AuthService>()
+                        ? Get.find<AuthService>().currentVendor.value
+                        : null;
+                    final isPro = (subService?.isPro ?? false) || (vendor?.isPremium ?? false);
+                    final formula = subService?.formulaShortName ?? (isPro ? 'Pro' : 'Gratuit');
+
+                    if (dynamicVersion != null && dynamicVersion.isNotEmpty) {
+                      return Text(
+                        'Paya v$dynamicVersion $formula',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.slate600,
+                        ),
+                      );
+                    }
+                    return FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        final version = snapshot.data?.version;
+                        final label = version != null
+                            ? 'Paya v$version $formula'
+                            : 'Paya $formula';
+                        return Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.slate600,
+                          ),
+                        );
+                      },
+                    );
+                  }),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppTheme.greenLight,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Text(
-                  'Actif',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.payaGreen,
+              Obx(() {
+                final subService =
+                    Get.isRegistered<SubscriptionService>() ? SubscriptionService.to : null;
+                final vendor = Get.isRegistered<AuthService>()
+                    ? Get.find<AuthService>().currentVendor.value
+                    : null;
+                final isPro = (subService?.isPro ?? false) || (vendor?.isPremium ?? false);
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isPro ? AppTheme.greenLight : AppTheme.orangeLight,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ),
-              ),
+                  child: Text(
+                    isPro ? 'Actif' : 'Gratuit',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isPro ? AppTheme.payaGreen : AppTheme.payaOrange,
+                    ),
+                  ),
+                );
+              }),
             ],
           ),
           const SizedBox(height: 12),

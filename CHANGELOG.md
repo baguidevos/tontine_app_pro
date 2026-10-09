@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.1] - 2026-10-09
+
+### Added
+- **Affichage dynamique de la version et de la formule utilisateur** :
+  - [`UpdateService`](lib/core/services/update_service.dart) : Chargement réactif de la version (`appVersion`) et du build (`appBuildNumber`) via `PackageInfo.fromPlatform()`.
+  - [`SubscriptionService`](lib/core/services/subscription_service.dart) : Ajout du getter statique `to`, et des propriétés calculées `isPro`, `formulaShortName` et `formulaDisplayName` pour refléter en temps réel le forfait de l'utilisateur (Firestore et SasPay).
+  - [`MoreMenuPage`](lib/presentation/pages/more/more_menu_page.dart) : Rendu dynamique de la formule utilisateur (`PRO` ou `GRATUIT` sur la carte boutique, intitulé précis dans la tuile Abonnement, et `Paya {Formule} • Version {version}` dans le pied de page).
+  - [`AppDrawer`](lib/presentation/widgets/app_drawer.dart) : Rendu dynamique de la version et de la formule (`Paya v{version} {Formule}`) avec badge d'état (`Actif` ou `Gratuit`).
+
+### Fixed
+- **Workflow CI GitHub Actions (Build APK Release)** :
+  - Mise à niveau de l'Android Gradle Plugin (`com.android.application`) de `8.9.1` vers `8.11.1` dans `settings.gradle.kts`.
+  - Ajout du drapeau `--android-skip-build-dependency-validation` lors du build Flutter APK release.
+  - Migration de `actions/setup-java@v4` vers `v5`.
+
+### Changed
+- `pubspec.yaml` : Version incrémentée de `0.11.0+20` → `0.11.1+21`.
+
+
 ## [0.11.0] - 2026-10-09
 
 ### Added
