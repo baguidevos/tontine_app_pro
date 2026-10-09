@@ -13,17 +13,18 @@ class PlanSeeder extends Seeder
     public function run(): void
     {
         Plan::updateOrCreate(
-            ['slug' => 'starter-monthly'],
+            ['slug' => 'free'],
             [
-                'name' => 'Abonnement Mensuel Starter',
-                'description' => 'Accès complet aux fonctionnalités de base pour 30 jours.',
-                'price' => '2500.00',
+                'name' => 'Plan Gratuit',
+                'description' => 'Pour tester et démarrer votre activité',
+                'price' => '0.00',
                 'currency' => 'XOF',
-                'duration_in_days' => 30,
+                'duration_in_days' => 3650,
                 'features' => [
-                    'Gestion d\'une tontine active',
-                    'Rappels SMS et notifications',
-                    'Support standard',
+                    'Jusqu\'à 5 vagues de livraison',
+                    'Jusqu\'à 10 produits au catalogue',
+                    'Gestion des clients et des commandes',
+                    'Suivi standard des paiements',
                 ],
                 'is_active' => true,
             ]
@@ -32,16 +33,35 @@ class PlanSeeder extends Seeder
         Plan::updateOrCreate(
             ['slug' => 'pro-monthly'],
             [
-                'name' => 'Abonnement Mensuel Pro',
-                'description' => 'Toutes les fonctionnalités avancées avec gestion illimitée.',
-                'price' => '5000.00',
+                'name' => 'Premium Mensuel',
+                'description' => 'Flexibilité totale sans engagement long',
+                'price' => '1000.00',
                 'currency' => 'XOF',
                 'duration_in_days' => 30,
                 'features' => [
-                    'Tontines illimitées',
-                    'Rappels automatiques par Mobile Money',
-                    'Export comptable & PDF',
-                    'Support prioritaire',
+                    'Vagues de livraison illimitées',
+                    'Produits illimités au catalogue',
+                    'Historique complet des transactions',
+                    'Export et rapports détaillés',
+                    'Support client prioritaire',
+                ],
+                'is_active' => true,
+            ]
+        );
+
+        Plan::updateOrCreate(
+            ['slug' => 'pro-semiannual'],
+            [
+                'name' => 'Premium Semestriel',
+                'description' => 'Idéal pour installer vos cycles de vente',
+                'price' => '4500.00',
+                'currency' => 'XOF',
+                'duration_in_days' => 180,
+                'features' => [
+                    'Vagues et produits illimités',
+                    'Historique complet et analyses',
+                    'Support prioritaire par WhatsApp',
+                    'Économisez 1 500 FCFA',
                 ],
                 'is_active' => true,
             ]
@@ -50,15 +70,16 @@ class PlanSeeder extends Seeder
         Plan::updateOrCreate(
             ['slug' => 'pro-annual'],
             [
-                'name' => 'Abonnement Annuel Pro',
-                'description' => 'Pack annuel avec 2 mois offerts.',
-                'price' => '50000.00',
+                'name' => 'Premium Annuel',
+                'description' => 'La rentabilité maximale pour les pros',
+                'price' => '10000.00',
                 'currency' => 'XOF',
                 'duration_in_days' => 365,
                 'features' => [
-                    'Toutes les options Pro',
-                    '2 mois offerts inclus',
-                    'Support VIP dédié',
+                    'Toutes les fonctionnalités en illimité',
+                    'Gestion multi-vendeurs et collaborateurs',
+                    'Accompagnement VIP dédié',
+                    'Économisez 2 000 FCFA (2 mois offerts)',
                 ],
                 'is_active' => true,
             ]

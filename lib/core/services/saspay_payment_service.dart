@@ -14,6 +14,9 @@ class SubscriptionPlanModel {
   final String currency;
   final int durationInDays;
   final List<String> features;
+  final bool isFeatured;
+  final String? badgeText;
+  final int order;
 
   SubscriptionPlanModel({
     required this.id,
@@ -24,22 +27,49 @@ class SubscriptionPlanModel {
     required this.currency,
     required this.durationInDays,
     required this.features,
+    this.isFeatured = false,
+    this.badgeText,
+    this.order = 0,
   });
 
   factory SubscriptionPlanModel.fromJson(Map<String, dynamic> json) {
     return SubscriptionPlanModel(
-      id: json['id'] as int,
+      id: (json['id'] is num) ? (json['id'] as num).toInt() : (int.tryParse(json['id']?.toString() ?? '1') ?? 1),
       name: json['name'] as String? ?? '',
       slug: json['slug'] as String? ?? '',
       description: json['description'] as String?,
       price: json['price']?.toString() ?? '0.00',
       currency: json['currency'] as String? ?? 'XOF',
-      durationInDays: json['duration_in_days'] as int? ?? 30,
+      durationInDays: (json['duration_in_days'] is num)
+          ? (json['duration_in_days'] as num).toInt()
+          : (int.tryParse(json['duration_in_days']?.toString() ?? '30') ?? 30),
       features: (json['features'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
+      isFeatured: json['is_featured'] as bool? ?? false,
+      badgeText: json['badge_text'] as String?,
+      order: (json['order'] is num)
+          ? (json['order'] as num).toInt()
+          : (int.tryParse(json['order']?.toString() ?? '0') ?? 0),
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'slug': slug,
+      'description': description,
+      'price': price,
+      'currency': currency,
+      'duration_in_days': durationInDays,
+      'features': features,
+      'is_featured': isFeatured,
+      'badge_text': badgeText,
+      'order': order,
+      'is_active': true,
+    };
   }
 }
 

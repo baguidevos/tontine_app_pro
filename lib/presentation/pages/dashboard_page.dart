@@ -8,6 +8,7 @@ import 'package:paya_app/presentation/controllers/main_layout_controller.dart';
 import 'package:paya_app/presentation/widgets/main_layout.dart';
 import 'waves/widgets/create_wave_dialog.dart';
 import 'package:paya_app/data/models/order_model.dart';
+import 'package:paya_app/presentation/widgets/in_app_update_banner.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -91,6 +92,9 @@ class DashboardPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Bandeau In-App de mise à jour (Stratégie Flexible)
+            const InAppUpdateBanner(),
+
             // Modern Subscription Banner Card
             Obx(() {
               final vendor = authService.currentVendor.value;

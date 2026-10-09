@@ -65,6 +65,6 @@ class ApiConfig {
     if (customUrl.isNotEmpty) return customUrl;
 
     // Détection automatique environnement local selon la plateforme
-    return 'http://127.0.0.1:8000/api';
+    return 'https://backendpaya.envkit.net/api';
   }
 }

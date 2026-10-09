@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:paya_app/core/services/connectivity_service.dart';
 import 'package:paya_app/core/services/saspay_payment_service.dart';
 
 class SubscriptionService extends GetxService {
@@ -14,19 +16,104 @@ class SubscriptionService extends GetxService {
   var productLimit = 10.obs;
 
   var availablePlans = <SubscriptionPlanModel>[].obs;
-  var isLoadingPlans = false.obs;
+    var isLoadingPlans = false.obs;
   var isProcessingPayment = false.obs;
+  var isRefreshing = false.obs;
+  var isOfflineMode = false.obs;
   var activeSubscriptionInfo = Rxn<Map<String, dynamic>>();
+
+  /// Catalogue de secours hors-ligne garantissant la disponibilité continue de l'UI
+  static final List<SubscriptionPlanModel> _defaultFallbackPlans = [
+    SubscriptionPlanModel(
+      id: 1,
+      name: 'Plan Gratuit',
+      slug: 'free',
+      description: 'Pour tester et démarrer votre activité',
+      price: '0.00',
+      currency: 'XOF',
+      durationInDays: 3650,
+      order: 1,
+      isFeatured: false,
+      badgeText: null,
+      features: [
+        'Jusqu\'à 5 vagues de livraison',
+        'Jusqu\'à 10 produits au catalogue',
+        'Gestion des clients et des commandes',
+        'Suivi standard des paiements',
+      ],
+    ),
+    SubscriptionPlanModel(
+      id: 2,
+      name: 'Premium Mensuel',
+      slug: 'pro-monthly',
+      description: 'Flexibilité totale sans engagement long',
+      price: '1000.00',
+      currency: 'XOF',
+      durationInDays: 30,
+      order: 2,
+      isFeatured: false,
+      badgeText: 'Sans engagement',
+      features: [
+        'Vagues de livraison illimitées',
+        'Produits illimités au catalogue',
+        'Historique complet des transactions',
+        'Export et rapports détaillés',
+        'Support client prioritaire',
+      ],
+    ),
+    SubscriptionPlanModel(
+      id: 3,
+      name: 'Premium Semestriel',
+      slug: 'pro-semiannual',
+      description: 'Idéal pour installer vos cycles de vente',
+      price: '4500.00',
+      currency: 'XOF',
+      durationInDays: 180,
+      order: 3,
+      isFeatured: true,
+      badgeText: 'Recommandé • Éco 1 500 F',
+      features: [
+        'Vagues et produits illimités',
+        'Historique complet et analyses',
+        'Support prioritaire par WhatsApp',
+        'Économisez 1 500 FCFA',
+      ],
+    ),
+    SubscriptionPlanModel(
+      id: 4,
+      name: 'Premium Annuel',
+      slug: 'pro-annual',
+      description: 'La rentabilité maximale pour les pros',
+      price: '10000.00',
+      currency: 'XOF',
+      durationInDays: 365,
+      order: 4,
+      isFeatured: false,
+      badgeText: 'Meilleure valeur • 2 mois offerts',
+      features: [
+        'Toutes les fonctionnalités en illimité',
+        'Gestion multi-vendeurs et collaborateurs',
+        'Accompagnement VIP dédié',
+        'Économisez 2 000 FCFA (2 mois offerts)',
+      ],
+    ),
+  ];
 
   Future<SubscriptionService> init() async {
     _sasPayPaymentService = Get.isRegistered<SasPayPaymentService>()
         ? Get.find<SasPayPaymentService>()
         : Get.put(SasPayPaymentService());
 
-    // Charger les plans disponibles depuis le backend SasPay
+    // 1. Initialiser immédiatement avec les plans par défaut pour une UI instantanée
+    availablePlans.assignAll(_defaultFallbackPlans);
+
+    // 2. Écouter la collection Firestore subscription_plans en temps réel (auto-seed si vide)
+    _listenToFirestorePlans();
+
+    // 3. Charger également les plans distants depuis le backend SasPay
     loadSasPayPlans();
 
-    // Écouter les changements utilisateur pour mettre à jour le statut
+    // 4. Écouter les changements utilisateur pour mettre à jour le statut
     _auth.userChanges().listen((user) {
       if (user != null) {
         _listenToVendorPlan(user.uid);
@@ -34,7 +121,64 @@ class SubscriptionService extends GetxService {
       }
     });
 
+    // 5. Stratégie de reconnexion automatique : réactualiser dès le retour du réseau
+    if (Get.isRegistered<ConnectivityService>()) {
+      final conn = Get.find<ConnectivityService>();
+      conn.isConnected.listen((hasConnection) {
+        if (hasConnection && isOfflineMode.value) {
+          debugPrint('[SubscriptionService] Reconnexion détectée, rafraîchissement des abonnements...');
+          refreshSubscription(silent: true);
+        }
+      });
+    }
+
     return this;
+  }
+
+  /// Écoute en temps réel la collection Firestore 'subscription_plans'
+  void _listenToFirestorePlans() {
+    _firestore
+        .collection('subscription_plans')
+        .where('is_active', isEqualTo: true)
+        .snapshots()
+        .listen((snapshot) async {
+      if (snapshot.docs.isNotEmpty) {
+        final plans = snapshot.docs.map((doc) {
+          final data = doc.data();
+          return SubscriptionPlanModel.fromJson(data);
+        }).toList();
+
+        // Trier selon le champ 'order'
+        plans.sort((a, b) => a.order.compareTo(b.order));
+        availablePlans.assignAll(plans);
+        isOfflineMode.value = false;
+        debugPrint('[SubscriptionService] ${plans.length} plans chargés depuis Firestore en direct.');
+      } else {
+        // La collection est vide sur Firestore : initialisation automatique avec nos 4 offres
+        _seedFirestorePlansIfEmpty();
+      }
+    }, onError: (e) {
+      debugPrint('[SubscriptionService] Erreur écoute Firestore subscription_plans: $e');
+    });
+  }
+
+  /// Initialise la collection Firestore 'subscription_plans' si elle est vide
+  Future<void> _seedFirestorePlansIfEmpty() async {
+    try {
+      final existing = await _firestore.collection('subscription_plans').limit(1).get();
+      if (existing.docs.isEmpty) {
+        debugPrint('[SubscriptionService] Initialisation automatique des offres dans Firestore...');
+        final batch = _firestore.batch();
+        for (final plan in _defaultFallbackPlans) {
+          final docRef = _firestore.collection('subscription_plans').doc(plan.slug);
+          batch.set(docRef, plan.toMap());
+        }
+        await batch.commit();
+        debugPrint('[SubscriptionService] 4 offres créées avec succès dans Firestore !');
+      }
+    } catch (e) {
+      debugPrint('[SubscriptionService] Note auto-seed Firestore: $e');
+    }
   }
 
   void _listenToVendorPlan(String vendorId) {
@@ -57,16 +201,69 @@ class SubscriptionService extends GetxService {
     }
   }
 
-  /// Charge la liste des plans SasPay depuis le backend Laravel.
+  /// Charge la liste des plans SasPay depuis le backend Laravel avec fallback automatique.
   Future<void> loadSasPayPlans() async {
     isLoadingPlans.value = true;
     try {
       final plans = await _sasPayPaymentService.fetchPlans();
       if (plans.isNotEmpty) {
         availablePlans.assignAll(plans);
+        isOfflineMode.value = false;
+      } else {
+        // En cas de non-réponse du backend, conserver le catalogue de secours
+        if (availablePlans.isEmpty) {
+          availablePlans.assignAll(_defaultFallbackPlans);
+        }
+        isOfflineMode.value = true;
       }
+    } catch (e) {
+      debugPrint('[SubscriptionService] Erreur chargement plans: $e');
+      if (availablePlans.isEmpty) {
+        availablePlans.assignAll(_defaultFallbackPlans);
+      }
+      isOfflineMode.value = true;
     } finally {
       isLoadingPlans.value = false;
+    }
+  }
+
+  /// Rafraîchit activement le statut et les plans (Pull-to-refresh ou Reconnexion).
+  Future<void> refreshSubscription({bool showFeedback = false, bool silent = false}) async {
+    if (isRefreshing.value) return;
+    isRefreshing.value = true;
+    try {
+      await Future.wait([
+        loadSasPayPlans(),
+        checkBackendSubscription(),
+      ]);
+
+      if (showFeedback) {
+        if (isOfflineMode.value) {
+          Get.snackbar(
+            'Mode Hors-ligne',
+            'Le serveur distant n\'est pas joignable. Données locales affichées.',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 3),
+          );
+        } else {
+          Get.snackbar(
+            'Synchronisation terminée',
+            'Les forfaits et votre statut sont à jour.',
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 2),
+          );
+        }
+      }
+    } catch (e) {
+      if (showFeedback) {
+        Get.snackbar(
+          'Erreur',
+          'Impossible d\'actualiser pour le moment.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } finally {
+      isRefreshing.value = false;
     }
   }
 
@@ -160,6 +357,84 @@ class SubscriptionService extends GetxService {
       Get.snackbar('Succès', 'Demande d\'activation envoyée');
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de l\'envoi: $e');
+    }
+  }
+
+  /// Simule un paiement réussi instantané (Mode Test / Simulation Sandbox)
+  Future<bool> simulatePaymentSuccess(SubscriptionPlanModel plan) async {
+    try {
+      final user = _auth.currentUser;
+      final expiresAt = DateTime.now().add(Duration(days: plan.durationInDays));
+
+      currentPlan.value = 'premium';
+      _applyLimitsForPlan('premium');
+
+      activeSubscriptionInfo.value = {
+        'status': 'active',
+        'plan_id': plan.id,
+        'plan_name': plan.name,
+        'amount': plan.price,
+        'currency': plan.currency,
+        'expires_at': expiresAt.toIso8601String(),
+        'is_simulation': true,
+      };
+
+      if (user != null) {
+        await _firestore.collection('vendors').doc(user.uid).set({
+          'plan': 'premium',
+          'plan_id': plan.id,
+          'plan_name': plan.name,
+          'plan_expires_at': Timestamp.fromDate(expiresAt),
+          'plan_updated_at': FieldValue.serverTimestamp(),
+          'is_simulation': true,
+        }, SetOptions(merge: true));
+      }
+
+      Get.snackbar(
+        'Simulation Réussie ! 🎉',
+        'Votre compte a été activé avec "${plan.name}". Quotas et fonctionnalités illimités !',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 4),
+        backgroundColor: const Color(0xFFE8F5E9),
+        colorText: const Color(0xFF2E7D32),
+      );
+      return true;
+    } catch (e) {
+      debugPrint('[SubscriptionService] Erreur simulation: $e');
+      Get.snackbar(
+        'Erreur simulation',
+        'Impossible de finaliser la simulation: $e',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+  }
+
+  /// Réinitialise le compte au plan Gratuit (pour tester à volonté)
+  Future<void> resetToFree() async {
+    try {
+      final user = _auth.currentUser;
+      currentPlan.value = 'free';
+      _applyLimitsForPlan('free');
+      activeSubscriptionInfo.value = null;
+
+      if (user != null) {
+        await _firestore.collection('vendors').doc(user.uid).set({
+          'plan': 'free',
+          'plan_id': 1,
+          'plan_name': 'Plan Gratuit',
+          'plan_updated_at': FieldValue.serverTimestamp(),
+          'is_simulation': false,
+        }, SetOptions(merge: true));
+      }
+
+      Get.snackbar(
+        'Compte réinitialisé',
+        'Votre boutique est revenue au plan Gratuit pour tester à nouveau.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      debugPrint('[SubscriptionService] Erreur reset: $e');
     }
   }
 

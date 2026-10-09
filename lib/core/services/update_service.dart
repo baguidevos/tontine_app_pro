@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -17,6 +18,9 @@ class AppUpdateInfo {
   final String releasePageUrl;
   final DateTime? publishedAt;
   final bool isUpdateAvailable;
+  final bool isForceUpdate; // Vrai si la mise à jour est obligatoire / bloquante
+  final String? minSupportedVersion;
+  final bool isMaintenanceMode; // Vrai si le système est en maintenance
 
   const AppUpdateInfo({
     required this.latestVersion,
@@ -27,10 +31,17 @@ class AppUpdateInfo {
     required this.releasePageUrl,
     this.publishedAt,
     required this.isUpdateAvailable,
+    this.isForceUpdate = false,
+    this.minSupportedVersion,
+    this.isMaintenanceMode = false,
   });
 }
 
-/// Service vérifiant les mises à jour publiées sur GitHub Releases.
+/// Service de gestion des stratégies de mise à jour In-App de l'application Paya.
+/// - Stratégie 1 : Mise à jour Forcée (Hard / Force Update) pour ruptures de compatibilité.
+/// - Stratégie 2 : Mise à jour Flexible (Soft / Flexible Update) non bloquante.
+/// - Stratégie 3 : Double source de vérification (Firestore Config prioritaire + GitHub API Fallback).
+/// - Stratégie 4 : Bandeau In-App persistant et mode maintenance d'urgence.
 class UpdateService extends GetxService {
   static UpdateService get to => Get.find<UpdateService>();
 
@@ -39,13 +50,16 @@ class UpdateService extends GetxService {
   static const String latestReleaseApi =
       'https://api.github.com/repos/$repoOwner/$repoName/releases/latest';
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final isChecking = false.obs;
   final latestUpdate = Rxn<AppUpdateInfo>();
+  final showInAppBanner = false.obs; // Affichage d'un bandeau discret dans l'accueil
 
   // Évite de redemander sans cesse pendant la même session si l'utilisateur a cliqué "Plus tard"
   String? _dismissedVersion;
 
-  /// Vérifie si une mise à jour est disponible sur GitHub Releases.
+  /// Vérifie si une mise à jour est disponible via Firestore (prioritaire) puis GitHub Releases.
   Future<AppUpdateInfo?> checkForUpdate({
     bool showNotificationIfUpToDate = false,
     bool silent = false,
@@ -61,7 +75,149 @@ class UpdateService extends GetxService {
       final currentVersion = packageInfo.version;
       final currentBuild = packageInfo.buildNumber;
 
-      // 2. Interroger l'API publique GitHub Releases
+      // 2. Tenter d'abord la source Firestore (Remote Config) pour éviter les quotas GitHub
+      AppUpdateInfo? firestoreInfo = await _checkFromFirestore(
+        currentVersion: currentVersion,
+        currentBuild: currentBuild,
+      );
+
+      // Si le mode maintenance est actif dans Firestore
+      if (firestoreInfo != null && firestoreInfo.isMaintenanceMode) {
+        latestUpdate.value = firestoreInfo;
+        showMaintenanceDialog(firestoreInfo.releaseNotes);
+        return firestoreInfo;
+      }
+
+      AppUpdateInfo? resolvedInfo = firestoreInfo;
+
+      // 3. Si aucun document Firestore n'a statué, fallback sur GitHub Releases
+      resolvedInfo ??= await _checkFromGitHub(
+        currentVersion: currentVersion,
+        currentBuild: currentBuild,
+        showNotificationIfUpToDate: showNotificationIfUpToDate,
+      );
+
+      if (resolvedInfo == null) {
+        return null;
+      }
+
+      latestUpdate.value = resolvedInfo;
+
+      // 4. Déclenchement de la stratégie In-App appropriée
+      if (resolvedInfo.isUpdateAvailable) {
+        if (resolvedInfo.isForceUpdate) {
+          // STRATÉGIE FORCÉE : Bloquante, incontournable
+          showInAppBanner.value = false;
+          showForceUpdateDialog(resolvedInfo);
+        } else {
+          // STRATÉGIE FLEXIBLE : L'utilisateur peut reporter
+          if (silent && _dismissedVersion == resolvedInfo.latestVersion) {
+            // Afficher discrètement le bandeau In-App
+            showInAppBanner.value = true;
+            return resolvedInfo;
+          }
+
+          showFlexibleUpdateDialog(resolvedInfo);
+        }
+      } else if (showNotificationIfUpToDate) {
+        showInAppBanner.value = false;
+        _showSnackbar(
+          title: 'Application à jour',
+          message: 'Vous utilisez déjà la dernière version de Paya (v$currentVersion).',
+          isError: false,
+        );
+      }
+
+      return resolvedInfo;
+    } catch (e) {
+      debugPrint('[UpdateService] Exception lors du check mise à jour: $e');
+      if (showNotificationIfUpToDate) {
+        _showSnackbar(
+          title: 'Erreur réseau',
+          message: 'Vérifiez votre connexion internet.',
+          isError: true,
+        );
+      }
+      return null;
+    } finally {
+      isChecking.value = false;
+    }
+  }
+
+  /// Vérifie la configuration de version sur Firestore (`app_config/version`)
+  Future<AppUpdateInfo?> _checkFromFirestore({
+    required String currentVersion,
+    String? currentBuild,
+  }) async {
+    try {
+      final doc = await _firestore.collection('app_config').doc('version').get();
+      if (!doc.exists || doc.data() == null) {
+        return null;
+      }
+
+      final data = doc.data()!;
+      final latestVersion = (data['latest_version'] as String? ?? '').trim();
+      final minVersion = (data['min_version'] as String? ?? '').trim();
+      final forceUpdateFlag = data['force_update'] as bool? ?? false;
+      final maintenanceMode = data['maintenance_mode'] as bool? ?? false;
+      final apkUrl = data['download_url'] as String?;
+      final notes = data['release_notes'] as String? ?? '';
+      final releaseName = data['release_name'] as String? ?? 'Version $latestVersion';
+
+      if (maintenanceMode) {
+        return AppUpdateInfo(
+          latestVersion: latestVersion,
+          currentVersion: currentVersion,
+          releaseName: 'Maintenance en cours',
+          releaseNotes: notes.isNotEmpty ? notes : 'Paya est en maintenance technique temporaire.',
+          releasePageUrl: '',
+          isUpdateAvailable: false,
+          isMaintenanceMode: true,
+        );
+      }
+
+      if (latestVersion.isEmpty) return null;
+
+      final isNewer = _isVersionGreater(
+        latestVersion: latestVersion,
+        currentVersion: currentVersion,
+        currentBuild: currentBuild,
+      );
+
+      // La mise à jour est forcée si flag direct ou si version courante < version minimale
+      final isBelowMin = minVersion.isNotEmpty &&
+          _isVersionGreater(
+            latestVersion: minVersion,
+            currentVersion: currentVersion,
+            currentBuild: currentBuild,
+          );
+
+      final isForce = isNewer && (forceUpdateFlag || isBelowMin);
+
+      return AppUpdateInfo(
+        latestVersion: latestVersion,
+        currentVersion: currentVersion,
+        releaseName: releaseName,
+        releaseNotes: notes,
+        apkDownloadUrl: apkUrl,
+        releasePageUrl: apkUrl ?? 'https://github.com/$repoOwner/$repoName/releases',
+        isUpdateAvailable: isNewer,
+        isForceUpdate: isForce,
+        minSupportedVersion: minVersion.isNotEmpty ? minVersion : null,
+      );
+    } catch (e) {
+      debugPrint('[UpdateService] Firestore version check ignoré: $e');
+      return null;
+    }
+  }
+
+  /// Vérifie l'API GitHub Releases (Fallback)
+  Future<AppUpdateInfo?> _checkFromGitHub({
+    required String currentVersion,
+    String? currentBuild,
+    bool showNotificationIfUpToDate = false,
+  }) async {
+    try {
       final response = await http.get(
         Uri.parse(latestReleaseApi),
         headers: {
@@ -92,6 +248,10 @@ class UpdateService extends GetxService {
       final releasePageUrl = (data['html_url'] as String?) ??
           'https://github.com/$repoOwner/$repoName/releases';
 
+      // Détection de mot-clé critique dans les release notes (ex: [CRITICAL] ou [FORCE])
+      final isForceFlag = releaseNotes.toUpperCase().contains('[CRITICAL]') ||
+          releaseNotes.toUpperCase().contains('[FORCE]');
+
       // Recherche de l'APK dans les assets
       String? apkDownloadUrl;
       final assets = data['assets'] as List<dynamic>? ?? [];
@@ -103,17 +263,15 @@ class UpdateService extends GetxService {
         }
       }
 
-      // Si aucun asset APK n'est attaché, fallback sur la page de la release
       apkDownloadUrl ??= releasePageUrl;
 
-      // 3. Comparaison sémantique des versions
       final isNewer = _isVersionGreater(
         latestVersion: latestVersion,
         currentVersion: currentVersion,
         currentBuild: currentBuild,
       );
 
-      final updateInfo = AppUpdateInfo(
+      return AppUpdateInfo(
         latestVersion: latestVersion,
         currentVersion: currentVersion,
         releaseName: releaseName,
@@ -124,39 +282,11 @@ class UpdateService extends GetxService {
             ? DateTime.tryParse(data['published_at'])
             : null,
         isUpdateAvailable: isNewer,
+        isForceUpdate: isForceFlag,
       );
-
-      latestUpdate.value = updateInfo;
-
-      if (isNewer) {
-        // Si cette version a déjà été refusée dans cette session et qu'on est en mode silencieux, on n'affiche pas
-        if (silent && _dismissedVersion == latestVersion) {
-          return updateInfo;
-        }
-
-        // Afficher la boîte de dialogue de mise à jour
-        showUpdateDialog(updateInfo);
-      } else if (showNotificationIfUpToDate) {
-        _showSnackbar(
-          title: 'Application à jour',
-          message: 'Vous utilisez déjà la dernière version de Paya (v$currentVersion).',
-          isError: false,
-        );
-      }
-
-      return updateInfo;
     } catch (e) {
-      debugPrint('[UpdateService] Exception lors du check mise à jour: $e');
-      if (showNotificationIfUpToDate) {
-        _showSnackbar(
-          title: 'Erreur réseau',
-          message: 'Vérifiez votre connexion internet.',
-          isError: true,
-        );
-      }
+      debugPrint('[UpdateService] Exception GitHub Releases: $e');
       return null;
-    } finally {
-      isChecking.value = false;
     }
   }
 
@@ -167,7 +297,6 @@ class UpdateService extends GetxService {
     String? currentBuild,
   }) {
     try {
-      // Découper la version (ex: 0.10.1+19 ou 0.10.1)
       final latestParts = latestVersion.split('+')[0].split('.').map(int.parse).toList();
       final currentParts = currentVersion.split('+')[0].split('.').map(int.parse).toList();
 
@@ -178,7 +307,6 @@ class UpdateService extends GetxService {
         if (l < c) return false;
       }
 
-      // Si les parties X.Y.Z sont égales, vérifier le numéro de build si présent
       if (latestVersion.contains('+') && currentBuild != null && currentBuild.isNotEmpty) {
         final latestBuildNum = int.tryParse(latestVersion.split('+')[1]) ?? 0;
         final currentBuildNum = int.tryParse(currentBuild) ?? 0;
@@ -187,7 +315,6 @@ class UpdateService extends GetxService {
 
       return false;
     } catch (e) {
-      // Comparaison textuelle de secours
       return latestVersion != currentVersion;
     }
   }
@@ -206,8 +333,134 @@ class UpdateService extends GetxService {
     }
   }
 
-  /// Affiche le dialogue modal de mise à jour moderne
-  void showUpdateDialog(AppUpdateInfo info) {
+  /// STRATÉGIE 1 : Dialogue bloquant de mise à jour forcée (Incontournable)
+  void showForceUpdateDialog(AppUpdateInfo info) {
+    if (Get.context == null) return;
+
+    Get.dialog(
+      PopScope(
+        canPop: false, // Empêche la fermeture via le bouton retour Android
+        child: Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header rouge alerte
+                Row(
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: AppTheme.softRed.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.warning_amber_rounded,
+                        color: AppTheme.softRed,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Mise à jour obligatoire',
+                            style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.darkerBlue,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.softRed.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'ACTION REQUISE',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.softRed,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+
+                const Text(
+                  'Une mise à jour critique de sécurité et de fonctionnalités est requise pour continuer à utiliser Paya en toute sécurité.',
+                  style: TextStyle(fontSize: 13, color: AppTheme.slate700, height: 1.4),
+                ),
+                const SizedBox(height: 14),
+
+                if (info.releaseNotes.isNotEmpty) ...[
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 140),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.slate50,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppTheme.slate200),
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Text(
+                        info.releaseNotes,
+                        style: const TextStyle(fontSize: 12, height: 1.4, color: AppTheme.slate700),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                ],
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (info.apkDownloadUrl != null) {
+                        launchDownload(info.apkDownloadUrl!);
+                      }
+                    },
+                    icon: const Icon(Icons.system_update_rounded, size: 20),
+                    label: const Text(
+                      'Installer la mise à jour',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.payaBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
+  /// STRATÉGIE 2 : Dialogue modal de mise à jour flexible (Optionnelle)
+  void showFlexibleUpdateDialog(AppUpdateInfo info) {
     if (Get.context == null) return;
 
     Get.dialog(
@@ -221,7 +474,6 @@ class UpdateService extends GetxService {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header avec icône moderne
               Row(
                 children: [
                   Container(
@@ -254,10 +506,7 @@ class UpdateService extends GetxService {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppTheme.greenLight,
                                 borderRadius: BorderRadius.circular(8),
@@ -274,10 +523,7 @@ class UpdateService extends GetxService {
                             const SizedBox(width: 6),
                             Text(
                               '(actuelle: v${info.currentVersion})',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppTheme.slate500,
-                              ),
+                              style: const TextStyle(fontSize: 11, color: AppTheme.slate500),
                             ),
                           ],
                         ),
@@ -288,7 +534,6 @@ class UpdateService extends GetxService {
               ),
               const SizedBox(height: 18),
 
-              // Titre de la release
               if (info.releaseName.isNotEmpty) ...[
                 Text(
                   info.releaseName,
@@ -301,7 +546,6 @@ class UpdateService extends GetxService {
                 const SizedBox(height: 8),
               ],
 
-              // Notes de version (Changelog)
               if (info.releaseNotes.isNotEmpty) ...[
                 Container(
                   constraints: const BoxConstraints(maxHeight: 180),
@@ -315,23 +559,18 @@ class UpdateService extends GetxService {
                     physics: const BouncingScrollPhysics(),
                     child: Text(
                       info.releaseNotes,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        height: 1.4,
-                        color: AppTheme.slate700,
-                      ),
+                      style: const TextStyle(fontSize: 12, height: 1.4, color: AppTheme.slate700),
                     ),
                   ),
                 ),
                 const SizedBox(height: 18),
               ],
 
-              // Actions
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Get.back(); // Ferme le dialogue
+                    Get.back();
                     if (info.apkDownloadUrl != null) {
                       launchDownload(info.apkDownloadUrl!);
                     }
@@ -345,9 +584,7 @@ class UpdateService extends GetxService {
                     backgroundColor: AppTheme.payaBlue,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                 ),
@@ -358,14 +595,12 @@ class UpdateService extends GetxService {
                 child: TextButton(
                   onPressed: () {
                     _dismissedVersion = info.latestVersion;
+                    showInAppBanner.value = true; // Activer le bandeau discret dans l'accueil
                     Get.back();
                   },
                   child: const Text(
                     'Plus tard',
-                    style: TextStyle(
-                      color: AppTheme.slate500,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(color: AppTheme.slate500, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -374,6 +609,67 @@ class UpdateService extends GetxService {
         ),
       ),
       barrierDismissible: true,
+    );
+  }
+
+  /// STRATÉGIE 4 : Dialogue bloquant en cas de mode maintenance générale
+  void showMaintenanceDialog(String message) {
+    if (Get.context == null) return;
+
+    Get.dialog(
+      PopScope(
+        canPop: false,
+        child: Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTheme.payaOrange.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.construction_rounded,
+                    color: AppTheme.payaOrange,
+                    size: 36,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Maintenance en cours',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppTheme.darkerBlue),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  message.isNotEmpty
+                      ? message
+                      : 'Paya fait l\'objet d\'une mise à niveau technique. Nos services seront rétablis dans quelques instants.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, color: AppTheme.slate600, height: 1.4),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () => checkForUpdate(silent: false),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text('Vérifier à nouveau'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.payaBlue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
     );
   }
 

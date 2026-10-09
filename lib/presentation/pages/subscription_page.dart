@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/services/subscription_service.dart';
+import 'package:paya_app/core/services/whatsapp_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 
 class SubscriptionPage extends StatelessWidget {
@@ -28,16 +29,82 @@ class SubscriptionPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppTheme.deepBlue),
           onPressed: () => Get.back(),
         ),
+        actions: [
+          Obx(() {
+            final isRefreshing = subscriptionService.isRefreshing.value;
+            return IconButton(
+              tooltip: 'Actualiser mon abonnement',
+              icon: isRefreshing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppTheme.deepBlue,
+                      ),
+                    )
+                  : const Icon(Icons.sync_rounded, color: AppTheme.deepBlue),
+              onPressed: isRefreshing
+                  ? null
+                  : () => subscriptionService.refreshSubscription(showFeedback: true),
+            );
+          }),
+          const SizedBox(width: 8),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 540),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Hero Banner
+      body: RefreshIndicator(
+        color: AppTheme.deepBlue,
+        onRefresh: () => subscriptionService.refreshSubscription(showFeedback: true),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 540),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Avertissement Mode Hors-Ligne si le backend ne répond pas
+                  Obx(() {
+                    if (!subscriptionService.isOfflineMode.value) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3E0),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFFFB74D)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.cloud_off_rounded, color: Color(0xFFE65100), size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Serveur en cours de synchronisation. Tarifs officiels affichés en mode local.',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFE65100),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                            ),
+                            onPressed: () => subscriptionService.refreshSubscription(showFeedback: true),
+                            child: const Text('Réessayer', style: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+
+                  // Hero Banner
                 Container(
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
@@ -118,106 +185,119 @@ class SubscriptionPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
 
-                // Plan cards
-                _buildPlanCard(
-                  title: 'Plan Gratuit',
-                  subtitle: 'Pour tester et démarrer votre activité',
-                  price: '0 FCFA',
-                  period: 'pour toujours',
-                  features: [
-                    'Jusqu\'à 5 vagues de livraison',
-                    'Jusqu\'à 10 produits au catalogue',
-                    'Gestion des clients et des commandes',
-                    'Suivi standard des paiements',
-                  ],
-                  isCurrent: subscriptionService.currentPlan.value == 'free',
-                  isFeatured: false,
-                  ctaText: subscriptionService.currentPlan.value == 'free'
-                      ? 'Votre plan actuel'
-                      : 'Revenir au gratuit',
-                  onTap: () => Get.back(),
-                ),
+                // Plan cards générés dynamiquement depuis le backend / catalogue local
+                Obx(() {
+                  final plans = subscriptionService.availablePlans;
+                  if (plans.isEmpty && subscriptionService.isLoadingPlans.value) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
 
-                const SizedBox(height: 16),
+                  return Column(
+                    children: plans.map((plan) {
+                      final isFree = plan.slug == 'free' || plan.price == '0.00' || plan.price == '0';
+                      final isCurrent = isFree
+                          ? subscriptionService.currentPlan.value == 'free'
+                          : (subscriptionService.currentPlan.value != 'free' &&
+                              subscriptionService.activeSubscriptionInfo.value?['plan_id'] == plan.id);
 
-                _buildPlanCard(
-                  title: 'Premium Mensuel',
-                  subtitle: 'Flexibilité totale sans engagement long',
-                  price: '5 000 FCFA',
-                  period: '/ mois',
-                  features: [
-                    'Vagues de livraison illimitées',
-                    'Produits illimités au catalogue',
-                    'Historique complet des transactions',
-                    'Export et rapports détaillés',
-                    'Support client prioritaire',
-                  ],
-                  isCurrent: false,
-                  isFeatured: false,
-                  badgeText: 'Sans engagement',
-                  ctaText: 'Choisir ce plan',
-                  onTap: () => _confirmActivation(
-                    context,
-                    service: subscriptionService,
-                    planType: 'premium',
-                    duration: '1_month',
-                    planName: 'Premium Mensuel (5 000 FCFA)',
-                  ),
-                ),
+                      // Formatage du prix
+                      final numPrice = double.tryParse(plan.price) ?? 0.0;
+                      final formattedPrice = isFree
+                          ? '0 FCFA'
+                          : '${numPrice.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]} ')} FCFA';
 
-                const SizedBox(height: 16),
+                      // Formatage de la période
+                      final String period;
+                      if (isFree) {
+                        period = 'pour toujours';
+                      } else if (plan.durationInDays <= 31) {
+                        period = '/ mois';
+                      } else if (plan.durationInDays <= 185) {
+                        period = '/ 6 mois';
+                      } else if (plan.durationInDays <= 366) {
+                        period = '/ an';
+                      } else {
+                        period = '/ ${plan.durationInDays} jours';
+                      }
 
-                _buildPlanCard(
-                  title: 'Premium Semestriel',
-                  subtitle: 'Idéal pour installer vos cycles de vente',
-                  price: '25 000 FCFA',
-                  period: '/ 6 mois',
-                  features: [
-                    'Vagues et produits illimités',
-                    'Historique complet et analyses',
-                    'Support prioritaire par WhatsApp',
-                    'Économisez 5 000 FCFA',
-                  ],
-                  isCurrent: false,
-                  isFeatured: true,
-                  badgeText: 'Recommandé • Éco 5 000 F',
-                  badgeColor: AppTheme.payaGreen,
-                  ctaText: 'Profiter de l\'offre semestrielle',
-                  onTap: () => _confirmActivation(
-                    context,
-                    service: subscriptionService,
-                    planType: 'premium',
-                    duration: '6_months',
-                    planName: 'Premium Semestriel (25 000 FCFA)',
-                  ),
-                ),
+                      // Badge & mise en avant (dynamique depuis Firestore ou calculé)
+                      String? badgeText = plan.badgeText;
+                      Color? badgeColor;
+                      bool isFeatured = plan.isFeatured;
 
-                const SizedBox(height: 16),
+                      if (badgeText == null || badgeText.isEmpty) {
+                        if (plan.slug.contains('semiannual') || plan.durationInDays == 180) {
+                          badgeText = 'Recommandé • Éco 1 500 F';
+                          badgeColor = AppTheme.payaGreen;
+                          isFeatured = true;
+                        } else if (plan.slug.contains('annual') || plan.durationInDays == 365) {
+                          badgeText = 'Meilleure valeur • 2 mois offerts';
+                          badgeColor = const Color(0xFFF57C00);
+                        } else if (plan.slug.contains('monthly') || plan.durationInDays == 30) {
+                          badgeText = 'Sans engagement';
+                        }
+                      } else {
+                        if (isFeatured) {
+                          badgeColor = AppTheme.payaGreen;
+                        } else if (plan.durationInDays >= 360) {
+                          badgeColor = const Color(0xFFF57C00);
+                        } else {
+                          badgeColor = AppTheme.deepBlue;
+                        }
+                      }
 
-                _buildPlanCard(
-                  title: 'Premium Annuel',
-                  subtitle: 'La rentabilité maximale pour les pros',
-                  price: '45 000 FCFA',
-                  period: '/ an',
-                  features: [
-                    'Toutes les fonctionnalités en illimité',
-                    'Gestion multi-vendeurs et collaborateurs',
-                    'Accompagnement VIP dédié',
-                    'Économisez 15 000 FCFA (3 mois offerts)',
-                  ],
-                  isCurrent: false,
-                  isFeatured: false,
-                  badgeText: 'Meilleure valeur • -25%',
-                  badgeColor: Color(0xFFF57C00),
-                  ctaText: 'Souscrire pour 1 an',
-                  onTap: () => _confirmActivation(
-                    context,
-                    service: subscriptionService,
-                    planType: 'premium',
-                    duration: '1_year',
-                    planName: 'Premium Annuel (45 000 FCFA)',
-                  ),
-                ),
+                      // Texte du bouton d'action
+                      final String ctaText;
+                      if (isCurrent) {
+                        ctaText = 'Votre plan actuel';
+                      } else if (isFree) {
+                        ctaText = 'Revenir au gratuit';
+                      } else {
+                        ctaText = isFeatured ? 'Profiter de l\'offre' : 'Choisir ce plan';
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: _buildPlanCard(
+                          title: plan.name,
+                          subtitle: plan.description ?? '',
+                          price: formattedPrice,
+                          period: period,
+                          features: plan.features,
+                          isCurrent: isCurrent,
+                          isFeatured: isFeatured,
+                          badgeText: badgeText,
+                          badgeColor: badgeColor,
+                          ctaText: ctaText,
+                          onTap: () {
+                            if (isFree) {
+                              if (subscriptionService.currentPlan.value != 'free') {
+                                subscriptionService.resetToFree();
+                              } else {
+                                Get.back();
+                              }
+                            } else {
+                              _confirmActivation(
+                                context,
+                                service: subscriptionService,
+                                planType: 'premium',
+                                duration: '${plan.durationInDays}_days',
+                                planName: '${plan.name} ($formattedPrice)',
+                                targetPlanId: plan.id,
+                                selectedPlan: plan,
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }),
 
                 const SizedBox(height: 28),
 
@@ -275,8 +355,9 @@ class SubscriptionPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPlanCard({
     required String title,
@@ -469,6 +550,7 @@ class SubscriptionPage extends StatelessWidget {
     required String duration,
     required String planName,
     int? targetPlanId,
+    SubscriptionPlanModel? selectedPlan,
   }) {
     // Résolution de l'identifiant du plan correspondant dans SasPay
     int? planId = targetPlanId;
@@ -680,6 +762,17 @@ class SubscriptionPage extends StatelessWidget {
                                 final result = await service.subscribeWithSasPay(planId: selectedId);
                                 if (result != null) {
                                   paymentState.value = result;
+                                } else {
+                                  if (context.mounted) {
+                                    Navigator.pop(context); // Fermer le bottom sheet
+                                    _showBackendOfflineFallback(
+                                      context,
+                                      planName: planName,
+                                      planType: planType,
+                                      duration: duration,
+                                      service: service,
+                                    );
+                                  }
                                 }
                               },
                         style: ElevatedButton.styleFrom(
@@ -712,4 +805,111 @@ class SubscriptionPage extends StatelessWidget {
       },
     );
   }
+
+  void _showBackendOfflineFallback(
+    BuildContext context, {
+    required String planName,
+    required String planType,
+    required String duration,
+    required SubscriptionService service,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3E0),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.cloud_off_rounded, color: Color(0xFFE65100), size: 24),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Serveur indisponible',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppTheme.darkerBlue),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Le serveur de paiement en ligne ne répond pas actuellement.\n\nVous pouvez tout de même activer votre $planName sans interruption grâce à nos canaux directs :',
+              style: const TextStyle(fontSize: 13, color: AppTheme.slate600, height: 1.4),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.slate50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.slate200),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.flash_on_rounded, color: AppTheme.payaGreen, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Activation directe via WhatsApp Support ou demande enregistrée dans votre compte.',
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.slate700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogCtx);
+                    service.requestActivation(planType, duration);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.slate700,
+                    side: const BorderSide(color: AppTheme.slate300),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Demande locale', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(dialogCtx);
+                    WhatsAppService.launchWhatsAppMessage(
+                      phone: '2250700000000',
+                      message: 'Bonjour l\'équipe Paya, je souhaite activer le $planName pour ma boutique. Le serveur automatique est momentanément indisponible.',
+                    );
+                  },
+                  icon: const Icon(Icons.chat_bubble_rounded, size: 16),
+                  label: const Text('WhatsApp', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF25D366),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
+
