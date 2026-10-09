@@ -2,17 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.11.0] - 2026-10-09
 
 ### Added
-- **Système de mise à jour automatique In-App (GitHub Releases Auto-Updater)** :
-  - [`UpdateService`](lib/core/services/update_service.dart) : Service de vérification automatique des nouvelles versions publiées sur GitHub Releases avec comparaison sémantique (SemVer).
-  - Boîte de dialogue moderne de mise à jour affichant le numéro de version, le nom de la release, les notes de version et un bouton de téléchargement direct de l'APK.
-  - [`MainLayoutController`](lib/presentation/controllers/main_layout_controller.dart) : Vérification silencieuse et non-bloquante au lancement de l'application (avec mémorisation de l'option "Plus tard").
-  - [`MoreMenuPage`](lib/presentation/pages/more/more_menu_page.dart) : Bouton "Mise à jour de l'application" pour permettre à l'utilisateur de vérifier manuellement les mises à jour à tout moment.
-  - Dépendance `package_info_plus` ajoutée pour détecter dynamiquement la version réelle installée sur le terminal.
+- **Intégration SasPay & Abonnements Pro (Mobile Money & Carte)** :
+  - [`SasPayPaymentService`](lib/core/services/saspay_payment_service.dart) : Client API de communication avec le backend Laravel pour initialiser les paiements (Checkout hébergé, Softpay push direct), vérifier les statuts et récupérer les offres actives.
+  - [`SubscriptionService`](lib/core/services/subscription_service.dart) : Gestion des formules et quotas (vagues & produits illimités), synchronisation temps réel avec Firebase Firestore.
+  - **Résilience & mode dégradé hors-ligne** : Catalogue par défaut (`_defaultFallbackPlans`) garantissant la disponibilité continue de l'interface en cas de non-réponse du serveur, auto-reconnexion réseau via [`ConnectivityService`](lib/core/services/connectivity_service.dart), et geste Pull-to-refresh.
+  - **Secours pendant le paiement** : Modale d'assistance proposant l'activation instantanée par WhatsApp Direct et l'enregistrement d'une demande locale si le serveur distant est injoignable.
+  - [`SubscriptionPage`](lib/presentation/pages/subscription_page.dart) : Page modernisée avec rendu dynamique des forfaits et suivi interactif de la transaction.
+  - Backend Laravel : Seeders de formules (`PlanSeeder`, `DatabaseSeeder`) et configuration de l'API de production (`https://backendpaya.envkit.net/api`).
 
----
+- **Stratégies de mise à jour In-App avancées** :
+  - [`UpdateService`](lib/core/services/update_service.dart) :
+    - **Mise à jour forcée / bloquante (Hard Update)** : Dialogue non-contournable (`barrierDismissible: false`, `PopScope(canPop: false)`) en cas de version minimale non respectée ou drapeau critique.
+    - **Mise à jour flexible (Soft Update)** : Dialogue avec changelog et option "Plus tard".
+    - **Double source de vérification** : Document Firestore `app_config/version` prioritaire (sans contrainte de quota) avec bascule transparente sur l'API GitHub Releases.
+    - **Mode Maintenance technique** : Écran d'attente bloquant activable à distance.
+    - **Résolution directe CDN GitHub** : Extraction de l'URL directe `release-assets.githubusercontent.com` par redirection HTTP 302 pour empêcher Android d'intercepter le lien avec l'application native GitHub.
+  - [`InAppUpdateBanner`](lib/presentation/widgets/in_app_update_banner.dart) : Nouveau bandeau In-App non intrusif affiché au sommet du tableau de bord pour relancer le téléchargement à tout moment.
+
+### Changed
+- **Montée de version** :
+  - `pubspec.yaml` : Version incrémentée de `0.10.0+19` → `0.11.0+20`.
+
 
 ## [0.10.0] - 2026-09-27
 
