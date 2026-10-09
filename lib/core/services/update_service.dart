@@ -319,15 +319,36 @@ class UpdateService extends GetxService {
     }
   }
 
-  /// Ouvre le lien de téléchargement direct de l'APK
+  /// Ouvre le lien de téléchargement direct de l'APK en forçant le navigateur web
+  /// (Chrome Custom Tabs) afin d'empêcher Android d'ouvrir l'application GitHub native.
   Future<void> launchDownload(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    try {
+      // 1. Tenter d'ouvrir dans le navigateur intégré (court-circuite les App Links de GitHub)
+      final inAppSuccess = await launchUrl(
+        uri,
+        mode: LaunchMode.inAppBrowserView,
+      );
+      if (inAppSuccess) return;
+    } catch (e) {
+      debugPrint('[UpdateService] Échec inAppBrowserView: $e');
+    }
+
+    // 2. Fallback sur le navigateur externe standard si nécessaire
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showSnackbar(
+          title: 'Erreur',
+          message: 'Impossible d\'ouvrir le lien de téléchargement.',
+          isError: true,
+        );
+      }
+    } catch (e) {
       _showSnackbar(
         title: 'Erreur',
-        message: 'Impossible d\'ouvrir le lien de téléchargement.',
+        message: 'Impossible de lancer le téléchargement: $e',
         isError: true,
       );
     }
