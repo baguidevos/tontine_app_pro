@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:ota_update/ota_update.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -363,35 +365,256 @@ class UpdateService extends GetxService {
     return url;
   }
 
-  /// Ouvre le lien de téléchargement direct de l'APK sans jamais ouvrir l'application GitHub native.
-  Future<void> launchDownload(String url) async {
-    try {
-      _showSnackbar(
-        title: 'Téléchargement',
-        message: 'Lancement du téléchargement de la mise à jour...',
-        isError: false,
-      );
+  StreamSubscription<OtaEvent>? _otaSubscription;
 
-      // 1. Résoudre le lien direct CDN hébergé sur githubusercontent.com
+  /// Lance le téléchargement direct In-App avec suivi de progression et installation automatique Android (OTA).
+  Future<void> launchDownload(String url) async {
+    // Sur Flutter Web ou autres plateformes qu'Android, bascule directe vers le navigateur
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      _fallbackBrowserDownload(url);
+      return;
+    }
+
+    try {
+      // 1. Résoudre le lien CDN direct si l'URL provient de GitHub Releases
+      final directDownloadUrl = await _resolveDirectDownloadUrl(url);
+
+      // Si l'URL ne pointe pas vers un fichier APK, ouvrir dans le navigateur de secours
+      if (!directDownloadUrl.toLowerCase().contains('.apk')) {
+        _fallbackBrowserDownload(directDownloadUrl);
+        return;
+      }
+
+      // 2. Afficher la modale de progression In-App et démarrer le téléchargement OTA
+      _showOtaDownloadDialog(directDownloadUrl);
+    } catch (e) {
+      debugPrint('[UpdateService] Erreur lors du lancement OTA: $e');
+      _fallbackBrowserDownload(url);
+    }
+  }
+
+  /// Affiche le dialogue modal de progression In-App
+  void _showOtaDownloadDialog(String downloadUrl) {
+    if (Get.context == null) return;
+
+    final progress = 0.obs;
+    final statusText = 'Connexion au serveur...'.obs;
+    final isDone = false.obs;
+
+    _otaSubscription?.cancel();
+
+    Get.dialog(
+      PopScope(
+        canPop: false, // Empêche la fermeture accidentelle pendant le téléchargement
+        child: Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Obx(
+              () => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icône animée de mise à niveau
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.payaBlue, AppTheme.payaLightBlue],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.payaBlue.withValues(alpha: 0.3),
+                          blurRadius: 14,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.system_update_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Mise à jour en cours',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.darkerBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  Text(
+                    statusText.value,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.slate600,
+                    ),
+                  ),
+                  const SizedBox(height: 22),
+
+                  // Barre de progression
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: progress.value > 0 ? progress.value / 100.0 : null,
+                      minHeight: 10,
+                      backgroundColor: AppTheme.slate200,
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.payaGreen),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Indicateur de pourcentage
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${progress.value} %',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.payaGreen,
+                        ),
+                      ),
+                      const Text(
+                        'Installation automatique',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppTheme.slate400,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+
+                  // Bouton Annuler
+                  if (!isDone.value)
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _otaSubscription?.cancel();
+                          if (Get.isDialogOpen == true) {
+                            Get.back();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.slate600,
+                          side: const BorderSide(color: AppTheme.slate300),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: const Text('Annuler'),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
+    // Déclenchement du téléchargement OTA en tâche de fond
+    try {
+      _otaSubscription = OtaUpdate()
+          .execute(
+            downloadUrl,
+            destinationFilename: 'paya_update.apk',
+          )
+          .listen(
+        (OtaEvent event) {
+          switch (event.status) {
+            case OtaStatus.DOWNLOADING:
+              final p = int.tryParse(event.value ?? '0') ?? 0;
+              progress.value = p;
+              statusText.value = 'Téléchargement de la mise à jour ($p%)...';
+              break;
+            case OtaStatus.INSTALLING:
+            case OtaStatus.INSTALLATION_DONE:
+              isDone.value = true;
+              statusText.value = 'Lancement de l\'installateur Android...';
+              progress.value = 100;
+              Future.delayed(const Duration(milliseconds: 1200), () {
+                if (Get.isDialogOpen == true) {
+                  Get.back();
+                }
+              });
+              break;
+            case OtaStatus.ALREADY_RUNNING_ERROR:
+              statusText.value = 'Téléchargement déjà en cours...';
+              break;
+            case OtaStatus.CANCELED:
+              statusText.value = 'Téléchargement annulé.';
+              break;
+            case OtaStatus.PERMISSION_NOT_GRANTED_ERROR:
+              _handleOtaError(
+                'Autorisation requise pour installer des applications.',
+                downloadUrl,
+              );
+              break;
+            case OtaStatus.INTERNAL_ERROR:
+            case OtaStatus.DOWNLOAD_ERROR:
+            case OtaStatus.CHECKSUM_ERROR:
+            case OtaStatus.INSTALLATION_ERROR:
+              _handleOtaError(
+                'Échec du téléchargement direct.',
+                downloadUrl,
+              );
+              break;
+          }
+        },
+        onError: (error) {
+          debugPrint('[UpdateService] Exception stream OtaUpdate: $error');
+          _handleOtaError(
+            'Impossible de terminer le téléchargement direct.',
+            downloadUrl,
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('[UpdateService] Exception initialisation OtaUpdate: $e');
+      _handleOtaError('Échec du service d\'installation.', downloadUrl);
+    }
+  }
+
+  void _handleOtaError(String message, String fallbackUrl) {
+    _otaSubscription?.cancel();
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+    _showSnackbar(
+      title: 'Mise à jour',
+      message: '$message Ouverture du lien de secours...',
+      isError: true,
+    );
+    _fallbackBrowserDownload(fallbackUrl);
+  }
+
+  Future<void> _fallbackBrowserDownload(String url) async {
+    try {
       final directDownloadUrl = await _resolveDirectDownloadUrl(url);
       final uri = Uri.parse(directDownloadUrl);
-
-      // 2. Déclencher le téléchargement dans le navigateur (Chrome / Samsung Internet, etc.)
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        _showSnackbar(
-          title: 'Erreur',
-          message: 'Impossible de lancer le téléchargement.',
-          isError: true,
-        );
       }
     } catch (e) {
-      _showSnackbar(
-        title: 'Erreur',
-        message: 'Impossible de lancer le téléchargement: $e',
-        isError: true,
-      );
+      debugPrint('[UpdateService] Exception fallback navigateur: $e');
     }
   }
 

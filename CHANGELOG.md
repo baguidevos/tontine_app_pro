@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2026-10-09
+
+### Added
+- **Mise à jour directe In-App (OTA Auto-Installer)** :
+  - [`UpdateService`](lib/core/services/update_service.dart) : Téléchargement direct du fichier APK avec barre de progression interactive en temps réel (0% → 100%) et déclenchement automatique de l'installateur d'application natif Android sans passer par GitHub ni navigateur externe.
+  - [`AndroidManifest.xml`](android/app/src/main/AndroidManifest.xml) : Ajout de la permission `REQUEST_INSTALL_PACKAGES` et intégration du package `ota_update: ^7.1.0`.
+
+### Fixed
+- **Préservation de l'étape de commande lors d'un paiement ou acompte** :
+  - [`PaymentController`](lib/presentation/controllers/payment_controller.dart) : Utilisation de `order.copyWith` lors de l'enregistrement (`recordPayment`) et de la suppression (`deleteTransaction`) d'un paiement afin de préserver l'étape (`deliveryStatus`), les notes et les horodatages sans réinitialiser la commande à l'étape initiale « Reçue ».
+
+### Changed
+- `pubspec.yaml` : Version incrémentée de `0.11.1+21` → `0.11.2+22`.
+
+
 ## [0.11.1] - 2026-10-09
 
 ### Added

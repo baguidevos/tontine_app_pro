@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
 import 'package:paya_app/data/models/payment_transaction_model.dart';
-import 'package:paya_app/data/models/order_model.dart';
 import 'package:paya_app/data/repositories/payment_repository.dart';
 import 'package:paya_app/data/repositories/order_repository.dart';
 
@@ -87,16 +86,10 @@ class PaymentController extends GetxController {
         (sum, item) => sum + item.paidAmount,
       );
 
-      final updatedOrder = OrderModel(
-        id: order.id,
-        vendorId: order.vendorId,
-        customerId: order.customerId,
-        waveId: order.waveId, // ✅ Préserver le waveId
+      final updatedOrder = order.copyWith(
         items: updatedItems,
-        totalAmount: order.totalAmount,
         totalPaid: newTotalPaid,
         status: newTotalPaid >= order.totalAmount ? 'completed' : order.status,
-        createdAt: order.createdAt,
       );
 
       await _orderRepository.updateOrder(updatedOrder);
@@ -173,16 +166,10 @@ class PaymentController extends GetxController {
           (sum, item) => sum + item.paidAmount,
         );
 
-        final updatedOrder = OrderModel(
-          id: order.id,
-          vendorId: order.vendorId,
-          customerId: order.customerId,
-          waveId: order.waveId, // ✅ Préserver le waveId
+        final updatedOrder = order.copyWith(
           items: updatedItems,
-          totalAmount: order.totalAmount,
           totalPaid: newTotalPaid,
           status: newTotalPaid < order.totalAmount ? 'pending' : order.status,
-          createdAt: order.createdAt,
         );
 
         await _orderRepository.updateOrder(updatedOrder);
