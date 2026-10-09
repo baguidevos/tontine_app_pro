@@ -319,29 +319,50 @@ class UpdateService extends GetxService {
     }
   }
 
-  /// Ouvre le lien de téléchargement direct de l'APK en forçant le navigateur web
-  /// (Chrome Custom Tabs) afin d'empêcher Android d'ouvrir l'application GitHub native.
-  Future<void> launchDownload(String url) async {
-    final uri = Uri.parse(url);
-    try {
-      // 1. Tenter d'ouvrir dans le navigateur intégré (court-circuite les App Links de GitHub)
-      final inAppSuccess = await launchUrl(
-        uri,
-        mode: LaunchMode.inAppBrowserView,
-      );
-      if (inAppSuccess) return;
-    } catch (e) {
-      debugPrint('[UpdateService] Échec inAppBrowserView: $e');
+  /// Résout la redirection HTTP 302 de GitHub pour extraire le lien direct
+  /// de téléchargement CDN (release-assets.githubusercontent.com).
+  /// Cela contourne définitivement l'application native GitHub sur Android.
+  Future<String> _resolveDirectDownloadUrl(String url) async {
+    if (!url.contains('github.com') || !url.contains('/releases/download/')) {
+      return url;
     }
 
-    // 2. Fallback sur le navigateur externe standard si nécessaire
     try {
+      final client = http.Client();
+      final request = http.Request('GET', Uri.parse(url))..followRedirects = false;
+      final streamedResponse = await client.send(request).timeout(const Duration(seconds: 8));
+
+      if (streamedResponse.isRedirect && streamedResponse.headers.containsKey('location')) {
+        final directUrl = streamedResponse.headers['location']!;
+        debugPrint('[UpdateService] URL directe résolue (hors domaine GitHub): $directUrl');
+        return directUrl;
+      }
+    } catch (e) {
+      debugPrint('[UpdateService] Exception résolution URL directe: $e');
+    }
+    return url;
+  }
+
+  /// Ouvre le lien de téléchargement direct de l'APK sans jamais ouvrir l'application GitHub native.
+  Future<void> launchDownload(String url) async {
+    try {
+      _showSnackbar(
+        title: 'Téléchargement',
+        message: 'Lancement du téléchargement de la mise à jour...',
+        isError: false,
+      );
+
+      // 1. Résoudre le lien direct CDN hébergé sur githubusercontent.com
+      final directDownloadUrl = await _resolveDirectDownloadUrl(url);
+      final uri = Uri.parse(directDownloadUrl);
+
+      // 2. Déclencher le téléchargement dans le navigateur (Chrome / Samsung Internet, etc.)
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         _showSnackbar(
           title: 'Erreur',
-          message: 'Impossible d\'ouvrir le lien de téléchargement.',
+          message: 'Impossible de lancer le téléchargement.',
           isError: true,
         );
       }

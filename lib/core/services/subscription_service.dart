@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -357,84 +357,6 @@ class SubscriptionService extends GetxService {
       Get.snackbar('Succès', 'Demande d\'activation envoyée');
     } catch (e) {
       Get.snackbar('Erreur', 'Échec de l\'envoi: $e');
-    }
-  }
-
-  /// Simule un paiement réussi instantané (Mode Test / Simulation Sandbox)
-  Future<bool> simulatePaymentSuccess(SubscriptionPlanModel plan) async {
-    try {
-      final user = _auth.currentUser;
-      final expiresAt = DateTime.now().add(Duration(days: plan.durationInDays));
-
-      currentPlan.value = 'premium';
-      _applyLimitsForPlan('premium');
-
-      activeSubscriptionInfo.value = {
-        'status': 'active',
-        'plan_id': plan.id,
-        'plan_name': plan.name,
-        'amount': plan.price,
-        'currency': plan.currency,
-        'expires_at': expiresAt.toIso8601String(),
-        'is_simulation': true,
-      };
-
-      if (user != null) {
-        await _firestore.collection('vendors').doc(user.uid).set({
-          'plan': 'premium',
-          'plan_id': plan.id,
-          'plan_name': plan.name,
-          'plan_expires_at': Timestamp.fromDate(expiresAt),
-          'plan_updated_at': FieldValue.serverTimestamp(),
-          'is_simulation': true,
-        }, SetOptions(merge: true));
-      }
-
-      Get.snackbar(
-        'Simulation Réussie ! 🎉',
-        'Votre compte a été activé avec "${plan.name}". Quotas et fonctionnalités illimités !',
-        snackPosition: SnackPosition.TOP,
-        duration: const Duration(seconds: 4),
-        backgroundColor: const Color(0xFFE8F5E9),
-        colorText: const Color(0xFF2E7D32),
-      );
-      return true;
-    } catch (e) {
-      debugPrint('[SubscriptionService] Erreur simulation: $e');
-      Get.snackbar(
-        'Erreur simulation',
-        'Impossible de finaliser la simulation: $e',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return false;
-    }
-  }
-
-  /// Réinitialise le compte au plan Gratuit (pour tester à volonté)
-  Future<void> resetToFree() async {
-    try {
-      final user = _auth.currentUser;
-      currentPlan.value = 'free';
-      _applyLimitsForPlan('free');
-      activeSubscriptionInfo.value = null;
-
-      if (user != null) {
-        await _firestore.collection('vendors').doc(user.uid).set({
-          'plan': 'free',
-          'plan_id': 1,
-          'plan_name': 'Plan Gratuit',
-          'plan_updated_at': FieldValue.serverTimestamp(),
-          'is_simulation': false,
-        }, SetOptions(merge: true));
-      }
-
-      Get.snackbar(
-        'Compte réinitialisé',
-        'Votre boutique est revenue au plan Gratuit pour tester à nouveau.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } catch (e) {
-      debugPrint('[SubscriptionService] Erreur reset: $e');
     }
   }
 

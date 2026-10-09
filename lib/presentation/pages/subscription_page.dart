@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:paya_app/core/services/saspay_payment_service.dart';
 import 'package:paya_app/core/services/subscription_service.dart';
 import 'package:paya_app/core/services/whatsapp_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
@@ -276,11 +277,7 @@ class SubscriptionPage extends StatelessWidget {
                           ctaText: ctaText,
                           onTap: () {
                             if (isFree) {
-                              if (subscriptionService.currentPlan.value != 'free') {
-                                subscriptionService.resetToFree();
-                              } else {
-                                Get.back();
-                              }
+                              Get.back();
                             } else {
                               _confirmActivation(
                                 context,
@@ -289,7 +286,6 @@ class SubscriptionPage extends StatelessWidget {
                                 duration: '${plan.durationInDays}_days',
                                 planName: '${plan.name} ($formattedPrice)',
                                 targetPlanId: plan.id,
-                                selectedPlan: plan,
                               );
                             }
                           },
