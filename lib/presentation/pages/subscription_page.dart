@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:paya_app/core/services/saspay_payment_service.dart';
 import 'package:paya_app/core/services/subscription_service.dart';
 import 'package:paya_app/core/services/whatsapp_service.dart';
 import 'package:paya_app/core/theme/app_theme.dart';
@@ -546,7 +545,6 @@ class SubscriptionPage extends StatelessWidget {
     required String duration,
     required String planName,
     int? targetPlanId,
-    SubscriptionPlanModel? selectedPlan,
   }) {
     // Résolution de l'identifiant du plan correspondant dans SasPay
     int? planId = targetPlanId;
