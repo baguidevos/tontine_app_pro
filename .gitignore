@@ -52,7 +52,6 @@ app.*.map.json
 /webflow-framer-scraper
 
 # Local Android configuration (machine-specific)
-android/app/google-services.json
 android/build/
 
 /firebase.json
